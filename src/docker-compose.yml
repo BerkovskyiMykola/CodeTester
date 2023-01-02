@@ -1,14 +1,13 @@
 version: '3.4'
 
 services:
-  identitydb:
+  sql-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
-  identity.api:
-    image: ${DOCKER_REGISTRY-}identityapi
+  identity-api:
+    image: ${DOCKER_REGISTRY-}identity.api
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
-
-volumes:
-  sqlserver_data:
+    depends_on:
+      - sql-server

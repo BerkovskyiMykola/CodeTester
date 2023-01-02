@@ -1,8 +1,7 @@
 version: '3.4'
 
 services:
-  identitydb:
-    container_name: identitydb
+  sql-server:
     user: root
     environment:
         SA_PASSWORD: "SwN12345678"
@@ -11,11 +10,14 @@ services:
     ports:
         - "1433:1433"
     volumes:
-      - sqlserver_data:/var/opt/mssql/data
+      - sql-server-data:/var/opt/mssql/data
 
-  identity.api:
-    container_name: identity.api
+  identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;TrustServerCertificate=True;MultiSubnetFailover=True;
     ports:
       - "8000:80"
+
+volumes:
+  sql-server-data:
