@@ -11,3 +11,11 @@ services:
       dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
       - sql-server
+
+  usermanagement-api:
+    image: ${DOCKER_REGISTRY-}usermanagement.api
+    build:
+      context: .
+      dockerfile: Services/IdentityUser/UserManagement.API/Dockerfile
+    depends_on:
+      - sql-server
