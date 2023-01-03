@@ -8,6 +8,6 @@ services:
     image: ${DOCKER_REGISTRY-}identity.api
     build:
       context: .
-      dockerfile: Services/Identity/Identity.API/Dockerfile
+      dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
       - sql-server
