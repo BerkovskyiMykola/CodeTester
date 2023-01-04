@@ -1,5 +1,6 @@
 using DataAccess.Data;
 using DataAccess.Entities;
+using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +27,27 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        builder.Services.AddIdentityServer()
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    });
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    });
+            })
+            .AddAspNetIdentity<ApplicationUser>();
+
         var app = builder.Build();
 
         app.MapGet("/", () => "Hello World!");
@@ -39,6 +61,10 @@ public class Program
                 .SeedAsync(context, logger, passwordHasher)
                 .Wait();
         });
+
+        app.MigrateDbContext<PersistedGrantDbContext>((_, __) => { });
+
+        app.MigrateDbContext<ConfigurationDbContext>((_, __) => { });
 
         app.Run();
     }
