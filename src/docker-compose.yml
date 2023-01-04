@@ -4,6 +4,9 @@ services:
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
+  pgsql-server:
+    image: postgres:15
+
   identity-api:
     image: ${DOCKER_REGISTRY-}identity.api
     build:
@@ -11,3 +14,10 @@ services:
       dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
       - sql-server
+
+  dictionary-api:
+    image: ${DOCKER_REGISTRY-}dictionary.api
+    build:
+      context: .
+      dockerfile: Services/Dictionary/Dictionary.API/Dockerfile
+

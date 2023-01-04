@@ -11,6 +11,16 @@ services:
     volumes:
       - sql-server-data:/var/opt/mssql
 
+  pgsql-server:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes: 
+      - pgsql-server-data:/var/lib/postgresql/data
+
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -18,5 +28,13 @@ services:
     ports:
       - 8000:80
 
+  dictionary-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
+    ports:
+      - 8002:80
+
 volumes:
   sql-server-data:
+  pgsql-server-data:
