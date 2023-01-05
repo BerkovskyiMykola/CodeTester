@@ -1,8 +1,11 @@
 using DataAccess.Data;
 using DataAccess.Entities;
+using Identity.API.Configuration;
+using Identity.API.Data;
 using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.API;
 
@@ -27,30 +30,49 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        var clientUrls = new Dictionary<string, string>();
+
+        clientUrls.Add("Spa", builder.Configuration.GetValue<string>("SpaClient") ?? "");
+
         builder.Services.AddIdentityServer()
-            .AddConfigurationStore(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    });
-            })
-            .AddOperationalStore(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    });
-            })
-            .AddAspNetIdentity<ApplicationUser>();
+            //.AddConfigurationStore(options =>
+            //{
+            //    options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+            //        sqlServerOptionsAction: sqlOptions =>
+            //        {
+            //            sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+            //            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+            //        });
+            //})
+            //.AddOperationalStore(options =>
+            //{
+            //    options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+            //        sqlServerOptionsAction: sqlOptions =>
+            //        {
+            //            sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+            //            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+            //        });
+            //})
+            .AddInMemoryIdentityResources(Config.GetResources())
+            .AddInMemoryApiResources(Config.GetApis())
+            .AddInMemoryClients(Config.GetClients(clientUrls))
+            .AddAspNetIdentity<ApplicationUser>()
+            .AddDeveloperSigningCredential();
 
         var app = builder.Build();
 
-        app.MapGet("/", () => "Hello World!");
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler("/Home/Error");
+        }
+
+        app.UseIdentityServer();
+
+        app.UseRouting();
 
         app.MigrateDbContext<ApplicationDbContext>((context, services) =>
         {
@@ -62,9 +84,14 @@ public class Program
                 .Wait();
         });
 
-        app.MigrateDbContext<PersistedGrantDbContext>((_, __) => { });
+        //app.MigrateDbContext<PersistedGrantDbContext>((_, __) => { });
 
-        app.MigrateDbContext<ConfigurationDbContext>((_, __) => { });
+        //app.MigrateDbContext<ConfigurationDbContext>((context, services) =>
+        //{
+        //    //new ConfigurationDbContextSeed()
+        //    //    .SeedAsync(context, app.Configuration)
+        //    //    .Wait();
+        //});
 
         app.Run();
     }
