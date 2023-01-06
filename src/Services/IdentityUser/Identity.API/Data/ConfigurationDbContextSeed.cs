@@ -32,14 +32,14 @@ public class ConfigurationDbContextSeed
             await context.SaveChangesAsync();
         }
 
-        if (!context.ApiResources.Any())
-        {
-            foreach (var api in Config.GetApis())
-            {
-                context.ApiResources.Add(api.ToEntity());
-            }
+        //if (!context.ApiResources.Any())
+        //{
+        //    foreach (var api in Config.GetApis())
+        //    {
+        //        context.ApiResources.Add(api.ToEntity());
+        //    }
 
-            await context.SaveChangesAsync();
-        }
+        //    await context.SaveChangesAsync();
+        //}
     }
 }

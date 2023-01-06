@@ -54,6 +54,7 @@ public class Program
             //        });
             //})
             .AddInMemoryIdentityResources(Config.GetResources())
+            //.AddInMemoryApiScopes(Config.GetApiScopes())
             .AddInMemoryApiResources(Config.GetApis())
             .AddInMemoryClients(Config.GetClients(clientUrls))
             .AddAspNetIdentity<ApplicationUser>()
@@ -77,10 +78,10 @@ public class Program
         app.MigrateDbContext<ApplicationDbContext>((context, services) =>
         {
             var logger = services.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
-            var passwordHasher = services.GetRequiredService<IPasswordHasher<ApplicationUser>>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
             new ApplicationDbContextSeed()
-                .SeedAsync(context, logger, passwordHasher)
+                .SeedAsync(context, logger, userManager)
                 .Wait();
         });
 

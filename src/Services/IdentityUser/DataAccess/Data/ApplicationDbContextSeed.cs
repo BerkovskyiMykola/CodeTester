@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace DataAccess.Data;
 
@@ -9,7 +10,7 @@ public class ApplicationDbContextSeed
     public async Task SeedAsync(
         ApplicationDbContext context,
         ILogger<ApplicationDbContextSeed> logger,
-        IPasswordHasher<ApplicationUser> passwordHasher,
+        UserManager<ApplicationUser> userManager,
         int retry = 0)
     {
         int retryForAvaiability = retry;
@@ -18,7 +19,21 @@ public class ApplicationDbContextSeed
         {
             if (!context.Users.Any())
             {
-                //Add Users
+                var alice = new ApplicationUser
+                {
+                    UserName = "alice",
+                    Email = "AliceSmith@email.com",
+                    EmailConfirmed = true,
+                };
+
+                await userManager.CreateAsync(alice, "Pass123$");
+
+                await userManager.AddClaimsAsync(alice, new Claim[] {
+                    new Claim("name", "Alice Smith"),
+                    new Claim("given_name", "Alice"),
+                    new Claim("family_name", "Smith"),
+                    new Claim("website", "http://alice.com"),
+                });
 
                 await context.SaveChangesAsync();
             }
@@ -31,7 +46,7 @@ public class ApplicationDbContextSeed
 
                 logger.LogError(ex, "EXCEPTION ERROR while migrating {DbContextName}", nameof(ApplicationDbContext));
 
-                await SeedAsync(context, logger, passwordHasher, retryForAvaiability);
+                await SeedAsync(context, logger, userManager, retryForAvaiability);
             }
         }
     }

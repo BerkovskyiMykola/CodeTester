@@ -30,15 +30,15 @@ public class Program
 
         app.MapGet("/", () => "Hello World!");
 
-        app.MigrateDbContext<ApplicationDbContext>((context, services) =>
-        {
-            var logger = services.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
-            var passwordHasher = services.GetRequiredService<IPasswordHasher<ApplicationUser>>();
+        //app.MigrateDbContext<ApplicationDbContext>((context, services) =>
+        //{
+        //    var logger = services.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
+        //    var passwordHasher = services.GetRequiredService<IPasswordHasher<ApplicationUser>>();
 
-            new ApplicationDbContextSeed()
-                .SeedAsync(context, logger, passwordHasher)
-                .Wait();
-        });
+        //    new ApplicationDbContextSeed()
+        //        .SeedAsync(context, logger, passwordHasher)
+        //        .Wait();
+        //});
 
         app.Run();
     }
