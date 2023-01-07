@@ -1,11 +1,9 @@
 using DataAccess.Data;
 using DataAccess.Entities;
-using Identity.API.Configuration;
+using Duende.IdentityServer.EntityFramework.DbContexts;
 using Identity.API.Data;
-using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.API;
 
@@ -30,35 +28,28 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-        var clientUrls = new Dictionary<string, string>();
-
-        clientUrls.Add("Spa", builder.Configuration.GetValue<string>("SpaClient") ?? "");
-
         builder.Services.AddIdentityServer()
-            //.AddConfigurationStore(options =>
-            //{
-            //    options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-            //        sqlServerOptionsAction: sqlOptions =>
-            //        {
-            //            sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-            //            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-            //        });
-            //})
-            //.AddOperationalStore(options =>
-            //{
-            //    options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-            //        sqlServerOptionsAction: sqlOptions =>
-            //        {
-            //            sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-            //            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-            //        });
-            //})
-            .AddInMemoryIdentityResources(Config.GetResources())
-            //.AddInMemoryApiScopes(Config.GetApiScopes())
-            .AddInMemoryApiResources(Config.GetApis())
-            .AddInMemoryClients(Config.GetClients(clientUrls))
-            .AddAspNetIdentity<ApplicationUser>()
-            .AddDeveloperSigningCredential();
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    });
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    });
+            })
+            .AddAspNetIdentity<ApplicationUser>();
+
+        //builder.Services.AddAuthentication();
 
         var app = builder.Build();
 
@@ -66,33 +57,30 @@ public class Program
         {
             app.UseDeveloperExceptionPage();
         }
-        else
-        {
-            app.UseExceptionHandler("/Home/Error");
-        }
-
-        app.UseIdentityServer();
 
         app.UseRouting();
+        app.UseIdentityServer();
+        //app.UseAuthorization();
 
         app.MigrateDbContext<ApplicationDbContext>((context, services) =>
         {
             var logger = services.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
             new ApplicationDbContextSeed()
-                .SeedAsync(context, logger, userManager)
+                .SeedAsync(context, logger, userManager, roleManager)
                 .Wait();
         });
 
-        //app.MigrateDbContext<PersistedGrantDbContext>((_, __) => { });
+        app.MigrateDbContext<PersistedGrantDbContext>((_, __) => { });
 
-        //app.MigrateDbContext<ConfigurationDbContext>((context, services) =>
-        //{
-        //    //new ConfigurationDbContextSeed()
-        //    //    .SeedAsync(context, app.Configuration)
-        //    //    .Wait();
-        //});
+        app.MigrateDbContext<ConfigurationDbContext>((context, services) =>
+        {
+            new ConfigurationDbContextSeed()
+                .SeedAsync(context, app.Configuration)
+                .Wait();
+        });
 
         app.Run();
     }

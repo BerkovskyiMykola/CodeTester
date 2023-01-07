@@ -11,12 +11,19 @@ public class ApplicationDbContextSeed
         ApplicationDbContext context,
         ILogger<ApplicationDbContextSeed> logger,
         UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
         int retry = 0)
     {
         int retryForAvaiability = retry;
 
         try
         {
+            if (!context.Roles.Any())
+            {
+                await roleManager.CreateAsync(new IdentityRole("User"));
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
             if (!context.Users.Any())
             {
                 var alice = new ApplicationUser
@@ -35,6 +42,8 @@ public class ApplicationDbContextSeed
                     new Claim("website", "http://alice.com"),
                 });
 
+                await userManager.AddToRoleAsync(alice, "User");
+
                 await context.SaveChangesAsync();
             }
         }
@@ -46,7 +55,7 @@ public class ApplicationDbContextSeed
 
                 logger.LogError(ex, "EXCEPTION ERROR while migrating {DbContextName}", nameof(ApplicationDbContext));
 
-                await SeedAsync(context, logger, userManager, retryForAvaiability);
+                await SeedAsync(context, logger, userManager, roleManager, retryForAvaiability);
             }
         }
     }

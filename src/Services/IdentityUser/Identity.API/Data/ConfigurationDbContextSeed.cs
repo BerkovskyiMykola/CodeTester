@@ -1,6 +1,6 @@
-﻿using Identity.API.Configuration;
-using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Mappers;
+﻿using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.Mappers;
+using Identity.API.Configuration;
 
 namespace Identity.API.Data;
 
@@ -12,17 +12,6 @@ public class ConfigurationDbContextSeed
         //callbacks urls from config:
         var clientUrls = new Dictionary<string, string>();
 
-        clientUrls.Add("Spa", configuration.GetValue<string>("SpaClient") ?? "");
-
-        if (!context.Clients.Any())
-        {
-            foreach (var client in Config.GetClients(clientUrls))
-            {
-                context.Clients.Add(client.ToEntity());
-            }
-            await context.SaveChangesAsync();
-        }
-
         if (!context.IdentityResources.Any())
         {
             foreach (var resource in Config.GetResources())
@@ -32,14 +21,33 @@ public class ConfigurationDbContextSeed
             await context.SaveChangesAsync();
         }
 
-        //if (!context.ApiResources.Any())
-        //{
-        //    foreach (var api in Config.GetApis())
-        //    {
-        //        context.ApiResources.Add(api.ToEntity());
-        //    }
+        if (!context.ApiScopes.Any())
+        {
+            foreach (var api in Config.GetApiScopes())
+            {
+                context.ApiScopes.Add(api.ToEntity());
+            }
 
-        //    await context.SaveChangesAsync();
-        //}
+            await context.SaveChangesAsync();
+        }
+
+        if (!context.ApiResources.Any())
+        {
+            foreach (var api in Config.GetApis())
+            {
+                context.ApiResources.Add(api.ToEntity());
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        if (!context.Clients.Any())
+        {
+            foreach (var client in Config.GetClients(clientUrls))
+            {
+                context.Clients.Add(client.ToEntity());
+            }
+            await context.SaveChangesAsync();
+        }
     }
 }
