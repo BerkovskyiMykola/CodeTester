@@ -1,17 +1,18 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using System.Data;
 
 namespace Identity.API.Configuration;
 
 public static class Config
 {
-    // Identity resources are data like user ID, name, or email address of a user
     public static IEnumerable<IdentityResource> GetResources()
     {
         return new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
-            new IdentityResources.Profile()
+            new IdentityResources.Profile(),
+            new IdentityResource("roles", new[] { "role" })
         };
     }
 
@@ -23,7 +24,7 @@ public static class Config
                 Name = "usermanagment",
                 DisplayName = "User Managment Service",
                 Scopes = new List<string> {
-                    "usermanagment"
+                    "usermanagment" 
                 }
             },
             new ApiResource {
@@ -54,10 +55,10 @@ public static class Config
     {
         return new List<ApiScope>
         {
-            new ApiScope("usermanagment"),
-            new ApiScope("dictionary"),
-            new ApiScope("testing"),
-            new ApiScope("testingagg"),
+            new ApiScope("usermanagment") { UserClaims = new[] { "role" } },
+            new ApiScope("dictionary") { UserClaims = new[] { "role" } },
+            new ApiScope("testing") { UserClaims = new[] { "role" } },
+            new ApiScope("testingagg") { UserClaims = new[] { "role" } },
         };
     }
 
@@ -78,8 +79,9 @@ public static class Config
                     "usermanagment",
                     "dictionary",
                     "testing",
-                    "testingagg"
-                }
+                    "testingagg",
+                    "roles"
+                },
             }
         };
     }
