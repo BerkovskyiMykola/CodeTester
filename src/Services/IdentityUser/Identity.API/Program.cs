@@ -28,7 +28,11 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-        builder.Services.AddIdentityServer()
+        builder.Services
+            .AddIdentityServer(options =>
+            {
+                options.IssuerUri = "null";
+            })
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,

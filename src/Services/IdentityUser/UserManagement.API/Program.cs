@@ -29,30 +29,18 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-        IdentityModelEventSource.ShowPII = true;
+        builder.Services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-        //builder.Services.AddAuthentication(options =>
-        //{
-        //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-        //}).AddJwtBearer(options =>
-        //{
-        //    options.Authority = "http://identity-api";
-        //    options.RequireHttpsMetadata = false;
-        //    options.TokenValidationParameters.ValidateAudience = false;
-        //    //options.Audience = "usermanagment";
-        //    options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
-        //});
-
-        builder.Services.AddAuthentication("Bearer")
-            .AddJwtBearer("Bearer", options =>
+            })
+            .AddJwtBearer(options =>
             {
                 options.Authority = builder.Configuration["IdentityUrl"];
                 options.RequireHttpsMetadata = false;
-                //options.TokenValidationParameters.ValidateAudience = false;
                 options.Audience = "usermanagment";
-                options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
             });
 
         builder.Services.AddAuthorization();

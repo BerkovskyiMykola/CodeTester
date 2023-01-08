@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace UserManagement.API.Controllers;
 
 [Route("identity")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[Authorize]
 public class IdentityController : ControllerBase
 {
     [HttpGet]
