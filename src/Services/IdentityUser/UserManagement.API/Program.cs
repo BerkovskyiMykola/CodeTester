@@ -3,6 +3,7 @@ using DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using UserManagement.API.EmailService;
 
 namespace UserManagement.API;
 
@@ -23,7 +24,12 @@ public class Program
             });
         });
 
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+        builder.Services
+            .AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = true;
+            })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
@@ -39,6 +45,16 @@ public class Program
                 options.RequireHttpsMetadata = false;
                 options.Audience = "usermanagment";
             });
+
+        builder.Services.Configure<EmailConfiguration>(
+            builder.Configuration.GetSection(nameof(EmailConfiguration)));
+
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+        builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(3);
+        });
 
         builder.Services.AddAuthorization();
 

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UserManagement.API.Controllers;
 
-[Route("identity")]
-[Authorize(Roles = "User")]
+[Route("api/v1/[controller]")]
+[Authorize]
 public class IdentityController : ControllerBase
 {
     [HttpGet]
