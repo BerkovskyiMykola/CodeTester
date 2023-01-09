@@ -24,7 +24,12 @@ public class Program
             });
         });
 
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+        builder.Services
+            .AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = true;
+            })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 

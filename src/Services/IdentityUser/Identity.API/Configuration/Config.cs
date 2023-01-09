@@ -1,6 +1,5 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
-using System.Data;
 
 namespace Identity.API.Configuration;
 
@@ -24,7 +23,7 @@ public static class Config
                 Name = "usermanagment",
                 DisplayName = "User Managment Service",
                 Scopes = new List<string> {
-                    "usermanagment" 
+                    "usermanagment"
                 }
             },
             new ApiResource {
