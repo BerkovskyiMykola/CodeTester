@@ -19,3 +19,4 @@ services:
       dockerfile: Services/IdentityUser/UserManagement.API/Dockerfile
     depends_on:
       - sql-server
+      - identity-api
