@@ -1,6 +1,34 @@
 {
   "Routes": [
     {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/i/{everything}",
+      "UpstreamHttpMethod": []
+    },
+    {
+      "DownstreamPathTemplate": "/connect/userinfo",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/i/connect/userinfo",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": []
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/{version}/Account/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
