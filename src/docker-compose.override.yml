@@ -26,5 +26,12 @@ services:
     ports:
       - 8001:80
 
+  ocelotapigw:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityUrl=http://identity-api
+    ports:
+      - 8010:80
+
 volumes:
   sql-server-data:
