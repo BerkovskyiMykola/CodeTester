@@ -28,6 +28,14 @@ services:
     ports:
       - 8000:80
 
+  usermanagement-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - IdentityUrl=http://identity-api
+    ports:
+      - 8001:80
+
   dictionary-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
