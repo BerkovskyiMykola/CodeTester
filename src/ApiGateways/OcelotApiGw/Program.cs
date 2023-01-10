@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -16,6 +17,17 @@ public class Program
         {
             x.WithDictionaryHandle();
         });
+
+        builder.Services.AddAuthentication()
+            .AddJwtBearer("IdentityApiKey", x =>
+            {
+                x.Authority = builder.Configuration["IdentityUrl"];
+                x.RequireHttpsMetadata = false;
+                x.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidAudiences = new[] { "usermanagment", "dictionary", "testing", "testingagg" }
+                };
+            });
 
         var app = builder.Build();
 

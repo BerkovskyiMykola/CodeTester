@@ -20,3 +20,12 @@ services:
     depends_on:
       - sql-server
       - identity-api
+
+  ocelotapigw:
+    image: ${DOCKER_REGISTRY-}ocelotapigw
+    build:
+      context: .
+      dockerfile: ApiGateways/OcelotApiGw/Dockerfile
+    depends_on:
+      - identity-api
+      - usermanagement-api
