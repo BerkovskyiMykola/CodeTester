@@ -13,23 +13,7 @@
       "UpstreamHttpMethod": []
     },
     {
-      "DownstreamPathTemplate": "/connect/userinfo",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "identity-api",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/i/connect/userinfo",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "IdentityApiKey",
-        "AllowedScopes": []
-      }
-    },
-    {
-      "DownstreamPathTemplate": "/api/{version}/Account/{everything}",
+      "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -37,24 +21,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/api/{version}/um/Account/{everything}",
+      "UpstreamPathTemplate": "/um/{everything}",
       "UpstreamHttpMethod": []
-    },
-    {
-      "DownstreamPathTemplate": "/api/{version}/Identity/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "usermanagement-api",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/api/{version}/um/Identity/{everything}",
-      "UpstreamHttpMethod": [],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "IdentityApiKey",
-        "AllowedScopes": []
-      }
     }
   ],
   "GlobalConfiguration": {}
