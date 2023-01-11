@@ -5,11 +5,11 @@ namespace UserManagement.API.Models;
 public record RegisterUserModel
 {
     [Required]
-    [StringLength(50, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+    [StringLength(50)]
     public string FirstName { get; init; } = string.Empty;
 
     [Required]
-    [StringLength(50, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+    [MaxLength(50)]
     public string LastName { get; init; } = string.Empty;
 
     [Required]
