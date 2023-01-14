@@ -1,7 +1,9 @@
 ﻿using Dictionary.API.Entities;
 using Dictionary.API.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Dictionary.API.Controllers
 {
@@ -48,6 +50,7 @@ namespace Dictionary.API.Controllers
         // PUT: api/TaskTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutTaskType(int id, TaskType taskType)
         {
             if (id != taskType.Id)
@@ -79,6 +82,7 @@ namespace Dictionary.API.Controllers
         // POST: api/TaskTypes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<TaskType>> PostTaskType(TaskType taskType)
         {
             if (_context.TaskTypes == null)
@@ -93,6 +97,7 @@ namespace Dictionary.API.Controllers
 
         // DELETE: api/TaskTypes/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTaskType(int id)
         {
             if (_context.TaskTypes == null)

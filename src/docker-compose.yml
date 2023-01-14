@@ -23,7 +23,6 @@ services:
     depends_on:
       - sql-server
       - identity-api
-      - sql-server
 
   dictionary-api:
     image: ${DOCKER_REGISTRY-}dictionary.api

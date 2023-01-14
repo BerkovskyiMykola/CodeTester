@@ -2,7 +2,7 @@ using Dictionary.API;
 using Dictionary.API.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +45,19 @@ builder.Services.AddDbContext<DictionaryDBContext>(options =>
     });
     
 });
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["IdentityUrl"];
+        options.RequireHttpsMetadata = false;
+        options.Audience = "dictionary";
+    });
 
 var app = builder.Build();
 

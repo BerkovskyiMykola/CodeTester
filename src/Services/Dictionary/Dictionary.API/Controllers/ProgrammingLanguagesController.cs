@@ -1,7 +1,9 @@
 ﻿using Dictionary.API.Entities;
 using Dictionary.API.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Dictionary.API.Controllers
 {
@@ -48,6 +50,7 @@ namespace Dictionary.API.Controllers
         // PUT: api/ProgrammingLanguages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutProgrammingLanguage(int id, ProgrammingLanguage programmingLanguage)
         {
             if (id != programmingLanguage.Id)
@@ -79,6 +82,7 @@ namespace Dictionary.API.Controllers
         // POST: api/ProgrammingLanguages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgrammingLanguage>> PostProgrammingLanguage(ProgrammingLanguage programmingLanguage)
         {
             if (_context.ProgrammingLanguages == null)
@@ -93,6 +97,7 @@ namespace Dictionary.API.Controllers
 
         // DELETE: api/ProgrammingLanguages/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProgrammingLanguage(int id)
         {
             if (_context.ProgrammingLanguages == null)

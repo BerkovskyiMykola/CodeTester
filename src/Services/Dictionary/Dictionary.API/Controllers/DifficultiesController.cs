@@ -1,5 +1,6 @@
 ﻿using Dictionary.API.Entities;
 using Dictionary.API.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,6 +49,7 @@ public class DifficultiesController : ControllerBase
     // PUT: api/Difficulties/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutDifficulty(int id, Difficulty difficulty)
     {
         if (id != difficulty.Id)
@@ -79,6 +81,7 @@ public class DifficultiesController : ControllerBase
     // POST: api/Difficulties
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Difficulty>> PostDifficulty(Difficulty difficulty)
     {
         if (_context.Difficulties == null)
@@ -93,6 +96,7 @@ public class DifficultiesController : ControllerBase
 
     // DELETE: api/Difficulties/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteDifficulty(int id)
     {
         if (_context.Difficulties == null)

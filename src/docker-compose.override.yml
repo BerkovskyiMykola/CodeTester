@@ -40,6 +40,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
+      - IdentityUrl=http://identity-api
     ports:
       - 8002:80
 
