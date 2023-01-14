@@ -23,9 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "Services\Iden
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dictionary", "Dictionary", "{5C4934EB-B276-4208-B1C5-AF9D057A8BDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dictionary.API", "Services\Dictionary\Dictionary.API\Dictionary.API.csproj", "{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dictionary.API", "Services\Dictionary\Dictionary.API\Dictionary.API.csproj", "{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.API", "Services\IdentityUser\UserManagement.API\UserManagement.API.csproj", "{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagement.API", "Services\IdentityUser\UserManagement.API\UserManagement.API.csproj", "{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +57,10 @@ Global
 		{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

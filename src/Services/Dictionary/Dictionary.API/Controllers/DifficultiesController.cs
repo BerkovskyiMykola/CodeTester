@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dictionary.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class DifficultiesController : ControllerBase
 {
@@ -17,7 +17,6 @@ public class DifficultiesController : ControllerBase
         _context = context;
     }
 
-    // GET: api/Difficulties
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Difficulty>>> GetDifficulties()
     {
@@ -28,7 +27,6 @@ public class DifficultiesController : ControllerBase
         return await _context.Difficulties.ToListAsync();
     }
 
-    // GET: api/Difficulties/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Difficulty>> GetDifficulty(int id)
     {
@@ -46,7 +44,6 @@ public class DifficultiesController : ControllerBase
         return difficulty;
     }
 
-    // PUT: api/Difficulties/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]

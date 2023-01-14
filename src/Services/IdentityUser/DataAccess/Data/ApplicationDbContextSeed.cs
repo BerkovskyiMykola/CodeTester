@@ -28,12 +28,12 @@ public class ApplicationDbContextSeed
             {
                 var user = new ApplicationUser
                 {
-                    UserName = "test",
+                    UserName = "tester@email.com",
                     Email = "tester@email.com",
                     EmailConfirmed = true,
                 };
 
-                await userManager.CreateAsync(user, "pass@1");
+                await userManager.CreateAsync(user, "Password@1");
 
                 await userManager.AddClaimsAsync(user, new Claim[] {
                     new Claim("name", "Tester Admin"),

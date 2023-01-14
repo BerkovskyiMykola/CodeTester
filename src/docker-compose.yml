@@ -24,6 +24,15 @@ services:
       - sql-server
       - identity-api
 
+  dictionary-api:
+    image: ${DOCKER_REGISTRY-}dictionary.api
+    build:
+      context: .
+      dockerfile: Services/Dictionary/Dictionary.API/Dockerfile
+    depends_on:
+      - identity-api
+      - pgsql-server
+
   ocelotapigw:
     image: ${DOCKER_REGISTRY-}ocelotapigw
     build:
@@ -32,11 +41,3 @@ services:
     depends_on:
       - identity-api
       - usermanagement-api
-      - identity-api
-
-  dictionary-api:
-    image: ${DOCKER_REGISTRY-}dictionary.api
-    build:
-      context: .
-      dockerfile: Services/Dictionary/Dictionary.API/Dockerfile
-

@@ -7,7 +7,7 @@ using System.Data;
 
 namespace Dictionary.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class TaskTypesController : ControllerBase
     {
