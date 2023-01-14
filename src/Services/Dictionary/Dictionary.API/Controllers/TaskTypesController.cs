@@ -18,7 +18,6 @@ namespace Dictionary.API.Controllers
             _context = context;
         }
 
-        // GET: api/TaskTypes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskType>>> GetTaskTypes()
         {
@@ -29,7 +28,6 @@ namespace Dictionary.API.Controllers
             return await _context.TaskTypes.ToListAsync();
         }
 
-        // GET: api/TaskTypes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskType>> GetTaskType(int id)
         {
@@ -47,8 +45,6 @@ namespace Dictionary.API.Controllers
             return taskType;
         }
 
-        // PUT: api/TaskTypes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutTaskType(int id, TaskType taskType)
@@ -79,8 +75,6 @@ namespace Dictionary.API.Controllers
             return NoContent();
         }
 
-        // POST: api/TaskTypes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<TaskType>> PostTaskType(TaskType taskType)
@@ -95,7 +89,6 @@ namespace Dictionary.API.Controllers
             return CreatedAtAction("GetTaskType", new { id = taskType.Id }, taskType);
         }
 
-        // DELETE: api/TaskTypes/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTaskType(int id)

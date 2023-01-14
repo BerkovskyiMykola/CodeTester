@@ -44,7 +44,6 @@ public class DifficultiesController : ControllerBase
         return difficulty;
     }
 
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutDifficulty(int id, Difficulty difficulty)
@@ -75,8 +74,6 @@ public class DifficultiesController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/Difficulties
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Difficulty>> PostDifficulty(Difficulty difficulty)
@@ -91,7 +88,6 @@ public class DifficultiesController : ControllerBase
         return CreatedAtAction("GetDifficulty", new { id = difficulty.Id }, difficulty);
     }
 
-    // DELETE: api/Difficulties/5
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteDifficulty(int id)

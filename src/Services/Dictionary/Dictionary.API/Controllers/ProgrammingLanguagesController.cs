@@ -18,7 +18,6 @@ namespace Dictionary.API.Controllers
             _context = context;
         }
 
-        // GET: api/ProgrammingLanguages
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProgrammingLanguage>>> GetProgrammingLanguages()
         {
@@ -29,7 +28,6 @@ namespace Dictionary.API.Controllers
             return await _context.ProgrammingLanguages.ToListAsync();
         }
 
-        // GET: api/ProgrammingLanguages/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ProgrammingLanguage>> GetProgrammingLanguage(int id)
         {
@@ -47,8 +45,6 @@ namespace Dictionary.API.Controllers
             return programmingLanguage;
         }
 
-        // PUT: api/ProgrammingLanguages/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutProgrammingLanguage(int id, ProgrammingLanguage programmingLanguage)
@@ -79,8 +75,6 @@ namespace Dictionary.API.Controllers
             return NoContent();
         }
 
-        // POST: api/ProgrammingLanguages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgrammingLanguage>> PostProgrammingLanguage(ProgrammingLanguage programmingLanguage)
@@ -95,7 +89,6 @@ namespace Dictionary.API.Controllers
             return CreatedAtAction("GetProgrammingLanguage", new { id = programmingLanguage.Id }, programmingLanguage);
         }
 
-        // DELETE: api/ProgrammingLanguages/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProgrammingLanguage(int id)
