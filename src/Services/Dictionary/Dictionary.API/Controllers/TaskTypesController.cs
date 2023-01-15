@@ -1,117 +1,127 @@
-﻿using Dictionary.API.Entities;
+﻿using Azure.Core;
+using Dictionary.API.DTO.Requests;
+using Dictionary.API.DTO.Responses;
+using Dictionary.API.Entities;
+using Dictionary.API.Extensions;
 using Dictionary.API.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace Dictionary.API.Controllers
+namespace Dictionary.API.Controllers;
+
+[Route("api/v1/[controller]")]
+[ApiController]
+public class TaskTypesController : ControllerBase
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class TaskTypesController : ControllerBase
+    private readonly DictionaryDBContext _context;
+
+    public TaskTypesController(DictionaryDBContext context)
     {
-        private readonly DictionaryDBContext _context;
+        _context = context;
+    }
 
-        public TaskTypesController(DictionaryDBContext context)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TaskTypeResponse>>> GetTaskTypes()
+    {
+        if (_context.TaskTypes == null)
         {
-            _context = context;
+            return NotFound();
+        }
+        return await _context.TaskTypes.MapToTaskTypeResponse().ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TaskTypeResponse>> GetTaskType(int id)
+    {
+        if (_context.TaskTypes == null)
+        {
+            return NotFound();
+        }
+        var taskType = await _context.TaskTypes.MapToTaskTypeResponse().FirstOrDefaultAsync(x => x.Id == id);
+
+        if (taskType == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskType>>> GetTaskTypes()
+        return taskType;
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PutTaskType(int id, UpdateTaskTypeRequest request)
+    {
+        if (id != request.Id)
         {
-            if (_context.TaskTypes == null)
-            {
-                return NotFound();
-            }
-            return await _context.TaskTypes.ToListAsync();
+            return BadRequest();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TaskType>> GetTaskType(int id)
+        if (await _context.TaskTypes
+            .Where(x => x.Id != id)
+            .AnyAsync(x => x.Name.Trim().ToLower() == request.Name.Trim().ToLower()))
         {
-            if (_context.TaskTypes == null)
-            {
-                return NotFound();
-            }
-            var taskType = await _context.TaskTypes.FindAsync(id);
-
-            if (taskType == null)
-            {
-                return NotFound();
-            }
-
-            return taskType;
+            return BadRequest("The specified name already exists");
         }
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PutTaskType(int id, TaskType taskType)
+        var taskType = await _context.TaskTypes.FirstOrDefaultAsync(x => x.Id == id);
+        if (taskType == null)
         {
-            if (id != taskType.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(taskType).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TaskTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return NotFound();
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<TaskType>> PostTaskType(TaskType taskType)
+        taskType.Id = request.Id;
+        taskType.Name = request.Name;
+
+        try
         {
-            if (_context.TaskTypes == null)
-            {
-                return Problem("Entity set 'DictionaryDBContext.TaskTypes'  is null.");
-            }
-            _context.TaskTypes.Add(taskType);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTaskType", new { id = taskType.Id }, taskType);
         }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteTaskType(int id)
+        catch (DbUpdateConcurrencyException) when (!TaskTypeExists(id))
         {
-            if (_context.TaskTypes == null)
-            {
-                return NotFound();
-            }
-            var taskType = await _context.TaskTypes.FindAsync(id);
-            if (taskType == null)
-            {
-                return NotFound();
-            }
-
-            _context.TaskTypes.Remove(taskType);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound();
         }
 
-        private bool TaskTypeExists(int id)
+        return NoContent();
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<int>> PostTaskType(CreateTaskTypeRequest request)
+    {
+        if (await _context.TaskTypes
+            .AnyAsync(x => x.Name.Trim().ToLower() == request.Name.Trim().ToLower()))
         {
-            return (_context.TaskTypes?.Any(e => e.Id == id)).GetValueOrDefault();
+            return BadRequest("The specified name already exists");
         }
+
+        var taskType = new TaskType() { Name = request.Name };
+
+        _context.TaskTypes.Add(taskType);
+        await _context.SaveChangesAsync();
+
+        return Ok(taskType.Id);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteTaskType(int id)
+    {
+        var taskType = await _context.TaskTypes.FirstOrDefaultAsync(x => x.Id == id);
+        if (taskType == null)
+        {
+            return NotFound();
+        }
+
+        _context.TaskTypes.Remove(taskType);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool TaskTypeExists(int id)
+    {
+        return _context.TaskTypes.Any(e => e.Id == id);
     }
 }

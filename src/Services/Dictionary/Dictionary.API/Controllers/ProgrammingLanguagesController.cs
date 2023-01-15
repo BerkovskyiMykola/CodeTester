@@ -1,117 +1,127 @@
-﻿using Dictionary.API.Entities;
+﻿using Azure.Core;
+using Dictionary.API.DTO.Requests;
+using Dictionary.API.DTO.Responses;
+using Dictionary.API.Entities;
+using Dictionary.API.Extensions;
 using Dictionary.API.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace Dictionary.API.Controllers
+namespace Dictionary.API.Controllers;
+
+[Route("api/v1/[controller]")]
+[ApiController]
+public class ProgrammingLanguagesController : ControllerBase
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class ProgrammingLanguagesController : ControllerBase
+    private readonly DictionaryDBContext _context;
+
+    public ProgrammingLanguagesController(DictionaryDBContext context)
     {
-        private readonly DictionaryDBContext _context;
+        _context = context;
+    }
 
-        public ProgrammingLanguagesController(DictionaryDBContext context)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ProgrammingLanguageResponse>>> GetProgrammingLanguages()
+    {
+        if (_context.ProgrammingLanguages == null)
         {
-            _context = context;
+            return NotFound();
+        }
+        return await _context.ProgrammingLanguages.MapToProgrammingLanguageResponse().ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProgrammingLanguageResponse>> GetProgrammingLanguage(int id)
+    {
+        if (_context.ProgrammingLanguages == null)
+        {
+            return NotFound();
+        }
+        var programmingLanguage = await _context.ProgrammingLanguages.MapToProgrammingLanguageResponse().FirstOrDefaultAsync(x => x.Id == id);
+
+        if (programmingLanguage == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProgrammingLanguage>>> GetProgrammingLanguages()
+        return programmingLanguage;
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PutProgrammingLanguage(int id, UpdateProgrammingLanguageRequest request)
+    {
+        if (id != request.Id)
         {
-            if (_context.ProgrammingLanguages == null)
-            {
-                return NotFound();
-            }
-            return await _context.ProgrammingLanguages.ToListAsync();
+            return BadRequest();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ProgrammingLanguage>> GetProgrammingLanguage(int id)
+        if (await _context.ProgrammingLanguages
+            .Where(x => x.Id != id)
+            .AnyAsync(x => x.Name.Trim().ToLower() == request.Name.Trim().ToLower()))
         {
-            if (_context.ProgrammingLanguages == null)
-            {
-                return NotFound();
-            }
-            var programmingLanguage = await _context.ProgrammingLanguages.FindAsync(id);
-
-            if (programmingLanguage == null)
-            {
-                return NotFound();
-            }
-
-            return programmingLanguage;
+            return BadRequest("The specified name already exists");
         }
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PutProgrammingLanguage(int id, ProgrammingLanguage programmingLanguage)
+        var programmingLanguage = await _context.ProgrammingLanguages.FirstOrDefaultAsync(x => x.Id == id);
+        if (programmingLanguage == null)
         {
-            if (id != programmingLanguage.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(programmingLanguage).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProgrammingLanguageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return NotFound();
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ProgrammingLanguage>> PostProgrammingLanguage(ProgrammingLanguage programmingLanguage)
+        programmingLanguage.Id = request.Id;
+        programmingLanguage.Name = request.Name;
+
+        try
         {
-            if (_context.ProgrammingLanguages == null)
-            {
-                return Problem("Entity set 'DictionaryDBContext.ProgrammingLanguages'  is null.");
-            }
-            _context.ProgrammingLanguages.Add(programmingLanguage);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProgrammingLanguage", new { id = programmingLanguage.Id }, programmingLanguage);
         }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteProgrammingLanguage(int id)
+        catch (DbUpdateConcurrencyException) when (!ProgrammingLanguageExists(id))
         {
-            if (_context.ProgrammingLanguages == null)
-            {
-                return NotFound();
-            }
-            var programmingLanguage = await _context.ProgrammingLanguages.FindAsync(id);
-            if (programmingLanguage == null)
-            {
-                return NotFound();
-            }
-
-            _context.ProgrammingLanguages.Remove(programmingLanguage);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound();
         }
 
-        private bool ProgrammingLanguageExists(int id)
+        return NoContent();
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<int>> PostProgrammingLanguage(CreateProgrammingLanguageRequest request)
+    {
+        if (await _context.ProgrammingLanguages
+            .AnyAsync(x => x.Name.Trim().ToLower() == request.Name.Trim().ToLower()))
         {
-            return (_context.ProgrammingLanguages?.Any(e => e.Id == id)).GetValueOrDefault();
+            return BadRequest("The specified name already exists");
         }
+
+        var programmingLanguage = new ProgrammingLanguage() { Name = request.Name };
+
+        _context.ProgrammingLanguages.Add(programmingLanguage);
+        await _context.SaveChangesAsync();
+
+        return Ok(programmingLanguage.Id);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteProgrammingLanguage(int id)
+    {
+        var programmingLanguage = await _context.ProgrammingLanguages.FirstOrDefaultAsync(x => x.Id == id);
+        if (programmingLanguage == null)
+        {
+            return NotFound();
+        }
+
+        _context.ProgrammingLanguages.Remove(programmingLanguage);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool ProgrammingLanguageExists(int id)
+    {
+        return _context.ProgrammingLanguages.Any(e => e.Id == id);
     }
 }
