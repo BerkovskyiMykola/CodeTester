@@ -8,7 +8,7 @@ public class TaskTypeConfigurations : IEntityTypeConfiguration<TaskType>
 {
     public void Configure(EntityTypeBuilder<TaskType> builder)
     {
-        builder.Property(b => b.Id).UseIdentityAlwaysColumn();
+        builder.Property(b => b.Id).UseSerialColumn();
 
         builder.Property(x => x.Name)
             .IsRequired()

@@ -8,7 +8,7 @@ public class ProgrammingLanguageConfigurations : IEntityTypeConfiguration<Progra
 {
     public void Configure(EntityTypeBuilder<ProgrammingLanguage> builder)
     {
-        builder.Property(b => b.Id).UseIdentityAlwaysColumn();
+        builder.Property(b => b.Id).UseSerialColumn();
 
         builder.Property(x => x.Name)
             .IsRequired()

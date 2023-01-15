@@ -8,7 +8,7 @@ public class DifficultyConfigurations : IEntityTypeConfiguration<Difficulty>
 {
     public void Configure(EntityTypeBuilder<Difficulty> builder)
     {
-        builder.Property(b => b.Id).UseIdentityAlwaysColumn();
+        builder.Property(b => b.Id).UseSerialColumn();
 
         builder.Property(x => x.Name)
             .IsRequired()

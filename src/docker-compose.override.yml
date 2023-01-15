@@ -25,6 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - DictionaryApiClient=http://localhost:8002
     ports:
       - 8000:80
 
@@ -41,6 +42,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
+      - IdentityUrlExternal=http://localhost:8000
     ports:
       - 8002:80
 

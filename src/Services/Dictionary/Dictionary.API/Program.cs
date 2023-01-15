@@ -1,39 +1,40 @@
 using Dictionary.API;
+using Dictionary.API.Filters;
 using Dictionary.API.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Dictionary.API", Version = "v1" });
-    var jwtSecurityScheme = new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        Name = "JWT Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer YOUR_TOKEN')",
-        Reference = new OpenApiReference
-        {
-            Id = "Bearer",
-            Type = ReferenceType.SecurityScheme
-        }
-    };
-    options.AddSecurityDefinition("Bearer", jwtSecurityScheme);
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        { jwtSecurityScheme, Array.Empty<string>() }
+        Title = "Dictionary HTTP API",
+        Version = "v1",
+        Description = "The Dictionary Service HTTP API"
     });
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows()
+        {
+            Password = new OpenApiOAuthFlow()
+            {
+                TokenUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/token"),
+                Scopes = new Dictionary<string, string>()
+                {
+                    { "dictionary", "Dictionary API" }
+                }
+            }
+        }
+    });
+
+    options.OperationFilter<AuthorizeCheckOperationFilter>();
 });
 
 builder.Services.AddDbContext<DictionaryDBContext>(options =>
@@ -43,7 +44,7 @@ builder.Services.AddDbContext<DictionaryDBContext>(options =>
         sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
         sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
     });
-    
+
 });
 
 builder.Services
@@ -59,19 +60,33 @@ builder.Services
         options.Audience = "dictionary";
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+        .SetIsOriginAllowed((host) => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.RoutePrefix = string.Empty;
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Dictionary.API");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Dictionary.API V1");
+        options.OAuthClientId("spa.client");
+        options.OAuthAppName("Dictionary Swagger UI");
     });
 }
 
+app.UseCors("CorsPolicy");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
