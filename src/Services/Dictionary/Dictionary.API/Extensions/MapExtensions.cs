@@ -3,7 +3,7 @@ using Dictionary.API.Entities;
 
 namespace Dictionary.API.Extensions
 {
-    public static class MapExtension
+    public static class MapExtensions
     {
         public static IQueryable<DifficultyResponse> MapToDifficultyResponse(this IQueryable<Difficulty> difficulties)
         {
