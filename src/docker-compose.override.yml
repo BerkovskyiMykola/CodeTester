@@ -11,10 +11,21 @@ services:
     volumes:
       - sql-server-data:/var/opt/mssql
 
+  pgsql-server:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes: 
+      - pgsql-server-data:/var/lib/postgresql/data
+
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - DictionaryApiClient=http://localhost:8002
     ports:
       - 8000:80
 
@@ -26,6 +37,15 @@ services:
     ports:
       - 8001:80
 
+  dictionary-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
+      - IdentityUrl=http://identity-api
+      - IdentityUrlExternal=http://localhost:8000
+    ports:
+      - 8002:80
+
   ocelotapigw:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -35,3 +55,4 @@ services:
 
 volumes:
   sql-server-data:
+  pgsql-server-data:

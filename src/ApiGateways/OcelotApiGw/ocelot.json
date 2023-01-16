@@ -23,6 +23,18 @@
       ],
       "UpstreamPathTemplate": "/um/{everything}",
       "UpstreamHttpMethod": []
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "dictionary-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/d/{everything}",
+      "UpstreamHttpMethod": []
     }
   ],
   "GlobalConfiguration": {}

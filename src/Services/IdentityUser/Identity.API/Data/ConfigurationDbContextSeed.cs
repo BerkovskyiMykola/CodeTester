@@ -12,6 +12,8 @@ public class ConfigurationDbContextSeed
         //callbacks urls from config:
         var clientUrls = new Dictionary<string, string>();
 
+        clientUrls.Add("DictionaryApi", configuration["DictionaryApiClient"]!);
+
         if (!context.IdentityResources.Any())
         {
             foreach (var resource in Config.GetResources())
