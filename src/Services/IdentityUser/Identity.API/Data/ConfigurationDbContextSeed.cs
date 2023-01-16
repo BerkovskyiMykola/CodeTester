@@ -13,6 +13,7 @@ public class ConfigurationDbContextSeed
         var clientUrls = new Dictionary<string, string>();
 
         clientUrls.Add("DictionaryApi", configuration["DictionaryApiClient"]!);
+        clientUrls.Add("UserManagementApi", configuration["UserManagementApiClient"]!);
 
         if (!context.IdentityResources.Any())
         {

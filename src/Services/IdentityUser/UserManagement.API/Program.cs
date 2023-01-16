@@ -3,8 +3,10 @@ using DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.EmailService;
+using UserManagement.API.Filters;
 
 namespace UserManagement.API;
 
@@ -34,6 +36,33 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "UserManagement HTTP API",
+                Version = "v1",
+                Description = "The UserManagement Service HTTP API"
+            });
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows()
+                {
+                    Password = new OpenApiOAuthFlow()
+                    {
+                        TokenUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/token"),
+                        Scopes = new Dictionary<string, string>()
+                        {
+                            { "usermanagement", "UserManagement API" }
+                        }
+                    }
+                }
+            });
+
+            options.OperationFilter<AuthorizeCheckOperationFilter>();
+        });
+
         // prevent from mapping "sub" claim to nameidentifier.
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
@@ -47,7 +76,7 @@ public class Program
             {
                 options.Authority = builder.Configuration["IdentityUrl"];
                 options.RequireHttpsMetadata = false;
-                options.Audience = "usermanagment";
+                options.Audience = "usermanagement";
             });
 
         builder.Services.Configure<EmailConfiguration>(
@@ -75,6 +104,18 @@ public class Program
         builder.Services.AddControllers();
 
         var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.RoutePrefix = string.Empty;
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "UserManagement.API V1");
+                options.OAuthClientId("spa.client");
+                options.OAuthAppName("UserManagement Swagger UI");
+            });
+        }
 
         app.UseCors("CorsPolicy");
 

@@ -20,10 +20,10 @@ public static class Config
         return new List<ApiResource>
         {
             new ApiResource {
-                Name = "usermanagment",
-                DisplayName = "User Managment Service",
+                Name = "usermanagement",
+                DisplayName = "User Management Service",
                 Scopes = new List<string> {
-                    "usermanagment"
+                    "usermanagement"
                 }
             },
             new ApiResource {
@@ -54,7 +54,7 @@ public static class Config
     {
         return new List<ApiScope>
         {
-            new ApiScope("usermanagment") { UserClaims = new[] { "role" } },
+            new ApiScope("usermanagement") { UserClaims = new[] { "role" } },
             new ApiScope("dictionary") { UserClaims = new[] { "role" } },
             new ApiScope("testing") { UserClaims = new[] { "role" } },
             new ApiScope("testingagg") { UserClaims = new[] { "role" } },
@@ -71,12 +71,12 @@ public static class Config
                 ClientName = "Spa Client",
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                 ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
-                AllowedCorsOrigins = { clientsUrl["DictionaryApi"] },
+                AllowedCorsOrigins = { clientsUrl["DictionaryApi"], clientsUrl["UserManagementApi"] },
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    "usermanagment",
+                    "usermanagement",
                     "dictionary",
                     "testing",
                     "testingagg",
