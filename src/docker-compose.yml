@@ -41,3 +41,4 @@ services:
     depends_on:
       - identity-api
       - usermanagement-api
+      - dictionary-api

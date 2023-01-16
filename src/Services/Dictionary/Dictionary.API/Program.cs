@@ -4,6 +4,7 @@ using Dictionary.API.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,9 @@ builder.Services.AddDbContext<DictionaryDBContext>(options =>
     });
 
 });
+
+// prevent from mapping "sub" claim to nameidentifier.
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
 builder.Services
     .AddAuthentication(options =>
