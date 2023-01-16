@@ -1,6 +1,6 @@
 ﻿using Dictionary.API.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Dictionary.API.Persistence.Configurations;
 

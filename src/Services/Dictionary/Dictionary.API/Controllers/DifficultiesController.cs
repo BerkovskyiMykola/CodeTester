@@ -4,7 +4,6 @@ using Dictionary.API.Entities;
 using Dictionary.API.Extensions;
 using Dictionary.API.Persistence;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,13 +23,17 @@ public class DifficultiesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DifficultyResponse>>> GetDifficulties()
     {
-        return await _context.Difficulties.MapToDifficultyResponse().ToListAsync();
+        return await _context.Difficulties
+            .MapToDifficultyResponse()
+            .ToListAsync();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<DifficultyResponse>> GetDifficulty(int id)
     {
-        var difficulty = await _context.Difficulties.MapToDifficultyResponse().FirstOrDefaultAsync(x => x.Id == id);
+        var difficulty = await _context.Difficulties
+            .MapToDifficultyResponse()
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (difficulty == null)
         {

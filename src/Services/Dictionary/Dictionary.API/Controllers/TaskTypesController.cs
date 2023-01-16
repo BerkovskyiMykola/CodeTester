@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Dictionary.API.DTO.Requests;
+﻿using Dictionary.API.DTO.Requests;
 using Dictionary.API.DTO.Responses;
 using Dictionary.API.Entities;
 using Dictionary.API.Extensions;
@@ -25,21 +24,17 @@ public class TaskTypesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskTypeResponse>>> GetTaskTypes()
     {
-        if (_context.TaskTypes == null)
-        {
-            return NotFound();
-        }
-        return await _context.TaskTypes.MapToTaskTypeResponse().ToListAsync();
+        return await _context.TaskTypes
+            .MapToTaskTypeResponse()
+            .ToListAsync();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskTypeResponse>> GetTaskType(int id)
     {
-        if (_context.TaskTypes == null)
-        {
-            return NotFound();
-        }
-        var taskType = await _context.TaskTypes.MapToTaskTypeResponse().FirstOrDefaultAsync(x => x.Id == id);
+        var taskType = await _context.TaskTypes
+            .MapToTaskTypeResponse()
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (taskType == null)
         {

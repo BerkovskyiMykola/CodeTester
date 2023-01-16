@@ -1,6 +1,5 @@
 ﻿using Dictionary.API.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Dictionary.API.Persistence;
 
@@ -12,7 +11,7 @@ public class DictionaryDBContext : DbContext
 
     public DictionaryDBContext(DbContextOptions<DictionaryDBContext> options) : base(options)
     {
-        
+
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

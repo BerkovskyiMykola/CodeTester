@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Dictionary.API.DTO.Requests;
+﻿using Dictionary.API.DTO.Requests;
 using Dictionary.API.DTO.Responses;
 using Dictionary.API.Entities;
 using Dictionary.API.Extensions;
@@ -25,21 +24,17 @@ public class ProgrammingLanguagesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProgrammingLanguageResponse>>> GetProgrammingLanguages()
     {
-        if (_context.ProgrammingLanguages == null)
-        {
-            return NotFound();
-        }
-        return await _context.ProgrammingLanguages.MapToProgrammingLanguageResponse().ToListAsync();
+        return await _context.ProgrammingLanguages
+            .MapToProgrammingLanguageResponse()
+            .ToListAsync();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ProgrammingLanguageResponse>> GetProgrammingLanguage(int id)
     {
-        if (_context.ProgrammingLanguages == null)
-        {
-            return NotFound();
-        }
-        var programmingLanguage = await _context.ProgrammingLanguages.MapToProgrammingLanguageResponse().FirstOrDefaultAsync(x => x.Id == id);
+        var programmingLanguage = await _context.ProgrammingLanguages
+            .MapToProgrammingLanguageResponse()
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (programmingLanguage == null)
         {
