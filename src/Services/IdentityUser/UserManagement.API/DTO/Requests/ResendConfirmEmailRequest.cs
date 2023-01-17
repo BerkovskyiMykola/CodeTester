@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserManagement.API.Models;
+namespace UserManagement.API.DTO.Requests;
 
-public class ResendConfirmEmailModel
+public class ResendConfirmEmailRequest
 {
     [Required]
     [EmailAddress]

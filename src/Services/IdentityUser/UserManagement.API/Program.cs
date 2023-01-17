@@ -18,6 +18,7 @@ public class Program
             .AddCustomSwagger(configuration)
             .AddCustomAuthentication(configuration)
             .AddCustomConfiguration(configuration)
+            .AddCustomIntegrations()
             .AddScoped<IEmailSender, EmailSender>();
 
         var app = builder.Build();

@@ -1,9 +1,13 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using UserManagement.API.DTO.Requests;
+using UserManagement.API.DTO.Responses;
 using UserManagement.API.EmailService;
-using UserManagement.API.Models;
+using UserManagement.API.IdentityService;
 
 namespace UserManagement.API.Controllers;
 
@@ -16,9 +20,10 @@ public class AccountController : ControllerBase
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
 
     public AccountController(
-        UserManager<ApplicationUser> userManager, 
+        UserManager<ApplicationUser> userManager,
         IEmailSender emailSender,
-        IOptions<ApiBehaviorOptions> apiBehaviorOptions)
+        IOptions<ApiBehaviorOptions> apiBehaviorOptions,
+        IIdentityService identityService)
     {
         _userManager = userManager;
         _emailSender = emailSender;
@@ -26,7 +31,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register-user")]
-    public async Task<IActionResult> RegisterUser(RegisterUserModel model)
+    public async Task<IActionResult> RegisterUser(RegisterUserRequest model)
     {
         var user = new ApplicationUser
         {
@@ -64,11 +69,11 @@ public class AccountController : ControllerBase
             {
                 new EmailAddress
                 {
-                    DisplayName = $"{user.FirstName} {user.LastName}", 
+                    DisplayName = $"{user.FirstName} {user.LastName}",
                     Address = user.Email
                 }
-            }, 
-            "Confirmation email link", 
+            },
+            "Confirmation email link",
             confirmationLink!);
 
         await _userManager.AddToRoleAsync(user, "User");
@@ -79,7 +84,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("resend-confirm-email")]
-    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailModel model)
+    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -117,7 +122,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail(ConfirmEmailModel model)
+    public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -126,7 +131,7 @@ public class AccountController : ControllerBase
             return NotFound("User was not found.");
         }
 
-        var result = await _userManager.ConfirmEmailAsync(user, model.Token); 
+        var result = await _userManager.ConfirmEmailAsync(user, model.Token);
 
         if (!result.Succeeded)
         {
@@ -137,7 +142,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -175,7 +180,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("reset-password-confirm")]
-    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmModel model)
+    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
 

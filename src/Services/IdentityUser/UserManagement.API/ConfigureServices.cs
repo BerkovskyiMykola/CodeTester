@@ -1,14 +1,17 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
 using UserManagement.API.EmailService;
 using UserManagement.API.Filters;
+using UserManagement.API.IdentityService;
 
 namespace UserManagement.API;
 
@@ -145,6 +148,14 @@ public static class ConfigureServices
                 .AllowAnyHeader()
                 .AllowCredentials());
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomIntegrations(this IServiceCollection services)
+    {
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddTransient<IIdentityService, IdentityService.IdentityService>();
 
         return services;
     }
