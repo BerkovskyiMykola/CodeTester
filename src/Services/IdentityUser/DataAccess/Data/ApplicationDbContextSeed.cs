@@ -31,16 +31,11 @@ public class ApplicationDbContextSeed
                     UserName = "tester@email.com",
                     Email = "tester@email.com",
                     EmailConfirmed = true,
+                    FirstName = "Test",
+                    LastName = "Test",
                 };
 
                 await userManager.CreateAsync(user, "Password@1");
-
-                await userManager.AddClaimsAsync(user, new Claim[] {
-                    new Claim("name", "Tester Admin"),
-                    new Claim("given_name", "Tester"),
-                    new Claim("family_name", "Admin"),
-                    new Claim("website", "http://test.com"),
-                });
 
                 await userManager.AddToRoleAsync(user, "Admin");
 

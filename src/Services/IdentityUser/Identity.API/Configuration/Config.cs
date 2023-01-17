@@ -10,7 +10,6 @@ public static class Config
         return new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
-            new IdentityResources.Profile(),
             new IdentityResource("roles", new[] { "role" })
         };
     }
@@ -75,7 +74,6 @@ public static class Config
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
                     "usermanagement",
                     "dictionary",
                     "testing",
