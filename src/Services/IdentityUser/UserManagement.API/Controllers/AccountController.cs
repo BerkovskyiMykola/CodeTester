@@ -1,8 +1,10 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UserManagement.API.DTO.Requests;
+using UserManagement.API.DTO.Responses;
 using UserManagement.API.EmailService;
 using UserManagement.API.IdentityService;
 
@@ -15,6 +17,7 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
+    private readonly IIdentityService _identityService;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -25,6 +28,7 @@ public class AccountController : ControllerBase
         _userManager = userManager;
         _emailSender = emailSender;
         _apiBehaviorOptions = apiBehaviorOptions.Value;
+        _identityService = identityService;
     }
 
     [HttpPost("register-user")]
@@ -176,8 +180,8 @@ public class AccountController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("reset-password-confirm")]
-    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmRequest request)
+    [HttpPost("confirm-reset-password")]
+    public async Task<IActionResult> ConfirmResetPassword(ResetPasswordConfirmRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 
@@ -195,6 +199,80 @@ public class AccountController : ControllerBase
                 ModelState.TryAddModelError(error.Code, error.Description);
             }
 
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<ActionResult<ProfileResponse>> GetProfile()
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return new ProfileResponse
+        {
+            LastName = user.LastName,
+            FirstName = user.FirstName,
+        };
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> PutProfile(UpdateProfileRequest request)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 
