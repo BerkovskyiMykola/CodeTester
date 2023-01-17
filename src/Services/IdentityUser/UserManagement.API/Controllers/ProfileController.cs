@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using UserManagement.API.DTO.Requests;
 using UserManagement.API.DTO.Responses;
 using UserManagement.API.EmailService;
 using UserManagement.API.IdentityService;
@@ -46,6 +47,34 @@ public class ProfileController : ControllerBase
             LastName = user.LastName,
             FirstName = user.FirstName,
         };
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> PutProfile(UpdateProfileRequest request)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
     }
 
     [HttpGet("Claims")]

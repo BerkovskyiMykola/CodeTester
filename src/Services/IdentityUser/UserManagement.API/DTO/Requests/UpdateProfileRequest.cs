@@ -2,7 +2,7 @@
 
 namespace UserManagement.API.DTO.Requests;
 
-public record RegisterUserRequest
+public class UpdateProfileRequest
 {
     [Required]
     [StringLength(50, MinimumLength = 2)]
@@ -11,11 +11,4 @@ public record RegisterUserRequest
     [Required]
     [StringLength(50, MinimumLength = 2)]
     public string LastName { get; init; } = string.Empty;
-
-    [Required]
-    [EmailAddress]
-    public string Email { get; init; } = string.Empty;
-
-    [Required]
-    public string Password { get; init; } = string.Empty;
 }

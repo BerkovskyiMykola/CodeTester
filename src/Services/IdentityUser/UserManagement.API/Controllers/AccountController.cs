@@ -1,11 +1,8 @@
 ﻿using DataAccess.Entities;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UserManagement.API.DTO.Requests;
-using UserManagement.API.DTO.Responses;
 using UserManagement.API.EmailService;
 using UserManagement.API.IdentityService;
 
@@ -31,18 +28,18 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register-user")]
-    public async Task<IActionResult> RegisterUser(RegisterUserRequest model)
+    public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
         var user = new ApplicationUser
         {
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            UserName = model.Email,
-            Email = model.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            UserName = request.Email,
+            Email = request.Email,
             EmailConfirmed = false
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
@@ -84,9 +81,9 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("resend-confirm-email")]
-    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailRequest model)
+    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
@@ -122,16 +119,16 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest model)
+    public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
             return NotFound("User was not found.");
         }
 
-        var result = await _userManager.ConfirmEmailAsync(user, model.Token);
+        var result = await _userManager.ConfirmEmailAsync(user, request.Token);
 
         if (!result.Succeeded)
         {
@@ -142,9 +139,9 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordRequest model)
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
@@ -180,16 +177,16 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("reset-password-confirm")]
-    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmRequest model)
+    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
             return NotFound("User was not found.");
         }
 
-        var resetPassResult = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+        var resetPassResult = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
         if (!resetPassResult.Succeeded)
         {
