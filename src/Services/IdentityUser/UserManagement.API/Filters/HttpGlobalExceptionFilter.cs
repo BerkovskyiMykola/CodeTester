@@ -28,7 +28,7 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
 
         if (env.IsDevelopment())
         {
-            json.DeveloperMessage = context.Exception;
+            json.DeveloperMessage = context.Exception.Message;
         }
 
         context.Result = new InternalServerErrorObjectResult(json);
@@ -41,7 +41,7 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
     {
         public string[] Messages { get; set; } = Array.Empty<string>();
 
-        public object? DeveloperMessage { get; set; }
+        public string? DeveloperMessage { get; set; }
     }
 }
 
