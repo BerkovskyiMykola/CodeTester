@@ -1,5 +1,6 @@
 using DataAccess.Data;
 using DataAccess.Entities;
+using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Identity.API.Data;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,8 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddRazorPages();
 
         var connectionString = builder.Configuration["ConnectionString"];
 
@@ -37,6 +40,7 @@ public class Program
             .AddIdentityServer(options =>
             {
                 options.IssuerUri = "null";
+                options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
             })
             .AddConfigurationStore(options =>
             {
@@ -58,7 +62,14 @@ public class Program
             })
             .AddAspNetIdentity<ApplicationUser>();
 
-        //builder.Services.AddAuthentication();
+        builder.Services.AddAuthentication()
+            .AddGoogle(options =>
+            {
+                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+            });
 
         var app = builder.Build();
 
@@ -67,9 +78,18 @@ public class Program
             app.UseDeveloperExceptionPage();
         }
 
+        app.UseStaticFiles();
         app.UseRouting();
+
         app.UseIdentityServer();
-        //app.UseAuthorization();
+
+        // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
+        // the cookies should be expired from https, but in Microservices, the internal communication in aks and docker compose is http.
+        // To avoid this problem, the policy of cookies should be in Lax mode.
+        app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
+
+        app.UseAuthorization();
+        app.MapRazorPages().RequireAuthorization();
 
         app.MigrateDbContext<ApplicationDbContext>((context, services) =>
         {
