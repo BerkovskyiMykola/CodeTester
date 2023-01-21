@@ -1,12 +1,10 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
 using UserManagement.API.EmailService;
@@ -27,23 +25,34 @@ public static class ConfigureServices
                 Version = "v1",
                 Description = "The UserManagement Service HTTP API"
             });
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+
+            var scheme = new OpenApiSecurityScheme
             {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows()
+                In = ParameterLocation.Header,
+                Name = "Authorization",
+                Flows = new OpenApiOAuthFlows
                 {
-                    Password = new OpenApiOAuthFlow()
+                    AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        TokenUrl = new Uri($"{configuration["IdentityUrlExternal"]}/connect/token"),
-                        Scopes = new Dictionary<string, string>()
-                        {
-                            { "usermanagement", "UserManagement API" }
-                        }
+                        AuthorizationUrl = new Uri($"{configuration["IdentityUrlExternal"]}/connect/authorize"),
+                        TokenUrl = new Uri($"{configuration["IdentityUrlExternal"]}/connect/token")
                     }
+                },
+                Type = SecuritySchemeType.OAuth2
+            };
+
+            options.AddSecurityDefinition("OAuth", scheme);
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Id = "OAuth", Type = ReferenceType.SecurityScheme }
+                    },
+                    new List<string> { }
                 }
             });
-
-            options.OperationFilter<AuthorizeCheckOperationFilter>();
         });
 
         return services;

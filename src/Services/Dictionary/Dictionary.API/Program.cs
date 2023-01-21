@@ -1,5 +1,4 @@
 using Dictionary.API;
-using Dictionary.API.Filters;
 using Dictionary.API.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -19,23 +18,34 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "The Dictionary Service HTTP API"
     });
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+
+    var scheme = new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows()
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Flows = new OpenApiOAuthFlows
         {
-            Password = new OpenApiOAuthFlow()
+            AuthorizationCode = new OpenApiOAuthFlow
             {
-                TokenUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/token"),
-                Scopes = new Dictionary<string, string>()
-                {
-                    { "dictionary", "Dictionary API" }
-                }
+                AuthorizationUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/authorize"),
+                TokenUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/token")
             }
+        },
+        Type = SecuritySchemeType.OAuth2
+    };
+
+    options.AddSecurityDefinition("OAuth", scheme);
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Id = "OAuth", Type = ReferenceType.SecurityScheme }
+            },
+            new List<string> { }
         }
     });
-
-    options.OperationFilter<AuthorizeCheckOperationFilter>();
 });
 
 builder.Services.AddDbContext<DictionaryDBContext>(options =>
@@ -81,10 +91,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.RoutePrefix = string.Empty;
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Dictionary.API V1");
-        options.OAuthClientId("spa.client");
-        options.OAuthAppName("Dictionary Swagger UI");
+        options.EnablePersistAuthorization();
+        options.OAuthClientId("dictionary-swagger");
+        options.OAuthScopes("openid", "dictionary", "roles");
+        options.OAuthUsePkce();
     });
 }
 

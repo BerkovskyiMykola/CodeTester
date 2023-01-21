@@ -1,5 +1,4 @@
-﻿using Duende.IdentityServer;
-using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer.Models;
 
 namespace Identity.API.Configuration;
 
@@ -66,20 +65,23 @@ public static class Config
         {
             new Client
             {
-                ClientId = "spa.client",
-                ClientName = "Spa Client",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
-                AllowedCorsOrigins = { clientsUrl["DictionaryApi"], clientsUrl["UserManagementApi"] },
-                AllowedScopes =
-                {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    "usermanagement",
-                    "dictionary",
-                    "testing",
-                    "testingagg",
-                    "roles"
-                },
+                ClientId = "usermanagement-swagger",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["UserManagementApi"]}/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { clientsUrl["UserManagementApi"] },
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "roles", "usermanagement" },
+            },
+            new Client
+            {
+                ClientId = "dictionary-swagger",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["DictionaryApi"]}/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { clientsUrl["DictionaryApi"] },
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "roles", "dictionary" },
             }
         };
     }

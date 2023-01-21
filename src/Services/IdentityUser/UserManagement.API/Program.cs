@@ -26,10 +26,10 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.RoutePrefix = string.Empty;
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "UserManagement.API V1");
-            options.OAuthClientId("spa.client");
-            options.OAuthAppName("UserManagement Swagger UI");
+            options.EnablePersistAuthorization();
+            options.OAuthClientId("usermanagement-swagger");
+            options.OAuthScopes("openid", "usermanagement", "roles");
+            options.OAuthUsePkce();
         });
 
         app.UseRouting();
