@@ -39,6 +39,14 @@ public class Program
         builder.Services
             .AddIdentityServer(options =>
             {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+
+                // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
+                options.EmitStaticAudienceClaim = true;
+
                 options.IssuerUri = "null";
                 options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
             })
@@ -81,12 +89,12 @@ public class Program
         app.UseStaticFiles();
         app.UseRouting();
 
-        app.UseIdentityServer();
-
         // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
         // the cookies should be expired from https, but in Microservices, the internal communication in aks and docker compose is http.
         // To avoid this problem, the policy of cookies should be in Lax mode.
         app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
+
+        app.UseIdentityServer();
 
         app.UseAuthorization();
         app.MapRazorPages().RequireAuthorization();
