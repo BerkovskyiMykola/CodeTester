@@ -125,46 +125,29 @@ public class Callback : PageModel
         if (email != null)
         {
             user.Email = email;
+            user.EmailConfirmed = true;
         }
-
-        // create a list of claims that we want to transfer into our store
-        var filtered = new List<Claim>();
 
         // user's display name
-        var name = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value ??
-                   claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
-        if (name != null)
-        {
-            filtered.Add(new Claim(JwtClaimTypes.Name, name));
-        }
-        else
-        {
-            var first = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
+        var first = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
                         claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value;
-            var last = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
-                       claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
-            if (first != null && last != null)
-            {
-                filtered.Add(new Claim(JwtClaimTypes.Name, first + " " + last));
-            }
-            else if (first != null)
-            {
-                filtered.Add(new Claim(JwtClaimTypes.Name, first));
-            }
-            else if (last != null)
-            {
-                filtered.Add(new Claim(JwtClaimTypes.Name, last));
-            }
+        var last = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
+                   claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
+
+        if (first != null)
+        {
+            user.FirstName = first;
+        }
+        if (last != null)
+        {
+            user.LastName = last;
         }
 
         var identityResult = await _userManager.CreateAsync(user);
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        if (filtered.Any())
-        {
-            identityResult = await _userManager.AddClaimsAsync(user, filtered);
-            if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
-        }
+        identityResult = await _userManager.AddToRoleAsync(user, "User");
+        if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
         identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
