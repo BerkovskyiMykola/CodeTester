@@ -27,6 +27,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dictionary.API", "Services\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagement.API", "Services\IdentityUser\UserManagement.API\UserManagement.API.csproj", "{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web Apps", "Web Apps", "{BF1CBC5E-7437-47E4-AD43-7CA60D56B3A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSPA", "Web Apps\WebSPA\WebSPA.csproj", "{EB721F23-3F45-4B9B-BF6E-FED622978EC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +65,10 @@ Global
 		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB721F23-3F45-4B9B-BF6E-FED622978EC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB721F23-3F45-4B9B-BF6E-FED622978EC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB721F23-3F45-4B9B-BF6E-FED622978EC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB721F23-3F45-4B9B-BF6E-FED622978EC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +82,7 @@ Global
 		{5C4934EB-B276-4208-B1C5-AF9D057A8BDE} = {F7393CC0-6028-4243-ADF0-BC58126AA177}
 		{1F3E4D34-99C7-46BB-B83D-3C3521F5FA5D} = {5C4934EB-B276-4208-B1C5-AF9D057A8BDE}
 		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654} = {A8C50D0B-FEFD-426A-B738-F97461C8340E}
+		{EB721F23-3F45-4B9B-BF6E-FED622978EC5} = {BF1CBC5E-7437-47E4-AD43-7CA60D56B3A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8591D82-4480-461F-8F44-74CC713172A5}

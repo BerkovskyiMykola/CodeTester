@@ -5,18 +5,6 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "identity-api",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/i/{everything}",
-      "UpstreamHttpMethod": []
-    },
-    {
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
           "Host": "usermanagement-api",
           "Port": 80
         }

@@ -42,3 +42,12 @@ services:
       - identity-api
       - usermanagement-api
       - dictionary-api
+
+  webspa:
+    image: ${DOCKER_REGISTRY-}webspa
+    build:
+      context: .
+      dockerfile: Web Apps/WebSPA/Dockerfile
+    depends_on:
+      - identity-api
+      - ocelotapigw

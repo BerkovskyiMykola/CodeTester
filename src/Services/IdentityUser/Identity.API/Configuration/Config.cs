@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace Identity.API.Configuration;
 
@@ -9,6 +10,7 @@ public static class Config
         return new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
+            new IdentityResources.Profile(),
             new IdentityResource("roles", new[] { "role" })
         };
     }
@@ -71,7 +73,7 @@ public static class Config
                 RedirectUris = { $"{clientsUrl["UserManagementApi"]}/swagger/oauth2-redirect.html" },
                 AllowedCorsOrigins = { clientsUrl["UserManagementApi"] },
                 AllowOfflineAccess = true,
-                AllowedScopes = { "openid", "roles", "usermanagement" },
+                AllowedScopes = { "openid", "profile", "roles", "usermanagement" },
             },
             new Client
             {
@@ -81,7 +83,24 @@ public static class Config
                 RedirectUris = { $"{clientsUrl["DictionaryApi"]}/swagger/oauth2-redirect.html" },
                 AllowedCorsOrigins = { clientsUrl["DictionaryApi"] },
                 AllowOfflineAccess = true,
-                AllowedScopes = { "openid", "roles", "dictionary" },
+                AllowedScopes = { "openid", "profile", "roles", "dictionary" },
+            },
+            new Client
+            {
+                ClientId = "bff",
+                ClientSecrets = { new Secret("secret".Sha256()) },
+                AllowedGrantTypes = GrantTypes.Code,
+                
+                // where to redirect to after login
+                RedirectUris = { "http://localhost:8011/signin-oidc" },
+
+                // where to redirect to after logout
+                PostLogoutRedirectUris = { "http://localhost:8011/signout-callback-oidc" },
+
+                AllowedScopes = new List<string>
+                {
+                    "openid", "profile", "roles", "usermanagement", "dictionary"
+                }
             }
         };
     }

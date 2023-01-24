@@ -55,6 +55,15 @@ services:
     ports:
       - 8010:80
 
+  webspa:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityUrl=http://identity-api
+      - IdentityUrlExternal=http://localhost:8000
+      - Ocelotapigw=http://ocelotapigw
+    ports:
+      - 8011:80
+
 volumes:
   sql-server-data:
   pgsql-server-data:
