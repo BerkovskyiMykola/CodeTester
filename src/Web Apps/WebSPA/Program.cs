@@ -1,6 +1,9 @@
 using Duende.Bff.Yarp;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -11,6 +14,10 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddHealthChecks()
+            .AddCheck("self", () => HealthCheckResult.Healthy())
+            .AddUrlGroup(new Uri(builder.Configuration["IdentityUrlHC"]!), name: "identityapi-check", tags: new string[] { "identityapi" });
 
         JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
         builder.Services.AddAuthorization();
@@ -71,6 +78,16 @@ public class Program
         app.MapGet("/local/identity", LocalIdentityHandler).AsBffApiEndpoint();
 
         app.MapRemoteBffApiEndpoint("/remote", builder.Configuration["Ocelotapigw"]!).RequireAccessToken(Duende.Bff.TokenType.User);
+
+        app.MapHealthChecks("/hc", new HealthCheckOptions()
+        {
+            Predicate = _ => true,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+        app.MapHealthChecks("/liveness", new HealthCheckOptions
+        {
+            Predicate = r => r.Name.Contains("self")
+        });
 
         // DEV ONLY
         // e.g. Replace internal to external identity adress

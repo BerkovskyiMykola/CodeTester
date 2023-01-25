@@ -51,3 +51,12 @@ services:
     depends_on:
       - identity-api
       - ocelotapigw
+
+  webstatus:
+    image: ${DOCKER_REGISTRY-}webstatus
+    build:
+      context: .
+      dockerfile: Web Apps/WebStatus/Dockerfile
+    depends_on:
+      - identity-api
+      - usermanagement-api

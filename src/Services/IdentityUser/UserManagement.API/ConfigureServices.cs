@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
@@ -119,7 +120,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomIdentity(this IServiceCollection services)
+    public static IServiceCollection AddCustomIdentity(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -137,7 +138,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomMvc(this IServiceCollection services)
+    public static IServiceCollection AddCustomMvc(this IServiceCollection services, IConfiguration configuration)
     {
         // Add framework services.
         services.AddControllers(options =>
@@ -161,10 +162,24 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomIntegrations(this IServiceCollection services)
+    public static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IIdentityService, IdentityService.IdentityService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
+    {
+        var hcBuilder = services.AddHealthChecks();
+
+        hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
+
+        hcBuilder.AddSqlServer(
+            configuration["ConnectionString"]!,
+            name: "IdentityDB-check",
+            tags: new string[] { "IdentityDB" });
 
         return services;
     }

@@ -2,9 +2,10 @@ using DataAccess.Data;
 using DataAccess.Entities;
 using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.DbContexts;
+using HealthChecks.UI.Client;
 using Identity.API.Data;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Identity.API;
 
@@ -14,70 +15,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddRazorPages();
-
-        var connectionString = builder.Configuration["ConnectionString"];
-
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseSqlServer(connectionString, sqlOptions =>
-            {
-                sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name);
-                sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-            });
-        });
+        var configuration = builder.Configuration;
 
         builder.Services
-            .AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = true;
-            })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
-
-        builder.Services
-            .AddIdentityServer(options =>
-            {
-                options.Events.RaiseErrorEvents = true;
-                options.Events.RaiseInformationEvents = true;
-                options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseSuccessEvents = true;
-
-                // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
-                options.EmitStaticAudienceClaim = true;
-
-                options.IssuerUri = "null";
-                options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
-            })
-            .AddConfigurationStore(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    });
-            })
-            .AddOperationalStore(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    });
-            })
-            .AddAspNetIdentity<ApplicationUser>();
-
-        builder.Services.AddAuthentication()
-            .AddGoogle(options =>
-            {
-                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-                options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-            });
+            .AddCustomDbContext(configuration)
+            .AddCustomIdentity(configuration)
+            .AddCustomIdentityServer(configuration)
+            .AddCustomAuthentication(configuration)
+            .AddCustomConfiguration(configuration)
+            .AddCustomHealthCheck(configuration)
+            .AddRazorPages();
 
         var app = builder.Build();
 
@@ -98,6 +45,16 @@ public class Program
 
         app.UseAuthorization();
         app.MapRazorPages().RequireAuthorization();
+
+        app.MapHealthChecks("/hc", new HealthCheckOptions()
+        {
+            Predicate = _ => true,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+        app.MapHealthChecks("/liveness", new HealthCheckOptions
+        {
+            Predicate = r => r.Name.Contains("self")
+        });
 
         app.MigrateDbContext<ApplicationDbContext>((context, services) =>
         {

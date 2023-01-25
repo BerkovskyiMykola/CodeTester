@@ -1,3 +1,5 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using UserManagement.API.EmailService;
 
 namespace UserManagement.API;
@@ -11,14 +13,15 @@ public class Program
         var configuration = builder.Configuration;
 
         builder.Services
-            .AddCustomMvc()
+            .AddCustomMvc(configuration)
             .AddCustomDbContext(configuration)
             .AddCustomDbContext(configuration)
-            .AddCustomIdentity()
+            .AddCustomIdentity(configuration)
             .AddCustomSwagger(configuration)
             .AddCustomAuthentication(configuration)
             .AddCustomConfiguration(configuration)
-            .AddCustomIntegrations()
+            .AddCustomIntegrations(configuration)
+            .AddCustomHealthCheck(configuration)
             .AddScoped<IEmailSender, EmailSender>();
 
         var app = builder.Build();
@@ -39,6 +42,16 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.MapHealthChecks("/hc", new HealthCheckOptions()
+        {
+            Predicate = _ => true,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+        app.MapHealthChecks("/liveness", new HealthCheckOptions
+        {
+            Predicate = r => r.Name.Contains("self")
+        });
 
         app.Run();
     }

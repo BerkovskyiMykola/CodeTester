@@ -61,9 +61,23 @@ services:
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - Ocelotapigw=http://ocelotapigw
+      - IdentityUrlHC=http://identity-api/hc
     ports:
       - 8011:80
+
+  webstatus:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - HealthChecksUI__HealthChecks__0__Name=Identity HTTP Check
+      - HealthChecksUI__HealthChecks__0__Uri=http://identity-api/hc
+      - HealthChecksUI__HealthChecks__1__Name=UserManagement HTTP Check
+      - HealthChecksUI__HealthChecks__1__Uri=http://usermanagement-api/hc
+      - HealthChecksUI__HealthChecks__2__Name=WebSPA HTTP Check
+      - HealthChecksUI__HealthChecks__2__Uri=http://webspa/hc
+    ports:
+      - 8012:80
 
 volumes:
   sql-server-data:
   pgsql-server-data:
+
