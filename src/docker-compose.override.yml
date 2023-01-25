@@ -64,6 +64,17 @@ services:
     ports:
       - 8011:80
 
+  webstatus:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - HealthChecksUI__HealthChecks__0__Name=Identity HTTP Check
+      - HealthChecksUI__HealthChecks__0__Uri=http://identity-api/hc
+      - HealthChecksUI__HealthChecks__1__Name=UserManagement HTTP Check
+      - HealthChecksUI__HealthChecks__1__Uri=http://usermanagement-api/hc
+    ports:
+      - 8012:80
+
 volumes:
   sql-server-data:
   pgsql-server-data:
+
