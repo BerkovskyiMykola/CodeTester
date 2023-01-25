@@ -178,7 +178,7 @@ public static class ConfigureServices
 
         hcBuilder.AddSqlServer(
             configuration["ConnectionString"]!,
-            name: "sql-server-check",
+            name: "IdentityDB-check",
             tags: new string[] { "SQL Server" });
 
         return services;
