@@ -1,6 +1,12 @@
 version: '3.4'
 
 services:
+  seq:
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 7000:80
+
   sql-server:
     environment:
         SA_PASSWORD: SwN12345678
@@ -27,6 +33,7 @@ services:
       - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - UserManagementApiClient=http://localhost:8001
       - DictionaryApiClient=http://localhost:8002
+      - SeqServerUrl=http://seq
     ports:
       - 8000:80
 
