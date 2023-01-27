@@ -1,40 +1,89 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog;
+using WebStatus;
 
-var builder = WebApplication.CreateBuilder(args);
+var configuration = GetConfiguration();
 
-builder.Services.AddMvc();
+Log.Logger = CreateSerilogLogger(configuration);
 
-builder.Services.AddOptions();
-
-builder.Services.AddHealthChecks()
-    .AddCheck("self", () => HealthCheckResult.Healthy());
-
-builder.Services
-    .AddHealthChecksUI()
-    .AddInMemoryStorage();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+try
 {
-    app.UseExceptionHandler("/Home/Error");
+    Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
+
+    builder.Host.UseSerilog();
+
+    builder.Services
+        .AddCustomHealthCheck(configuration)
+        .AddCustomHealthChecksUI(configuration)
+        .AddOptions()
+        .AddMvc();
+
+    var app = builder.Build();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+    }
+
+    app.UseHealthChecksUI(config =>
+    {
+        config.ResourcesPath = "/ui/resources";
+        config.UIPath = "/hc-ui";
+    });
+
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    app.UseAuthorization();
+
+    app.MapDefaultControllerRoute();
+
+    Log.Information("Starting web host ({ApplicationContext})...", AppName);
+    app.Run();
+
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
 }
 
-app.UseHealthChecksUI(config =>
+Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
 {
-    config.ResourcesPath = "/ui/resources";
-    config.UIPath = "/hc-ui";
-});
+    return new LoggerConfiguration()
+        .MinimumLevel.Verbose()
+        .Enrich.WithProperty("ApplicationContext", AppName)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.Seq(configuration["SeqServerUrl"]!)
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger();
+}
 
-app.UseStaticFiles();
+IConfiguration GetConfiguration()
+{
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
 
-app.UseRouting();
+    return builder.Build();
+}
 
-app.UseAuthorization();
+public partial class Program
+{
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
+}

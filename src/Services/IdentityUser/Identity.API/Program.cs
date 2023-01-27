@@ -8,22 +8,19 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+var configuration = GetConfiguration();
 
-var configuration = builder.Configuration;
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
-    .Enrich.WithProperty("ApplicationContext", AppName)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.Seq(configuration["SeqServerUrl"]!)
-    .ReadFrom.Configuration(configuration)
-    .CreateLogger();
+Log.Logger = CreateSerilogLogger(configuration);
 
 try
 {
     Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
 
     builder.Host.UseSerilog();
 
@@ -103,9 +100,31 @@ finally
     Log.CloseAndFlush();
 }
 
+Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
+{
+    return new LoggerConfiguration()
+        .MinimumLevel.Verbose()
+        .Enrich.WithProperty("ApplicationContext", AppName)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.Seq(configuration["SeqServerUrl"]!)
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger();
+}
+
+IConfiguration GetConfiguration()
+{
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    return builder.Build();
+}
+
 public partial class Program
 {
 
-    public static string Namespace = typeof(IHostExtensions).Namespace!;
-    public static string AppName = Namespace.Substring(Namespace.LastIndexOf('.', Namespace.LastIndexOf('.') - 1) + 1);
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
 }

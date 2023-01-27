@@ -1,121 +1,137 @@
 using Duende.Bff.Yarp;
 using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.IdentityModel.Tokens.Jwt;
+using Serilog;
 using System.Security.Claims;
+using WebSPA;
 
-namespace WebSPA;
+var configuration = GetConfiguration();
 
-public class Program
+Log.Logger = CreateSerilogLogger(configuration);
+
+try
 {
-    public static void Main(string[] args)
+    Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
+
+    builder.Host.UseSerilog();
+
+    builder.Services
+        .AddCustomHealthCheck(configuration)
+        .AddCustomAuthorization(configuration)
+        .AddCustomAuthentication(configuration)
+        .AddBff()
+        .AddRemoteApis();
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
     {
-        var builder = WebApplication.CreateBuilder(args);
+        app.UseDeveloperExceptionPage();
+    }
 
-        builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy())
-            .AddUrlGroup(new Uri(builder.Configuration["IdentityUrlHC"]!), name: "identityapi-check", tags: new string[] { "identityapi" });
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
 
-        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-        builder.Services.AddAuthorization();
+    app.UseRouting();
 
-        builder.Services
-            .AddBff()
-            .AddRemoteApis();
+    app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 
-        builder.Services
-            .AddAuthentication(options =>
+    app.UseAuthentication();
+
+    app.UseBff();
+
+    app.UseAuthorization();
+
+    app.MapBffManagementEndpoints();
+
+    app.MapGet("/local/identity", LocalIdentityHandler).AsBffApiEndpoint();
+
+    app.MapRemoteBffApiEndpoint("/remote", configuration["Ocelotapigw"]!).RequireAccessToken(Duende.Bff.TokenType.User);
+
+    app.MapHealthChecks("/hc", new HealthCheckOptions()
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+    app.MapHealthChecks("/liveness", new HealthCheckOptions
+    {
+        Predicate = r => r.Name.Contains("self")
+    });
+
+    // DEV ONLY
+    // e.g. Replace internal to external identity adress
+    app.Use(async (httpcontext, next) =>
+    {
+        await next();
+        if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
+        {
+            var containerHost = builder.Configuration["IdentityUrl"];
+            var authority = builder.Configuration["IdentityUrlExternal"];
+
+            if (!containerHost!.Equals(authority, StringComparison.OrdinalIgnoreCase))
             {
-                options.DefaultScheme = "Cookies";
-                options.DefaultChallengeScheme = "oidc";
-                options.DefaultSignOutScheme = "oidc";
-            })
-            .AddCookie("Cookies")
-            .AddOpenIdConnect("oidc", options =>
-            {
-                options.SignInScheme = "Cookies";
-                options.Authority = builder.Configuration["IdentityUrl"];
-                options.RequireHttpsMetadata = false;
-                options.ClientId = "bff";
-                options.ClientSecret = "secret";
-                options.ResponseType = "code";
-                options.Scope.Add("roles");
-                options.Scope.Add("usermanagement");
-                options.Scope.Add("dictionary");
-
-                //maybe useless
-                options.ClaimActions.MapJsonKey("role", "role");
-
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-            });
-
-        var app = builder.Build();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
-
-        app.UseRouting();
-
-        app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
-
-        app.UseAuthentication();
-
-        app.UseBff();
-
-        app.UseAuthorization();
-
-        app.MapBffManagementEndpoints();
-
-        app.MapGet("/local/identity", LocalIdentityHandler).AsBffApiEndpoint();
-
-        app.MapRemoteBffApiEndpoint("/remote", builder.Configuration["Ocelotapigw"]!).RequireAccessToken(Duende.Bff.TokenType.User);
-
-        app.MapHealthChecks("/hc", new HealthCheckOptions()
-        {
-            Predicate = _ => true,
-            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
-        app.MapHealthChecks("/liveness", new HealthCheckOptions
-        {
-            Predicate = r => r.Name.Contains("self")
-        });
-
-        // DEV ONLY
-        // e.g. Replace internal to external identity adress
-        app.Use(async (httpcontext, next) =>
-        {
-            await next();
-            if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
-            {
-                var containerHost = builder.Configuration["IdentityUrl"];
-                var authority = builder.Configuration["IdentityUrlExternal"];
-
-                if (!containerHost.Equals(authority, StringComparison.OrdinalIgnoreCase))
-                {
-                    string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location];
-                    httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
-                            location.Replace(containerHost, authority);
-                }
-
+                string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location]!;
+                httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
+                        location.Replace(containerHost, authority);
             }
-        });
 
-        app.Run();
-    }
+        }
+    });
 
-    [Authorize]
-    public static IResult LocalIdentityHandler(ClaimsPrincipal user, HttpContext context)
-    {
-        var name = user.FindFirst("name")?.Value ?? user.FindFirst("sub")?.Value;
-        return Results.Json(new { message = "Local API Success!", user = name });
-    }
+    Log.Information("Starting web host ({ApplicationContext})...", AppName);
+    app.Run();
+
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
+{
+    return new LoggerConfiguration()
+        .MinimumLevel.Verbose()
+        .Enrich.WithProperty("ApplicationContext", AppName)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.Seq(configuration["SeqServerUrl"]!)
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger();
+}
+
+IConfiguration GetConfiguration()
+{
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    return builder.Build();
+}
+
+[Authorize]
+static IResult LocalIdentityHandler(ClaimsPrincipal user, HttpContext context)
+{
+    var name = user.FindFirst("name")?.Value ?? user.FindFirst("sub")?.Value;
+    return Results.Json(new { message = "Local API Success!", user = name });
+}
+
+public partial class Program
+{
+
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
 }

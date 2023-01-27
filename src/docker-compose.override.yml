@@ -43,6 +43,7 @@ services:
       - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - SeqServerUrl=http://seq
     ports:
       - 8001:80
 
@@ -52,6 +53,7 @@ services:
       - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - SeqServerUrl=http://seq
     ports:
       - 8002:80
 
@@ -69,6 +71,7 @@ services:
       - IdentityUrlExternal=http://localhost:8000
       - Ocelotapigw=http://ocelotapigw
       - IdentityUrlHC=http://identity-api/hc
+      - SeqServerUrl=http://seq
     ports:
       - 8011:80
 
@@ -81,6 +84,7 @@ services:
       - HealthChecksUI__HealthChecks__1__Uri=http://usermanagement-api/hc
       - HealthChecksUI__HealthChecks__2__Name=WebSPA HTTP Check
       - HealthChecksUI__HealthChecks__2__Uri=http://webspa/hc
+      - SeqServerUrl=http://seq
     ports:
       - 8012:80
 
