@@ -1,3 +1,4 @@
+using Common.Logging;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
@@ -6,7 +7,7 @@ using UserManagement.API.EmailService;
 
 var configuration = GetConfiguration();
 
-Log.Logger = CreateSerilogLogger(configuration);
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
 
 try
 {
@@ -79,18 +80,6 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
-}
-
-Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
-{
-    return new LoggerConfiguration()
-        .MinimumLevel.Verbose()
-        .Enrich.WithProperty("ApplicationContext", AppName)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.Seq(configuration["SeqServerUrl"]!)
-        .ReadFrom.Configuration(configuration)
-        .CreateLogger();
 }
 
 IConfiguration GetConfiguration()

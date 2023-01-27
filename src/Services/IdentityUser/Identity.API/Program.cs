@@ -1,3 +1,4 @@
+using Common.Logging;
 using DataAccess.Data;
 using DataAccess.Entities;
 using Duende.IdentityServer.EntityFramework.DbContexts;
@@ -10,7 +11,7 @@ using Serilog;
 
 var configuration = GetConfiguration();
 
-Log.Logger = CreateSerilogLogger(configuration);
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
 
 try
 {
@@ -98,18 +99,6 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
-}
-
-Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
-{
-    return new LoggerConfiguration()
-        .MinimumLevel.Verbose()
-        .Enrich.WithProperty("ApplicationContext", AppName)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.Seq(configuration["SeqServerUrl"]!)
-        .ReadFrom.Configuration(configuration)
-        .CreateLogger();
 }
 
 IConfiguration GetConfiguration()
