@@ -1,93 +1,30 @@
 using Dictionary.API;
 using Dictionary.API.Persistence;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+var configuration = GetConfiguration();
+Log.Logger = CreateSerilogLogger(configuration);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen(options =>
+try
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Dictionary HTTP API",
-        Version = "v1",
-        Description = "The Dictionary Service HTTP API"
-    });
+    Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
-    var scheme = new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Name = "Authorization",
-        Flows = new OpenApiOAuthFlows
-        {
-            AuthorizationCode = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/authorize"),
-                TokenUrl = new Uri($"{builder.Configuration["IdentityUrlExternal"]}/connect/token")
-            }
-        },
-        Type = SecuritySchemeType.OAuth2
-    };
+    var builder = WebApplication.CreateBuilder(args);
 
-    options.AddSecurityDefinition("OAuth", scheme);
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Id = "OAuth", Type = ReferenceType.SecurityScheme }
-            },
-            new List<string> { }
-        }
-    });
-});
+    builder.Services
+        .AddCustomSwagger(configuration)
+        .AddCustomDbContext(configuration)
+        .AddCustomAuthentication(configuration)
+        .AddCustomMvc(configuration)
+        .AddCustomHealthCheck(configuration);
 
-builder.Services.AddDbContext<DictionaryDBContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration["ConnectionString"], sqlOptions =>
-    {
-        sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
-        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
-    });
+    var app = builder.Build();
 
-});
-
-// prevent from mapping "sub" claim to nameidentifier.
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
-
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.Authority = builder.Configuration["IdentityUrl"];
-        options.RequireHttpsMetadata = false;
-        options.Audience = "dictionary";
-    });
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-        .SetIsOriginAllowed((host) => true)
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials());
-});
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
@@ -96,22 +33,77 @@ if (app.Environment.IsDevelopment())
         options.OAuthScopes("openid", "dictionary", "roles");
         options.OAuthUsePkce();
     });
+
+    app.UseCors("CorsPolicy");
+
+    app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.MapHealthChecks("/hc", new HealthCheckOptions()
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+    app.MapHealthChecks("/liveness", new HealthCheckOptions
+    {
+        Predicate = r => r.Name.Contains("self")
+    });
+
+    Log.Information("Applying migrations ({ApplicationContext})...", AppName);
+
+    app.MigrateDbContext<DictionaryDBContext>((context, services) =>
+    {
+        var logger = services.GetRequiredService<ILogger<DictionaryDBContext>>();
+
+        new DictionaryDBContextSeed()
+            .SeedAsync(context, logger)
+            .Wait();
+    });
+
+    Log.Information("Starting web host ({ApplicationContext})...", AppName);
+    app.Run();
+
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
 }
 
-app.UseCors("CorsPolicy");
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.MigrateDbContext<DictionaryDBContext>((context, services) =>
+Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
 {
-    var logger = services.GetRequiredService<ILogger<DictionaryDBContext>>();
+return new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .Enrich.WithProperty("ApplicationContext", AppName)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Seq(configuration["SeqServerUrl"]!)
+    .ReadFrom.Configuration(configuration)
+    .CreateLogger();
+}
 
-    new DictionaryDBContextSeed()
-        .SeedAsync(context, logger)
-        .Wait();
-});
+IConfiguration GetConfiguration()
+{
+var builder = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-app.Run();
+return builder.Build();
+}
+
+public partial class Program
+{
+
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
+}
