@@ -26,6 +26,7 @@ services:
     depends_on:
       - mssql-server
       - identity-api
+      - seq
 
   dictionary-api:
     image: ${DOCKER_REGISTRY-}dictionary.api
@@ -35,6 +36,7 @@ services:
     depends_on:
       - identity-api
       - pgsql-server
+      - seq
 
   ocelotapigw:
     image: ${DOCKER_REGISTRY-}ocelotapigw
@@ -45,6 +47,7 @@ services:
       - identity-api
       - usermanagement-api
       - dictionary-api
+      - seq
 
   webspa:
     image: ${DOCKER_REGISTRY-}webspa
@@ -54,6 +57,7 @@ services:
     depends_on:
       - identity-api
       - ocelotapigw
+      - seq
 
   webstatus:
     image: ${DOCKER_REGISTRY-}webstatus
@@ -63,3 +67,4 @@ services:
     depends_on:
       - identity-api
       - usermanagement-api
+      - seq
