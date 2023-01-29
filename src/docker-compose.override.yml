@@ -7,7 +7,7 @@ services:
     ports:
       - 7000:80
 
-  sql-server:
+  mssql-server:
     environment:
         SA_PASSWORD: SwN12345678
         ACCEPT_EULA: Y
@@ -15,7 +15,7 @@ services:
     ports:
         - 1433:1433
     volumes:
-      - sql-server-data:/var/opt/mssql
+      - mssql-server-data:/var/opt/mssql
 
   pgsql-server:
     environment:
@@ -30,7 +30,7 @@ services:
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - ConnectionString=Server=mssql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - UserManagementApiClient=http://localhost:8001
       - DictionaryApiClient=http://localhost:8002
       - SpaClient=http://localhost:8011
@@ -41,7 +41,7 @@ services:
   usermanagement-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - ConnectionString=Server=mssql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - SeqServerUrl=http://seq
@@ -91,6 +91,5 @@ services:
       - 8012:80
 
 volumes:
-  sql-server-data:
+  mssql-server-data:
   pgsql-server-data:
-

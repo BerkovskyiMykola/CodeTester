@@ -4,7 +4,7 @@ services:
   seq:
     image: datalust/seq:latest
 
-  sql-server:
+  mssql-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
   pgsql-server:
@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
-      - sql-server
+      - mssql-server
 
   usermanagement-api:
     image: ${DOCKER_REGISTRY-}usermanagement.api
@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Services/IdentityUser/UserManagement.API/Dockerfile
     depends_on:
-      - sql-server
+      - mssql-server
       - identity-api
 
   dictionary-api:
