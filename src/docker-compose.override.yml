@@ -33,6 +33,7 @@ services:
       - ConnectionString=Server=sql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - UserManagementApiClient=http://localhost:8001
       - DictionaryApiClient=http://localhost:8002
+      - SpaClient=http://localhost:8011
       - SeqServerUrl=http://seq
     ports:
       - 8000:80

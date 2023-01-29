@@ -1,5 +1,4 @@
-﻿using Duende.IdentityServer;
-using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer.Models;
 
 namespace Identity.API.Configuration;
 
@@ -90,13 +89,8 @@ public static class Config
                 ClientId = "bff",
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.Code,
-                
-                // where to redirect to after login
-                RedirectUris = { "http://localhost:8011/signin-oidc" },
-
-                // where to redirect to after logout
-                PostLogoutRedirectUris = { "http://localhost:8011/signout-callback-oidc" },
-
+                RedirectUris = { $"{clientsUrl["SpaClient"]}/signin-oidc" },
+                PostLogoutRedirectUris = { $"{clientsUrl["SpaClient"]}/signout-callback-oidc" },
                 AllowedScopes = new List<string>
                 {
                     "openid", "profile", "roles", "usermanagement", "dictionary"
