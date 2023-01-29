@@ -89,8 +89,8 @@ public static class Config
                 ClientId = "bff",
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.Code,
-                RedirectUris = { $"{clientsUrl["SpaClient"]}/signin-oidc" },
-                PostLogoutRedirectUris = { $"{clientsUrl["SpaClient"]}/signout-callback-oidc" },
+                RedirectUris = { $"{clientsUrl["Spa"]}/signin-oidc" },
+                PostLogoutRedirectUris = { $"{clientsUrl["Spa"]}/signout-callback-oidc" },
                 AllowedScopes = new List<string>
                 {
                     "openid", "profile", "roles", "usermanagement", "dictionary"
