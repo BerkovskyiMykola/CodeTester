@@ -61,6 +61,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - IdentityUrl=http://identity-api
+      - SeqServerUrl=http://seq
     ports:
       - 8010:80
 
