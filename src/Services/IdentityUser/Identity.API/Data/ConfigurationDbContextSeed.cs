@@ -8,12 +8,12 @@ public class ConfigurationDbContextSeed
 {
     public async Task SeedAsync(ConfigurationDbContext context, IConfiguration configuration)
     {
-
-        //callbacks urls from config:
-        var clientUrls = new Dictionary<string, string>();
-
-        clientUrls.Add("DictionaryApi", configuration["DictionaryApiClient"]!);
-        clientUrls.Add("UserManagementApi", configuration["UserManagementApiClient"]!);
+        var clientUrls = new Dictionary<string, string>
+        {
+            { "DictionaryApi", configuration["DictionaryApiClient"]! },
+            { "UserManagementApi", configuration["UserManagementApiClient"]! },
+            { "Spa", configuration["SpaClient"]! }
+        };
 
         if (!context.IdentityResources.Any())
         {

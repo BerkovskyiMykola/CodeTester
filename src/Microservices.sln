@@ -31,7 +31,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web Apps", "Web Apps", "{BF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSPA", "Web Apps\WebSPA\WebSPA.csproj", "{EB721F23-3F45-4B9B-BF6E-FED622978EC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebStatus", "Web Apps\WebStatus\WebStatus.csproj", "{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebStatus", "Web Apps\WebStatus\WebStatus.csproj", "{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Logging", "BuildingBlocks\Common.Logging\Common.Logging.csproj", "{85C75361-41AF-4EEB-A09F-CF18A8218ECD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85C75361-41AF-4EEB-A09F-CF18A8218ECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85C75361-41AF-4EEB-A09F-CF18A8218ECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85C75361-41AF-4EEB-A09F-CF18A8218ECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85C75361-41AF-4EEB-A09F-CF18A8218ECD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{F9367A6A-74E1-4CFB-8A83-FDDA7EE6E654} = {A8C50D0B-FEFD-426A-B738-F97461C8340E}
 		{EB721F23-3F45-4B9B-BF6E-FED622978EC5} = {BF1CBC5E-7437-47E4-AD43-7CA60D56B3A5}
 		{DB0D078D-5E85-4969-9D3B-F5EFE945CB7E} = {BF1CBC5E-7437-47E4-AD43-7CA60D56B3A5}
+		{85C75361-41AF-4EEB-A09F-CF18A8218ECD} = {17D50BE0-88D2-4E2C-B4DB-F86214BC064F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8591D82-4480-461F-8F44-74CC713172A5}

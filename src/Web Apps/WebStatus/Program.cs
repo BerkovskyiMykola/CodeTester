@@ -1,9 +1,11 @@
+using Common.Logging;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using WebStatus;
 
 var configuration = GetConfiguration();
 
-Log.Logger = CreateSerilogLogger(configuration);
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
 
 try
 {
@@ -25,7 +27,11 @@ try
 
     var app = builder.Build();
 
-    if (!app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    else
     {
         app.UseExceptionHandler("/Home/Error");
     }
@@ -40,9 +46,12 @@ try
 
     app.UseRouting();
 
-    app.UseAuthorization();
-
     app.MapDefaultControllerRoute();
+
+    app.MapHealthChecks("/liveness", new HealthCheckOptions
+    {
+        Predicate = r => r.Name.Contains("self")
+    });
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
     app.Run();
@@ -57,18 +66,6 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
-}
-
-Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
-{
-    return new LoggerConfiguration()
-        .MinimumLevel.Verbose()
-        .Enrich.WithProperty("ApplicationContext", AppName)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.Seq(configuration["SeqServerUrl"]!)
-        .ReadFrom.Configuration(configuration)
-        .CreateLogger();
 }
 
 IConfiguration GetConfiguration()
