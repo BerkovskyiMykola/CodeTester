@@ -24,7 +24,8 @@ try
         .AddCustomDbContext(configuration)
         .AddCustomAuthentication(configuration)
         .AddCustomMvc(configuration)
-        .AddCustomHealthCheck(configuration);
+        .AddCustomHealthCheck(configuration)
+        .AddCustomConfiguration(configuration);
 
     var app = builder.Build();
 
@@ -84,12 +85,12 @@ finally
 
 IConfiguration GetConfiguration()
 {
-var builder = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables();
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
 
-return builder.Build();
+    return builder.Build();
 }
 
 public partial class Program
