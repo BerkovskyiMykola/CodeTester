@@ -1,4 +1,5 @@
 using Common.Logging;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using WebStatus;
 
@@ -26,7 +27,11 @@ try
 
     var app = builder.Build();
 
-    if (!app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    else
     {
         app.UseExceptionHandler("/Home/Error");
     }
@@ -41,9 +46,12 @@ try
 
     app.UseRouting();
 
-    app.UseAuthorization();
-
     app.MapDefaultControllerRoute();
+
+    app.MapHealthChecks("/liveness", new HealthCheckOptions
+    {
+        Predicate = r => r.Name.Contains("self")
+    });
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
     app.Run();
