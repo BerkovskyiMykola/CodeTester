@@ -70,9 +70,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - IdentityUrl=http://identity-api
+      - IdentityUrlHC=http://identity-api/hc
       - IdentityUrlExternal=http://localhost:8000
       - Ocelotapigw=http://ocelotapigw
-      - IdentityUrlHC=http://identity-api/hc
+      - OcelotapigwExternal=http://localhost:8010
       - SeqServerUrl=http://seq
     ports:
       - 8011:80
