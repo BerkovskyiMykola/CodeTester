@@ -1,3 +1,4 @@
+using Common.Logging;
 using Dictionary.API;
 using Dictionary.API.Persistence;
 using HealthChecks.UI.Client;
@@ -5,7 +6,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 
 var configuration = GetConfiguration();
-Log.Logger = CreateSerilogLogger(configuration);
+
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
 
 try
 {
@@ -13,8 +15,9 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
 
     builder.Services
         .AddCustomSwagger(configuration)
@@ -34,9 +37,9 @@ try
         options.OAuthUsePkce();
     });
 
+    app.UseRouting();
     app.UseCors("CorsPolicy");
 
-    app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -78,18 +81,6 @@ finally
     Log.CloseAndFlush();
 }
 
-
-Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
-{
-return new LoggerConfiguration()
-    .MinimumLevel.Verbose()
-    .Enrich.WithProperty("ApplicationContext", AppName)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.Seq(configuration["SeqServerUrl"]!)
-    .ReadFrom.Configuration(configuration)
-    .CreateLogger();
-}
 
 IConfiguration GetConfiguration()
 {
