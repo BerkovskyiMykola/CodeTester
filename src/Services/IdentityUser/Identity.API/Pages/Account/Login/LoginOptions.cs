@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace IdentityServerHost.Pages.Login;
 
 public class LoginOptions

@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
-namespace IdentityServerHost.Pages.Grants;
-
 #nullable disable
+
+namespace IdentityServerHost.Pages.Grants;
 
 [SecurityHeaders]
 [Authorize]

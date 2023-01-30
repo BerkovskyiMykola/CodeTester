@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace IdentityServerHost.Pages.Consent;
-
 #nullable disable
+
+namespace IdentityServerHost.Pages.Consent;
 
 [Authorize]
 [SecurityHeaders]

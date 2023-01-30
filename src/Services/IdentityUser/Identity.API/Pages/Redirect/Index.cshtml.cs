@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+#nullable disable
+
 namespace IdentityServerHost.Pages.Redirect;
 
 [AllowAnonymous]
 public class IndexModel : PageModel
 {
-    public string RedirectUri { get; set; } = string.Empty;
+    public string RedirectUri { get; set; }
 
     public IActionResult OnGet(string redirectUri)
     {

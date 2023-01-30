@@ -8,18 +8,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
+#nullable disable
+
 namespace IdentityServerHost.Pages.Ciba;
 
 [SecurityHeaders]
 [Authorize]
 public class AllModel : PageModel
 {
-    public IEnumerable<BackchannelUserLoginRequest> Logins { get; set; } = Enumerable.Empty<BackchannelUserLoginRequest>();
+    public IEnumerable<BackchannelUserLoginRequest> Logins { get; set; }
 
     [BindProperty, Required]
-    public string Id { get; set; } = string.Empty;
+    public string Id { get; set; }
     [BindProperty, Required]
-    public string Button { get; set; } = string.Empty;
+    public string Button { get; set; }
 
     private readonly IBackchannelAuthenticationInteractionService _backchannelAuthenticationInteraction;
 

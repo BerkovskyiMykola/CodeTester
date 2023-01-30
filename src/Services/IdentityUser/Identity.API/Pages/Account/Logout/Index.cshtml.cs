@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace IdentityServerHost.Pages.Logout;
-
 #nullable disable
+
+namespace IdentityServerHost.Pages.Logout;
 
 [SecurityHeaders]
 [AllowAnonymous]

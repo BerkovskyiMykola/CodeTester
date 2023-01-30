@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
-namespace IdentityServerHost.Pages.Device;
-
 #nullable disable
+
+namespace IdentityServerHost.Pages.Device;
 
 [SecurityHeaders]
 [Authorize]

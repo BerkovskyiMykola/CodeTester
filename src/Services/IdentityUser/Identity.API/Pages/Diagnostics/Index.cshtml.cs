@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace IdentityServerHost.Pages.Diagnostics;
-
 #nullable disable
+
+namespace IdentityServerHost.Pages.Diagnostics;
 
 [SecurityHeaders]
 [Authorize]

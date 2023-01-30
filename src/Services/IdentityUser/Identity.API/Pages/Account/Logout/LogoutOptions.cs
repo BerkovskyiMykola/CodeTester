@@ -1,3 +1,4 @@
+#nullable disable
 
 namespace IdentityServerHost.Pages.Logout;
 
