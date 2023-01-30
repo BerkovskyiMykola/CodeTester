@@ -73,16 +73,12 @@ try
         await next();
         if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
         {
-            var containerHost = builder.Configuration["IdentityUrl"];
-            var authority = builder.Configuration["IdentityUrlExternal"];
+            var containerHost = builder.Configuration["IdentityUrl"]!;
+            var authority = builder.Configuration["IdentityUrlExternal"]!;
 
-            if (!containerHost!.Equals(authority, StringComparison.OrdinalIgnoreCase))
-            {
-                string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location]!;
-                httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
-                        location.Replace(containerHost, authority);
-            }
-
+            string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location]!;
+            httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
+                    location.Replace(containerHost, authority);
         }
     });
 
