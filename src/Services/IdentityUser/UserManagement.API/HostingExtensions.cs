@@ -42,6 +42,7 @@ public static class HostingExtensions
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "Dictionary.API V1");
             options.EnablePersistAuthorization();
             options.OAuthClientId("usermanagement-swagger");
             options.OAuthScopes("openid", "usermanagement", "roles");
