@@ -23,6 +23,7 @@ try
         .ConfigurePipeline();
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
+
     app.Run();
 
     return 0;

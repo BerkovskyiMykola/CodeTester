@@ -1,5 +1,4 @@
 using Common.Logging;
-using Ocelot.Middleware;
 using OcelotApiGw;
 using Serilog;
 
@@ -19,14 +18,12 @@ try
 
     builder.Host.UseSerilog();
 
-    builder.Services
-        .AddCustomOcelot(configuration);
-
-    var app = builder.Build();
-
-    app.UseOcelot().Wait();
+    var app = builder
+        .ConfigureServices()
+        .ConfigurePipeline();
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
+
     app.Run();
 
     return 0;
@@ -55,6 +52,6 @@ IConfiguration GetConfiguration()
 public partial class Program
 {
 
-    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string Namespace = typeof(HostingExtensions).Namespace!;
     public static readonly string AppName = Namespace;
 }
