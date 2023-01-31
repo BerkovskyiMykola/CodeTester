@@ -1,4 +1,6 @@
-﻿namespace Core.Bases;
+﻿using MediatR;
+
+namespace Core.Bases;
 
 public abstract class Entity
 {
@@ -18,28 +20,47 @@ public abstract class Entity
         }
     }
 
+    private List<INotification>? _domainEvents;
+    public IReadOnlyCollection<INotification>? DomainEvents => _domainEvents?.AsReadOnly();
+
+    public void AddDomainEvent(INotification eventItem)
+    {
+        _domainEvents ??= new List<INotification>();
+        _domainEvents.Add(eventItem);
+    }
+
+    public void RemoveDomainEvent(INotification eventItem)
+    {
+        _domainEvents?.Remove(eventItem);
+    }
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents?.Clear();
+    }
+
     public bool IsTransient()
     {
-        return this.Id == default(Guid);
+        return Id == default;
     }
 
     public override bool Equals(object? obj)
     {
-        if (obj == null || !(obj is Entity))
+        if (obj == null || obj is not Entity)
             return false;
 
-        if (Object.ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, obj))
             return true;
 
-        if (this.GetType() != obj.GetType())
+        if (GetType() != obj.GetType())
             return false;
 
         Entity item = (Entity)obj;
 
-        if (item.IsTransient() || this.IsTransient())
+        if (item.IsTransient() || IsTransient())
             return false;
         else
-            return item.Id == this.Id;
+            return item.Id == Id;
     }
 
     public override int GetHashCode()
@@ -47,7 +68,7 @@ public abstract class Entity
         if (!IsTransient())
         {
             if (!_requestedHashCode.HasValue)
-                _requestedHashCode = this.Id.GetHashCode() ^ 31;
+                _requestedHashCode = Id.GetHashCode() ^ 31;
 
             return _requestedHashCode.Value;
         }
@@ -57,8 +78,8 @@ public abstract class Entity
     }
     public static bool operator ==(Entity left, Entity right)
     {
-        if (Object.Equals(left, null))
-            return (Object.Equals(right, null)) ? true : false;
+        if (Equals(left, null))
+            return Equals(right, null) ? true : false;
         else
             return left.Equals(right);
     }
