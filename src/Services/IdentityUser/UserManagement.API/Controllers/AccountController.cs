@@ -1,9 +1,12 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using UserManagement.API.DTO.Requests;
+using UserManagement.API.DTO.Responses;
 using UserManagement.API.EmailService;
-using UserManagement.API.Models;
+using UserManagement.API.IdentityService;
 
 namespace UserManagement.API.Controllers;
 
@@ -14,30 +17,33 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
+    private readonly IIdentityService _identityService;
 
     public AccountController(
-        UserManager<ApplicationUser> userManager, 
+        UserManager<ApplicationUser> userManager,
         IEmailSender emailSender,
-        IOptions<ApiBehaviorOptions> apiBehaviorOptions)
+        IOptions<ApiBehaviorOptions> apiBehaviorOptions,
+        IIdentityService identityService)
     {
         _userManager = userManager;
         _emailSender = emailSender;
         _apiBehaviorOptions = apiBehaviorOptions.Value;
+        _identityService = identityService;
     }
 
     [HttpPost("register-user")]
-    public async Task<IActionResult> RegisterUser(RegisterUserModel model)
+    public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
         var user = new ApplicationUser
         {
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            UserName = model.Email,
-            Email = model.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            UserName = request.Email,
+            Email = request.Email,
             EmailConfirmed = false
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
@@ -64,11 +70,11 @@ public class AccountController : ControllerBase
             {
                 new EmailAddress
                 {
-                    DisplayName = $"{user.FirstName} {user.LastName}", 
+                    DisplayName = $"{user.FirstName} {user.LastName}",
                     Address = user.Email
                 }
-            }, 
-            "Confirmation email link", 
+            },
+            "Confirmation email link",
             confirmationLink!);
 
         await _userManager.AddToRoleAsync(user, "User");
@@ -79,9 +85,9 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("resend-confirm-email")]
-    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailModel model)
+    public async Task<IActionResult> ResendConfirmEmail(ResendConfirmEmailRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
@@ -117,16 +123,16 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail(ConfirmEmailModel model)
+    public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
             return NotFound("User was not found.");
         }
 
-        var result = await _userManager.ConfirmEmailAsync(user, model.Token); 
+        var result = await _userManager.ConfirmEmailAsync(user, request.Token);
 
         if (!result.Succeeded)
         {
@@ -137,9 +143,9 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
@@ -174,17 +180,17 @@ public class AccountController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("reset-password-confirm")]
-    public async Task<IActionResult> ResetPasswordConfirm(ResetPasswordConfirmModel model)
+    [HttpPost("confirm-reset-password")]
+    public async Task<IActionResult> ConfirmResetPassword(ResetPasswordConfirmRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
             return NotFound("User was not found.");
         }
 
-        var resetPassResult = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+        var resetPassResult = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
         if (!resetPassResult.Succeeded)
         {
@@ -193,6 +199,80 @@ public class AccountController : ControllerBase
                 ModelState.TryAddModelError(error.Code, error.Description);
             }
 
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<ActionResult<ProfileResponse>> GetProfile()
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return new ProfileResponse
+        {
+            LastName = user.LastName,
+            FirstName = user.FirstName,
+        };
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> PutProfile(UpdateProfileRequest request)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.TryAddModelError(error.Code, error.Description);
+            }
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 

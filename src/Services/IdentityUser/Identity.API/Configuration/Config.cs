@@ -1,5 +1,4 @@
-﻿using Duende.IdentityServer;
-using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer.Models;
 
 namespace Identity.API.Configuration;
 
@@ -20,10 +19,10 @@ public static class Config
         return new List<ApiResource>
         {
             new ApiResource {
-                Name = "usermanagment",
-                DisplayName = "User Managment Service",
+                Name = "usermanagement",
+                DisplayName = "User Management Service",
                 Scopes = new List<string> {
-                    "usermanagment"
+                    "usermanagement"
                 }
             },
             new ApiResource {
@@ -54,7 +53,7 @@ public static class Config
     {
         return new List<ApiScope>
         {
-            new ApiScope("usermanagment") { UserClaims = new[] { "role" } },
+            new ApiScope("usermanagement") { UserClaims = new[] { "role" } },
             new ApiScope("dictionary") { UserClaims = new[] { "role" } },
             new ApiScope("testing") { UserClaims = new[] { "role" } },
             new ApiScope("testingagg") { UserClaims = new[] { "role" } },
@@ -67,20 +66,35 @@ public static class Config
         {
             new Client
             {
-                ClientId = "spa.client",
-                ClientName = "Spa Client",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
-                AllowedScopes =
+                ClientId = "usermanagement-swagger",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["UserManagementApi"]}/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { clientsUrl["UserManagementApi"] },
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "profile", "roles", "usermanagement" },
+            },
+            new Client
+            {
+                ClientId = "dictionary-swagger",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["DictionaryApi"]}/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { clientsUrl["DictionaryApi"] },
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "profile", "roles", "dictionary" },
+            },
+            new Client
+            {
+                ClientId = "bff",
+                ClientSecrets = { new Secret("secret".Sha256()) },
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["Spa"]}/signin-oidc" },
+                PostLogoutRedirectUris = { $"{clientsUrl["Spa"]}/signout-callback-oidc" },
+                AllowedScopes = new List<string>
                 {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    "usermanagment",
-                    "dictionary",
-                    "testing",
-                    "testingagg",
-                    "roles"
-                },
+                    "openid", "profile", "roles", "usermanagement", "dictionary"
+                }
             }
         };
     }

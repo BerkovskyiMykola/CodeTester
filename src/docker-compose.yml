@@ -1,8 +1,14 @@
 version: '3.4'
 
 services:
-  sql-server:
+  seq:
+    image: datalust/seq:latest
+
+  mssql-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
+
+  pgsql-server:
+    image: postgres:15
 
   identity-api:
     image: ${DOCKER_REGISTRY-}identity.api
@@ -10,7 +16,7 @@ services:
       context: .
       dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
-      - sql-server
+      - mssql-server
 
   usermanagement-api:
     image: ${DOCKER_REGISTRY-}usermanagement.api
@@ -18,8 +24,19 @@ services:
       context: .
       dockerfile: Services/IdentityUser/UserManagement.API/Dockerfile
     depends_on:
-      - sql-server
+      - mssql-server
       - identity-api
+      - seq
+
+  dictionary-api:
+    image: ${DOCKER_REGISTRY-}dictionary.api
+    build:
+      context: .
+      dockerfile: Services/Dictionary/Dictionary.API/Dockerfile
+    depends_on:
+      - identity-api
+      - pgsql-server
+      - seq
 
   ocelotapigw:
     image: ${DOCKER_REGISTRY-}ocelotapigw
@@ -29,3 +46,25 @@ services:
     depends_on:
       - identity-api
       - usermanagement-api
+      - dictionary-api
+      - seq
+
+  webspa:
+    image: ${DOCKER_REGISTRY-}webspa
+    build:
+      context: .
+      dockerfile: Web Apps/WebSPA/Dockerfile
+    depends_on:
+      - identity-api
+      - ocelotapigw
+      - seq
+
+  webstatus:
+    image: ${DOCKER_REGISTRY-}webstatus
+    build:
+      context: .
+      dockerfile: Web Apps/WebStatus/Dockerfile
+    depends_on:
+      - identity-api
+      - usermanagement-api
+      - seq

@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace DataAccess.Data;
 
@@ -21,6 +22,24 @@ public class ApplicationDbContextSeed
             {
                 await roleManager.CreateAsync(new IdentityRole("User"));
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            if (!context.Users.Any())
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = "tester@email.com",
+                    Email = "tester@email.com",
+                    EmailConfirmed = true,
+                    FirstName = "Test",
+                    LastName = "Test",
+                };
+
+                await userManager.CreateAsync(user, "Password@1");
+
+                await userManager.AddToRoleAsync(user, "Admin");
+
+                await context.SaveChangesAsync();
             }
         }
         catch (Exception ex)

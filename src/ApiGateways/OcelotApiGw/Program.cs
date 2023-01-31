@@ -1,38 +1,60 @@
-using Microsoft.IdentityModel.Tokens;
-using Ocelot.Cache.CacheManager;
-using Ocelot.DependencyInjection;
+using Common.Logging;
 using Ocelot.Middleware;
+using OcelotApiGw;
+using Serilog;
 
-namespace OcelotApiGw;
+var configuration = GetConfiguration();
 
-public class Program
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
+
+try
 {
-    public static void Main(string[] args)
-    {
-        var builder = WebApplication.CreateBuilder(args);
+    Log.Information("Configuring web host ({ApplicationContext})...", AppName);
 
-        builder.Configuration.AddJsonFile($"ocelot.json", true, true);
+    var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddOcelot().AddCacheManager(x =>
-        {
-            x.WithDictionaryHandle();
-        });
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
 
-        //builder.Services.AddAuthentication()
-        //    .AddJwtBearer("IdentityApiKey", x =>
-        //    {
-        //        x.Authority = builder.Configuration["IdentityUrl"];
-        //        x.RequireHttpsMetadata = false;
-        //        x.TokenValidationParameters = new TokenValidationParameters()
-        //        {
-        //            ValidAudiences = new[] { "usermanagment", "dictionary", "testing", "testingagg" }
-        //        };
-        //    });
+    builder.Host.UseSerilog();
 
-        var app = builder.Build();
+    builder.Services
+        .AddCustomOcelot(configuration);
 
-        app.UseOcelot().Wait();
+    var app = builder.Build();
 
-        app.Run();
-    }
+    app.UseOcelot().Wait();
+
+    Log.Information("Starting web host ({ApplicationContext})...", AppName);
+    app.Run();
+
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+IConfiguration GetConfiguration()
+{
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    return builder.Build();
+}
+
+public partial class Program
+{
+
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
 }

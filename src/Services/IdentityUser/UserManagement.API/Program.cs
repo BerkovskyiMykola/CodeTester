@@ -1,74 +1,95 @@
-using DataAccess.Data;
-using DataAccess.Entities;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Common.Logging;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
+using UserManagement.API;
 using UserManagement.API.EmailService;
 
-namespace UserManagement.API;
+var configuration = GetConfiguration();
 
-public class Program
+Log.Logger = SeriLogger.CreateSerilogLogger(configuration, AppName);
+
+try
 {
-    public static void Main(string[] args)
+    Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.WebHost.CaptureStartupErrors(false);
+    builder.WebHost.UseConfiguration(configuration);
+    builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
+
+    builder.Host.UseSerilog();
+
+    builder.Services
+        .AddCustomMvc(configuration)
+        .AddCustomDbContext(configuration)
+        .AddCustomDbContext(configuration)
+        .AddCustomIdentity(configuration)
+        .AddCustomSwagger(configuration)
+        .AddCustomAuthentication(configuration)
+        .AddCustomConfiguration(configuration)
+        .AddCustomIntegrations(configuration)
+        .AddCustomHealthCheck(configuration)
+        .AddScoped<IEmailSender, EmailSender>();
+
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        var builder = WebApplication.CreateBuilder(args);
+        options.EnablePersistAuthorization();
+        options.OAuthClientId("usermanagement-swagger");
+        options.OAuthScopes("openid", "usermanagement", "roles");
+        options.OAuthUsePkce();
+    });
 
-        var connectionString = builder.Configuration["ConnectionString"];
+    app.UseRouting();
+    app.UseCors("CorsPolicy");
 
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseSqlServer(connectionString, sqlOptions =>
-            {
-                sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name);
-                sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-            });
-        });
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-        builder.Services
-            .AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = true;
-            })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+    app.MapControllers();
 
-        builder.Services
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.Authority = builder.Configuration["IdentityUrl"];
-                options.RequireHttpsMetadata = false;
-                options.Audience = "usermanagment";
-            });
+    app.MapHealthChecks("/hc", new HealthCheckOptions()
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+    app.MapHealthChecks("/liveness", new HealthCheckOptions
+    {
+        Predicate = r => r.Name.Contains("self")
+    });
 
-        builder.Services.Configure<EmailConfiguration>(
-            builder.Configuration.GetSection(nameof(EmailConfiguration)));
+    Log.Information("Starting web host ({ApplicationContext})...", AppName);
+    app.Run();
 
-        builder.Services.AddScoped<IEmailSender, EmailSender>();
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
-        builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-        {
-            options.TokenLifespan = TimeSpan.FromHours(3);
-        });
+IConfiguration GetConfiguration()
+{
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddEnvironmentVariables();
 
-        builder.Services.AddAuthorization();
+    return builder.Build();
+}
 
-        builder.Services.AddControllers();
+public partial class Program
+{
 
-        var app = builder.Build();
-
-        app.UseRouting();
-
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        app.MapControllers();
-
-        app.Run();
-    }
+    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string AppName = Namespace;
 }
