@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Core.Bases;
+namespace Testing.Core.Bases;
 
 public abstract class Entity
 {

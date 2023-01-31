@@ -1,4 +1,4 @@
-﻿namespace Core.Bases;
+﻿namespace Testing.Core.Bases;
 
 public class Result
 {

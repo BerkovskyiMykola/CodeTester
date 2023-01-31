@@ -37,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Logging", "BuildingB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{1997FE84-CB8A-484A-B5C6-85B6480C3764}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Services\Testing\Core\Core.csproj", "{B0B00DCA-CF63-4920-9BD0-071140A7402C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing.Core", "Services\Testing\Core\Testing.Core.csproj", "{B0B00DCA-CF63-4920-9BD0-071140A7402C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

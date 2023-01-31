@@ -1,6 +1,6 @@
-﻿using Core.Bases;
+﻿using Testing.Core.Bases;
 
-namespace Core.Domain.AggregatesModel.TaskAggregate;
+namespace Testing.Core.Domain.AggregatesModel.TaskAggregate;
 
 public record Type
 {

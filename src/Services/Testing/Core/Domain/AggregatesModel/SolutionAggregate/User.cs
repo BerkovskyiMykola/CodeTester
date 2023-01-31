@@ -1,6 +1,6 @@
-﻿using Core.Bases;
+﻿using Testing.Core.Bases;
 
-namespace Core.Domain.AggregatesModel.SolutionAggregate;
+namespace Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 
 public record User
 {
