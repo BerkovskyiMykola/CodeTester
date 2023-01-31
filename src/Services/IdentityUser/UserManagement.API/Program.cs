@@ -1,9 +1,6 @@
 using Common.Logging;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using UserManagement.API;
-using UserManagement.API.EmailService;
 
 var configuration = GetConfiguration();
 
@@ -21,46 +18,9 @@ try
 
     builder.Host.UseSerilog();
 
-    builder.Services
-        .AddCustomMvc(configuration)
-        .AddCustomDbContext(configuration)
-        .AddCustomDbContext(configuration)
-        .AddCustomIdentity(configuration)
-        .AddCustomSwagger(configuration)
-        .AddCustomAuthentication(configuration)
-        .AddCustomConfiguration(configuration)
-        .AddCustomIntegrations(configuration)
-        .AddCustomHealthCheck(configuration)
-        .AddScoped<IEmailSender, EmailSender>();
-
-    var app = builder.Build();
-
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.EnablePersistAuthorization();
-        options.OAuthClientId("usermanagement-swagger");
-        options.OAuthScopes("openid", "usermanagement", "roles");
-        options.OAuthUsePkce();
-    });
-
-    app.UseRouting();
-    app.UseCors("CorsPolicy");
-
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.MapControllers();
-
-    app.MapHealthChecks("/hc", new HealthCheckOptions()
-    {
-        Predicate = _ => true,
-        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-    });
-    app.MapHealthChecks("/liveness", new HealthCheckOptions
-    {
-        Predicate = r => r.Name.Contains("self")
-    });
+    var app = builder
+        .ConfigureServices()
+        .ConfigurePipeline();
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
     app.Run();
@@ -90,6 +50,6 @@ IConfiguration GetConfiguration()
 public partial class Program
 {
 
-    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string Namespace = typeof(HostingExtensions).Namespace!;
     public static readonly string AppName = Namespace;
 }

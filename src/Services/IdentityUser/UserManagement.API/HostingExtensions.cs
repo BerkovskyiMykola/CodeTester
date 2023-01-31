@@ -1,6 +1,8 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +16,61 @@ using UserManagement.API.IdentityService;
 
 namespace UserManagement.API;
 
-public static class ConfigureServices
+public static class HostingExtensions
 {
-    public static IServiceCollection AddCustomSwagger(this IServiceCollection services, IConfiguration configuration)
+    public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+    {
+        var configuration = builder.Configuration;
+
+        builder.Services
+            .AddCustomMvc(configuration)
+            .AddCustomDbContext(configuration)
+            .AddCustomDbContext(configuration)
+            .AddCustomIdentity(configuration)
+            .AddCustomSwagger(configuration)
+            .AddCustomAuthentication(configuration)
+            .AddCustomConfiguration(configuration)
+            .AddCustomIntegrations(configuration)
+            .AddCustomHealthCheck(configuration)
+            .AddScoped<IEmailSender, EmailSender>();
+
+        return builder.Build();
+    }
+
+    public static WebApplication ConfigurePipeline(this WebApplication app)
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.EnablePersistAuthorization();
+            options.OAuthClientId("usermanagement-swagger");
+            options.OAuthScopes("openid", "usermanagement", "roles");
+            options.OAuthUsePkce();
+        });
+
+        app.UseRouting();
+        app.UseCors("CorsPolicy");
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        app.MapHealthChecks("/hc", new HealthCheckOptions()
+        {
+            Predicate = _ => true,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+        app.MapHealthChecks("/liveness", new HealthCheckOptions
+        {
+            Predicate = r => r.Name.Contains("self")
+        });
+
+        return app;
+    }
+
+
+    private static IServiceCollection AddCustomSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerGen(options =>
         {
@@ -59,7 +113,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         // prevent from mapping "sub" claim to nameidentifier.
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
@@ -79,7 +133,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomConfiguration(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions();
         services.Configure<EmailConfiguration>(configuration.GetSection(nameof(EmailConfiguration)));
@@ -104,7 +158,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
@@ -118,7 +172,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomIdentity(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomIdentity(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -136,7 +190,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomMvc(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomMvc(this IServiceCollection services, IConfiguration configuration)
     {
         // Add framework services.
         services.AddControllers(options =>
@@ -160,7 +214,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IIdentityService, IdentityService.IdentityService>();
@@ -168,7 +222,7 @@ public static class ConfigureServices
         return services;
     }
 
-    public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
         var hcBuilder = services.AddHealthChecks();
 
