@@ -1,5 +1,4 @@
 ﻿using Core.Bases;
-using Core.Domain.AggregatesModel.TaskAggregate;
 
 namespace Core.Domain.AggregatesModel.SolutionAggregate;
 
@@ -18,17 +17,17 @@ public record User
         if (string.IsNullOrWhiteSpace(email))
             return Result.Fail<User>("Email can't be empty");
 
-        if (string.IsNullOrWhiteSpace(email))
+        if (IsValidEmail(email))
             return Result.Fail<User>("Email is invalid");
 
         if (string.IsNullOrWhiteSpace(lastname))
-            return Result.Fail<User>("Lastname is invalid");
+            return Result.Fail<User>("Lastname can't be empty");
 
         if (lastname.Length > 50)
             return Result.Fail<User>("Lastname is too long");
 
         if (string.IsNullOrWhiteSpace(firstname))
-            return Result.Fail<User>("Firstname is invalid");
+            return Result.Fail<User>("Firstname can't be empty");
 
         if (firstname.Length > 50)
             return Result.Fail<User>("Firstname is too long");
@@ -37,7 +36,7 @@ public record User
         return Result.Ok(new User(id, email, lastname, firstname));
     }
 
-    public bool IsValidEmail(string value)
+    private static bool IsValidEmail(string value)
     {
         if (value.Length == 0)
         {
