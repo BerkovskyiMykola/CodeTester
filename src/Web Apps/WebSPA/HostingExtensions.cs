@@ -130,7 +130,6 @@ public static class HostingExtensions
                 options.Scope.Add("usermanagement");
                 options.Scope.Add("dictionary");
 
-                //maybe useless
                 options.ClaimActions.MapJsonKey("role", "role");
 
                 options.SaveTokens = true;
