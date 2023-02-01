@@ -1,4 +1,5 @@
 ﻿using Dictionary.API.Controllers;
+using Dictionary.API.Filters;
 using Dictionary.API.Persistence;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
-using UserManagement.API.Filters;
 
 namespace Dictionary.API;
 
@@ -79,6 +79,8 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomSwagger(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
+
         services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo
@@ -106,15 +108,15 @@ public static class HostingExtensions
             options.AddSecurityDefinition("OAuth", scheme);
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
                 {
+                    new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Id = "OAuth", Type = ReferenceType.SecurityScheme }
-                        },
-                        new List<string> { }
-                    }
-                });
+                        Reference = new OpenApiReference { Id = "OAuth", Type = ReferenceType.SecurityScheme }
+                    },
+                    new List<string> { }
+                }
+            });
         });
 
         return services;

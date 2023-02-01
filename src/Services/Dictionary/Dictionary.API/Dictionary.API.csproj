@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Common.Logging\Common.Logging.csproj" />
-    <ProjectReference Include="..\..\IdentityUser\UserManagement.API\UserManagement.API.csproj" />
   </ItemGroup>
 
 </Project>
