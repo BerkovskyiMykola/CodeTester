@@ -1,7 +1,6 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 
 namespace DataAccess.Data;
 

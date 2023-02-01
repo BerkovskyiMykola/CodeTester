@@ -15,7 +15,7 @@ public class Solution : Entity, IAggregateRoot
     public Solution(
         Guid id,
         Guid taskId,
-        User user, 
+        User user,
         SolutionValue value,
         bool success)
     {

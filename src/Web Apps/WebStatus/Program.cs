@@ -1,5 +1,4 @@
 using Common.Logging;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using WebStatus;
 
@@ -19,41 +18,12 @@ try
 
     builder.Host.UseSerilog();
 
-    builder.Services
-        .AddCustomHealthCheck(configuration)
-        .AddCustomHealthChecksUI(configuration)
-        .AddOptions()
-        .AddMvc();
-
-    var app = builder.Build();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Home/Error");
-    }
-
-    app.UseHealthChecksUI(config =>
-    {
-        config.ResourcesPath = "/ui/resources";
-        config.UIPath = "/hc-ui";
-    });
-
-    app.UseStaticFiles();
-
-    app.UseRouting();
-
-    app.MapDefaultControllerRoute();
-
-    app.MapHealthChecks("/liveness", new HealthCheckOptions
-    {
-        Predicate = r => r.Name.Contains("self")
-    });
+    var app = builder
+        .ConfigureServices()
+        .ConfigurePipeline();
 
     Log.Information("Starting web host ({ApplicationContext})...", AppName);
+
     app.Run();
 
     return 0;
@@ -81,6 +51,6 @@ IConfiguration GetConfiguration()
 public partial class Program
 {
 
-    public static readonly string Namespace = typeof(ConfigureServices).Namespace!;
+    public static readonly string Namespace = typeof(HostingExtensions).Namespace!;
     public static readonly string AppName = Namespace;
 }
