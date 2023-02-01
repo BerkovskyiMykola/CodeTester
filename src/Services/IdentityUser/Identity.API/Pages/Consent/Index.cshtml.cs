@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Consent;
+namespace Identity.API.Pages.Consent;
 
 [Authorize]
 [SecurityHeaders]

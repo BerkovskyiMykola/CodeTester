@@ -3,7 +3,7 @@
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Consent;
+namespace Identity.API.Pages.Consent;
 
 public class ConsentOptions
 {

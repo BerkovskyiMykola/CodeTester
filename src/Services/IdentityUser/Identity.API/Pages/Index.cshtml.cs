@@ -4,7 +4,7 @@ using System.Reflection;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Home;
+namespace Identity.API.Pages.Home;
 
 [AllowAnonymous]
 public class Index : PageModel

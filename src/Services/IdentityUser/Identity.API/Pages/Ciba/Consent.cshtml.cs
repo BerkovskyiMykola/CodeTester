@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Ciba;
+namespace Identity.API.Pages.Ciba;
 
 [Authorize]
 [SecurityHeaders]

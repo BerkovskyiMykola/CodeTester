@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Diagnostics;
+namespace Identity.API.Pages.Diagnostics;
 
 [SecurityHeaders]
 [Authorize]

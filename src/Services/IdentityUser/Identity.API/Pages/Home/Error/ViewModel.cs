@@ -5,7 +5,7 @@ using Duende.IdentityServer.Models;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Error;
+namespace Identity.API.Pages.Error;
 
 public class ViewModel
 {

@@ -3,7 +3,7 @@
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Device;
+namespace Identity.API.Pages.Device;
 
 public class DeviceOptions
 {

@@ -4,7 +4,7 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Validation;
-using IdentityServerHost.Pages.Consent;
+using Identity.API.Pages.Consent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Device;
+namespace Identity.API.Pages.Device;
 
 [SecurityHeaders]
 [Authorize]

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Redirect;
+namespace Identity.API.Pages.Redirect;
 
 [AllowAnonymous]
 public class IndexModel : PageModel

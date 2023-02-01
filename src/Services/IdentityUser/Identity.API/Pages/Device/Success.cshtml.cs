@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Device;
+namespace Identity.API.Pages.Device;
 
 [SecurityHeaders]
 [Authorize]

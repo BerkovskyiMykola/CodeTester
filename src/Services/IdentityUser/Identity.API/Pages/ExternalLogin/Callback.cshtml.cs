@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
-namespace IdentityServerHost.Pages.ExternalLogin;
+namespace Identity.API.Pages.ExternalLogin;
 
 #nullable disable
 

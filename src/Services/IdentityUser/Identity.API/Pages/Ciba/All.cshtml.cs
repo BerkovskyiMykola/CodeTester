@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Ciba;
+namespace Identity.API.Pages.Ciba;
 
 [SecurityHeaders]
 [Authorize]

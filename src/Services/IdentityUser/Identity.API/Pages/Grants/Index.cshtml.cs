@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Grants;
+namespace Identity.API.Pages.Grants;
 
 [SecurityHeaders]
 [Authorize]

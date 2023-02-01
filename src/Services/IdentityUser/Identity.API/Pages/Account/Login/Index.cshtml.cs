@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Login;
+namespace Identity.API.Pages.Login;
 
 [SecurityHeaders]
 [AllowAnonymous]

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Error;
+namespace Identity.API.Pages.Error;
 
 [AllowAnonymous]
 [SecurityHeaders]

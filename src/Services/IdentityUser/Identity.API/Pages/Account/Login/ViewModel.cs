@@ -3,7 +3,7 @@
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Login;
+namespace Identity.API.Pages.Login;
 
 public class ViewModel
 {

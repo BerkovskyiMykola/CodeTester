@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.ExternalLogin;
+namespace Identity.API.Pages.ExternalLogin;
 
 [AllowAnonymous]
 [SecurityHeaders]

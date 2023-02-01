@@ -9,7 +9,7 @@ using System.Text.Json;
 
 #nullable disable
 
-namespace IdentityServerHost.Pages.Diagnostics;
+namespace Identity.API.Pages.Diagnostics;
 
 public class ViewModel
 {
