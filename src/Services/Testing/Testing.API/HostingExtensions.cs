@@ -161,6 +161,11 @@ public static class HostingExtensions
 
         hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
 
+        hcBuilder.AddNpgSql(
+            configuration["ConnectionString"]!,
+            name: "DictionaryDB-check",
+            tags: new string[] { "DictionaryDB" });
+
         return services;
     }
 
