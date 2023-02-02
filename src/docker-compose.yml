@@ -17,6 +17,7 @@ services:
       dockerfile: Services/IdentityUser/Identity.API/Dockerfile
     depends_on:
       - mssql-server
+      - seq
 
   usermanagement-api:
     image: ${DOCKER_REGISTRY-}usermanagement.api
@@ -34,8 +35,18 @@ services:
       context: .
       dockerfile: Services/Dictionary/Dictionary.API/Dockerfile
     depends_on:
-      - identity-api
       - pgsql-server
+      - identity-api
+      - seq
+
+  testing-api:
+    image: ${DOCKER_REGISTRY-}testing.api
+    build:
+      context: .
+      dockerfile: Services/Testing/Testing.API/Dockerfile
+    depends_on:
+      - pgsql-server
+      - identity-api
       - seq
 
   ocelotapigw:
@@ -47,7 +58,7 @@ services:
       - identity-api
       - usermanagement-api
       - dictionary-api
-      - seq
+      - testing-api
 
   webspa:
     image: ${DOCKER_REGISTRY-}webspa
@@ -55,9 +66,7 @@ services:
       context: .
       dockerfile: Web Apps/WebSPA/Dockerfile
     depends_on:
-      - identity-api
       - ocelotapigw
-      - seq
 
   webstatus:
     image: ${DOCKER_REGISTRY-}webstatus
@@ -65,6 +74,4 @@ services:
       context: .
       dockerfile: Web Apps/WebStatus/Dockerfile
     depends_on:
-      - identity-api
-      - usermanagement-api
-      - seq
+      - webspa

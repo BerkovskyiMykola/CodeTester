@@ -10,8 +10,9 @@ public class ConfigurationDbContextSeed
     {
         var clientUrls = new Dictionary<string, string>
         {
-            { "DictionaryApi", configuration["DictionaryApiClient"]! },
             { "UserManagementApi", configuration["UserManagementApiClient"]! },
+            { "DictionaryApi", configuration["DictionaryApiClient"]! },
+            { "TestingApi", configuration["TestingApiClient"]! },
             { "Spa", configuration["SpaClient"]! }
         };
 
