@@ -86,6 +86,16 @@ public static class Config
             },
             new Client
             {
+                ClientId = "testing-swagger",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { $"{clientsUrl["TestingApi"]}/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { clientsUrl["TestingApi"] },
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "profile", "roles", "testing" },
+            },
+            new Client
+            {
                 ClientId = "bff",
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.Code,
