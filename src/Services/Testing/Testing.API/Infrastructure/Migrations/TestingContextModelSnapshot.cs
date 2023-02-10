@@ -40,7 +40,7 @@ namespace Testing.API.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("_taskId");
 
                     b.ToTable("Solutions", t =>
                         {
@@ -67,7 +67,7 @@ namespace Testing.API.Infrastructure.Migrations
                 {
                     b.HasOne("Testing.Core.Domain.AggregatesModel.TaskAggregate.Task", null)
                         .WithMany()
-                        .HasForeignKey("TaskId")
+                        .HasForeignKey("_taskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -56,17 +56,17 @@ namespace Testing.API.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Solutions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Solutions_Tasks_TaskId1",
-                        column: x => x.TaskId1,
+                        name: "FK_Solutions_Tasks_TaskId",
+                        column: x => x.TaskId,
                         principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Solutions_TaskId1",
+                name: "IX_Solutions_TaskId",
                 table: "Solutions",
-                column: "TaskId1");
+                column: "TaskId");
         }
 
         /// <inheritdoc />

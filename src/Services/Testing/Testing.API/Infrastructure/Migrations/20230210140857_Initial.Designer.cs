@@ -12,7 +12,7 @@ using Testing.Infrastructure.Persistence;
 namespace Testing.API.Infrastructure.Migrations
 {
     [DbContext(typeof(TestingContext))]
-    [Migration("20230210132134_Initial")]
+    [Migration("20230210140857_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,7 +43,7 @@ namespace Testing.API.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("_taskId");
 
                     b.ToTable("Solutions", t =>
                         {
@@ -70,7 +70,7 @@ namespace Testing.API.Infrastructure.Migrations
                 {
                     b.HasOne("Testing.Core.Domain.AggregatesModel.TaskAggregate.Task", null)
                         .WithMany()
-                        .HasForeignKey("TaskId")
+                        .HasForeignKey("_taskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
