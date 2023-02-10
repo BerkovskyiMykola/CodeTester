@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Filters;
+using Testing.API.Infrastructure;
+using Testing.Infrastructure.Persistence;
 
 namespace Testing.API;
 
@@ -61,7 +64,14 @@ public static class HostingExtensions
 
     public static WebApplication ApplyMigrations(this WebApplication app)
     {
+        app.MigrateDbContext<TestingContext>((context, services) =>
+        {
+            var logger = services.GetRequiredService<ILogger<TestingContext>>();
 
+            new TestingContextSeed()
+                .SeedAsync(context, logger)
+                .Wait();
+        });
 
         return app;
     }
@@ -195,7 +205,15 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddDbContext<TestingContext>(options =>
+        {
+            options.UseNpgsql(configuration["ConnectionString"], sqlOptions =>
+            {
+                sqlOptions.MigrationsAssembly(typeof(TestingContext).Assembly.GetName().Name);
+                sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
+            });
 
+        });
 
         return services;
     }

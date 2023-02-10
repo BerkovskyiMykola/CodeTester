@@ -14,6 +14,8 @@ public class Task : Entity, IAggregateRoot
 
     public DateTime CreateDate { get; private set; }
 
+    private Task() { }
+
     public Task(
         Guid id,
         Title title,

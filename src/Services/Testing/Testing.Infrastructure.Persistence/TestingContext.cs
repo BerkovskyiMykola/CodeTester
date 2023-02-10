@@ -11,7 +11,9 @@ public class TestingContext : DbContext, IUnitOfWork
     public DbSet<DomainTask> Tasks => Set<DomainTask>();
     public DbSet<Solution> Solutions => Set<Solution>();
 
-    private readonly IMediator _mediator;
+    private readonly IMediator? _mediator;
+
+    public TestingContext(DbContextOptions<TestingContext> options) : base(options) { }
 
     public TestingContext(DbContextOptions<TestingContext> options, IMediator mediator) : base(options)
     {
@@ -21,6 +23,8 @@ public class TestingContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TestingContext).Assembly);
+
+        //modelBuilder.Entity<DomainTask>().HasKey(x => x.Id);
     }
 
     public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -31,7 +35,10 @@ public class TestingContext : DbContext, IUnitOfWork
         // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
         // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
         // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
-        await _mediator.DispatchDomainEventsAsync(this);
+        if (_mediator != null)
+        {
+            await _mediator.DispatchDomainEventsAsync(this);
+        }
 
         // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
         // performed through the DbContext will be committed
