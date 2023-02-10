@@ -15,7 +15,7 @@ public record ExecutionCondition
         if (string.IsNullOrWhiteSpace(tests))
             return Result.Fail<ExecutionCondition>("Tests can't be empty");
 
-        if (timeLimit.TotalSeconds <= 1)
+        if (timeLimit.TotalSeconds < 1)
             return Result.Fail<ExecutionCondition>("TimeLimit can't be 1 second");
 
         return Result.Ok(new ExecutionCondition(tests, timeLimit));

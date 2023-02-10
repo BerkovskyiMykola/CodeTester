@@ -27,7 +27,7 @@ public class TestingContextSeed
                             new(
                                 seedGuids.ElementAt(0),
                                 Title.Create("Easy problem").Value!,
-                                Description.Create("Easy problem description", "12 -> 1 2 \n76 -> 7 6").Value!,
+                                Description.Create("Easy problem description", "12 -> 1 2 \n76 -> 7 6", "someCases1", "notes1").Value!,
                                 Difficulty.Create(1, "Easy").Value!,
                                 DomainType.Create(1, "For begginers").Value!,
                                 ProgrammingLanguage.Create(1, "C#").Value!,
@@ -37,7 +37,7 @@ public class TestingContextSeed
                             new(
                                 seedGuids.ElementAt(1),
                                 Title.Create("Mouse").Value!,
-                                Description.Create("Mouse is running through the squares", "LLRRRLRL; LLLLLRRRRLLRRR").Value!,
+                                Description.Create("Mouse is running through the squares", "LLRRRLRL; LLLLLRRRRLLRRR", "someCases1", "notes1").Value!,
                                 Difficulty.Create(2, "Medium").Value!,
                                 DomainType.Create(2, "Dynamic programming").Value!,
                                 ProgrammingLanguage.Create(2, "C++").Value!,
@@ -47,15 +47,11 @@ public class TestingContextSeed
                         }
                     );
 
-                await context.SaveChangesAsync();
-            }
-
-
-            if (!context.Solutions.Any())
-            {
-                context.Solutions.AddRange(
-                    new Solution[]
-                        {
+                if (!context.Solutions.Any())
+                {
+                    context.Solutions.AddRange(
+                        new Solution[]
+                            {
                             new(
                                 Guid.NewGuid(),
                                 seedGuids.ElementAt(0),
@@ -70,8 +66,9 @@ public class TestingContextSeed
                                 SolutionValue.Create("<solution code>").Value!,
                                 false
                             )
-                        }
-                    );
+                            }
+                        );
+                }
 
                 await context.SaveChangesAsync();
             }

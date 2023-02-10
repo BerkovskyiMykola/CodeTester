@@ -209,7 +209,7 @@ public static class HostingExtensions
         {
             options.UseNpgsql(configuration["ConnectionString"], sqlOptions =>
             {
-                sqlOptions.MigrationsAssembly(typeof(TestingContext).Assembly.GetName().Name);
+                sqlOptions.MigrationsAssembly(typeof(TestingContextSeed).Assembly.GetName().Name);
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
             });
 
