@@ -12,6 +12,8 @@ public class Solution : Entity, IAggregateRoot
     public SolutionValue Value { get; private set; }
     public bool Success { get; private set; }
 
+    private Solution() { }
+
     public Solution(
         Guid id,
         Guid taskId,

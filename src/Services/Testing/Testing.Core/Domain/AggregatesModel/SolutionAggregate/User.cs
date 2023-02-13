@@ -17,7 +17,7 @@ public record User
         if (string.IsNullOrWhiteSpace(email))
             return Result.Fail<User>("Email can't be empty");
 
-        if (IsValidEmail(email))
+        if (!IsValidEmail(email))
             return Result.Fail<User>("Email is invalid");
 
         if (string.IsNullOrWhiteSpace(lastname))

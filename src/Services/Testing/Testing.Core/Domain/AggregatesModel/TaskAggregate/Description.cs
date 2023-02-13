@@ -12,7 +12,7 @@ public record Description
     private Description(string text, string examples, string? someCases, string? note)
         => (Text, Examples, SomeCases, Note) = (text, examples, someCases, note);
 
-    public static Result<Description> Create(string text, string examples, string? someCases, string? note)
+    public static Result<Description> Create(string text, string examples, string? someCases = null, string? note = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             return Result.Fail<Description>("Text can't be empty");

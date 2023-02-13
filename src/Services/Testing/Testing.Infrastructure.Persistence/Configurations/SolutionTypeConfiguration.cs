@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
+using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
 namespace Testing.Infrastructure.Persistence.Configurations;
+
 
 public class SolutionTypeConfiguration
     : IEntityTypeConfiguration<Solution>
@@ -12,9 +14,6 @@ public class SolutionTypeConfiguration
         solutionConfiguration.HasKey(x => x.Id);
 
         solutionConfiguration.Ignore(x => x.DomainEvents);
-
-        solutionConfiguration.Property(x => x.TaskId)
-            .IsRequired();
 
         solutionConfiguration
             .OwnsOne(x => x.User);
@@ -28,7 +27,7 @@ public class SolutionTypeConfiguration
             .HasColumnName("TaskId")
             .IsRequired(true);
 
-        solutionConfiguration.HasOne<Task>()
+        solutionConfiguration.HasOne<DomainTask>()
             .WithMany()
             .IsRequired(true)
             .HasForeignKey("_taskId");
