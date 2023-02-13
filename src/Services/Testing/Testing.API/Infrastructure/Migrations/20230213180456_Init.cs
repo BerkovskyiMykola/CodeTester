@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Testing.API.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,7 +47,6 @@ namespace Testing.API.Infrastructure.Migrations
                     UserEmail = table.Column<string>(name: "User_Email", type: "text", nullable: false),
                     UserLastname = table.Column<string>(name: "User_Lastname", type: "text", nullable: false),
                     UserFirstname = table.Column<string>(name: "User_Firstname", type: "text", nullable: false),
-                    TaskId1 = table.Column<Guid>(type: "uuid", nullable: false),
                     ValueValue = table.Column<string>(name: "Value_Value", type: "text", nullable: false),
                     Success = table.Column<bool>(type: "boolean", nullable: false),
                     TaskId = table.Column<Guid>(type: "uuid", nullable: false)

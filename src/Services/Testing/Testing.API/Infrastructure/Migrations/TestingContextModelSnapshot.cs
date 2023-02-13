@@ -31,9 +31,6 @@ namespace Testing.API.Infrastructure.Migrations
                     b.Property<bool>("Success")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("_taskId")
                         .HasColumnType("uuid")
                         .HasColumnName("TaskId");
@@ -42,11 +39,7 @@ namespace Testing.API.Infrastructure.Migrations
 
                     b.HasIndex("_taskId");
 
-                    b.ToTable("Solutions", t =>
-                        {
-                            t.Property("TaskId")
-                                .HasColumnName("TaskId1");
-                        });
+                    b.ToTable("Solutions");
                 });
 
             modelBuilder.Entity("Testing.Core.Domain.AggregatesModel.TaskAggregate.Task", b =>

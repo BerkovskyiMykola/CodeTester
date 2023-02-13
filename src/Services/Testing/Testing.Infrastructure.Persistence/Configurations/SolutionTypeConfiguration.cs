@@ -15,9 +15,6 @@ public class SolutionTypeConfiguration
 
         solutionConfiguration.Ignore(x => x.DomainEvents);
 
-        solutionConfiguration.Property(x => x.TaskId)
-            .IsRequired();
-
         solutionConfiguration
             .OwnsOne(x => x.User);
 
