@@ -23,9 +23,18 @@ services:
       - POSTGRES_PASSWORD=postgres
     restart: always
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes: 
       - pgsql-server-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
 
   identity-api:
     environment:
@@ -45,6 +54,7 @@ services:
       - ConnectionString=Server=mssql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:
       - 8001:80
@@ -65,6 +75,7 @@ services:
       - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.TestingDb;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:
       - 8003:80

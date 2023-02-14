@@ -1,4 +1,6 @@
 ﻿using DataAccess.Entities;
+using EventBus.Messages.Events;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +17,22 @@ namespace UserManagement.API.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IEmailSender _emailSender;
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
+    private readonly IEmailSender _emailSender;
     private readonly IIdentityService _identityService;
-
+    private readonly IPublishEndpoint _publishEndpoint;
     public AccountController(
         UserManager<ApplicationUser> userManager,
-        IEmailSender emailSender,
         IOptions<ApiBehaviorOptions> apiBehaviorOptions,
-        IIdentityService identityService)
+        IEmailSender emailSender,
+        IIdentityService identityService,
+        IPublishEndpoint publishEndpoint)
     {
         _userManager = userManager;
         _emailSender = emailSender;
         _apiBehaviorOptions = apiBehaviorOptions.Value;
         _identityService = identityService;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpPost("register-user")]
@@ -47,21 +51,11 @@ public class AccountController : ControllerBase
 
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
+            AddErrors(result);
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-        //var confirmationLink = Url.Action(
-        //    action: nameof(ConfirmEmail), 
-        //    controller: "Account", 
-        //    values: new { token, email = user.Email }, 
-        //    protocol: "https", 
-        //    host: "our-website");
 
         var confirmationLink = $"Email:{user.Email} Token:{token}";
 
@@ -96,13 +90,6 @@ public class AccountController : ControllerBase
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-        //var confirmationLink = Url.Action(
-        //    action: nameof(ConfirmEmail), 
-        //    controller: "Account", 
-        //    values: new { token, email = user.Email }, 
-        //    protocol: "https", 
-        //    host: "our-website");
-
         var confirmationLink = $"Email:{user.Email} Token:{token}";
 
         var message = new Message(
@@ -115,7 +102,7 @@ public class AccountController : ControllerBase
                 }
             },
             "Confirmation email link",
-            confirmationLink!);
+            confirmationLink);
 
         await _emailSender.SendEmailAsync(message);
 
@@ -154,13 +141,6 @@ public class AccountController : ControllerBase
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        //var callback = Url.Action(
-        //    action: nameof(ResetPassword),
-        //    controller: "Account",
-        //    values: new { token, email = user.Email },
-        //    protocol: "https",
-        //    host: "our-website");
-
         var callback = $"Email:{user.Email} Token:{token}";
 
         var message = new Message(
@@ -173,7 +153,7 @@ public class AccountController : ControllerBase
                 }
             },
             "Reset password token",
-            callback!);
+            callback);
 
         await _emailSender.SendEmailAsync(message);
 
@@ -190,15 +170,11 @@ public class AccountController : ControllerBase
             return NotFound("User was not found.");
         }
 
-        var resetPassResult = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
-        if (!resetPassResult.Succeeded)
+        if (!result.Succeeded)
         {
-            foreach (var error in resetPassResult.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
-
+            AddErrors(result);
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 
@@ -228,8 +204,8 @@ public class AccountController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PutProfile(UpdateProfileRequest request)
     {
-        var userid = _identityService.GetUserIdentity();
-        var user = await _userManager.FindByIdAsync(userid);
+        var userId = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userId);
 
         if (user == null)
         {
@@ -243,12 +219,15 @@ public class AccountController : ControllerBase
 
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
+            AddErrors(result);
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
+
+        await _publishEndpoint.Publish(new UserUpdatedIntegrationEvent(
+            Guid.Parse(userId), 
+            user.Email!, 
+            user.FirstName, 
+            user.LastName));
 
         return NoContent();
     }
@@ -277,5 +256,13 @@ public class AccountController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    private void AddErrors(IdentityResult result)
+    {
+        foreach (var error in result.Errors)
+        {
+            ModelState.TryAddModelError(error.Code, error.Description);
+        }
     }
 }

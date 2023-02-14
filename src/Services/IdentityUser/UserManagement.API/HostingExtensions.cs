@@ -1,6 +1,7 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
 using HealthChecks.UI.Client;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +33,7 @@ public static class HostingExtensions
             .AddCustomConfiguration(configuration)
             .AddCustomIntegrations(configuration)
             .AddCustomHealthCheck(configuration)
-            .AddScoped<IEmailSender, EmailSender>();
+            .AddEventBus(configuration);
 
         return builder.Build();
     }
@@ -219,6 +220,7 @@ public static class HostingExtensions
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IIdentityService, IdentityService.IdentityService>();
+        services.AddScoped<IEmailSender, EmailSender>();
 
         return services;
     }
@@ -233,6 +235,24 @@ public static class HostingExtensions
             configuration["ConnectionString"]!,
             name: "IdentityDB-check",
             tags: new string[] { "IdentityDB" });
+
+        hcBuilder.AddRabbitMQ(
+            configuration["EventBusHostAddress"]!,
+            name: "usermanagement-rabbitmqbus-check",
+            tags: new string[] { "rabbitmqbus" });
+
+        return services;
+    }
+
+    private static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMassTransit(config =>
+        {
+            config.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(configuration["EventBusHostAddress"]);
+            });
+        });
 
         return services;
     }

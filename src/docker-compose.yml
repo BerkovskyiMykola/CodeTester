@@ -10,6 +10,9 @@ services:
   pgsql-server:
     image: postgres:15
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
   identity-api:
     image: ${DOCKER_REGISTRY-}identity.api
     build:
@@ -28,6 +31,7 @@ services:
       - mssql-server
       - identity-api
       - seq
+      - rabbitmq
 
   dictionary-api:
     image: ${DOCKER_REGISTRY-}dictionary.api
@@ -48,6 +52,7 @@ services:
       - pgsql-server
       - identity-api
       - seq
+      - rabbitmq
 
   ocelotapigw:
     image: ${DOCKER_REGISTRY-}ocelotapigw

@@ -1,4 +1,6 @@
-﻿using HealthChecks.UI.Client;
+﻿using EventBus.Messages.Common;
+using HealthChecks.UI.Client;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +26,8 @@ public static class HostingExtensions
             .AddCustomMvc(configuration)
             .AddCustomHealthCheck(configuration)
             .AddCustomConfiguration(configuration)
-            .AddCustomDbContext(configuration);
+            .AddCustomDbContext(configuration)
+            .AddEventBus(configuration);
 
         return builder.Build();
     }
@@ -176,6 +179,11 @@ public static class HostingExtensions
             name: "DictionaryDB-check",
             tags: new string[] { "DictionaryDB" });
 
+        hcBuilder.AddRabbitMQ(
+            configuration["EventBusHostAddress"]!,
+            name: "usermanagement-rabbitmqbus-check",
+            tags: new string[] { "rabbitmqbus" });
+
         return services;
     }
 
@@ -212,7 +220,24 @@ public static class HostingExtensions
                 sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
             });
+        });
 
+        return services;
+    }
+
+    private static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMassTransit(config => 
+        {
+            config.UsingRabbitMq((context, cfg) => 
+            {
+                cfg.Host(configuration["EventBusHostAddress"]);
+
+                cfg.ReceiveEndpoint(EventBusConstants.TestingQueue, c =>
+                {
+                    
+                });
+            });
         });
 
         return services;
