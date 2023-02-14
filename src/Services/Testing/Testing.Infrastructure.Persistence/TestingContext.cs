@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Testing.Core.Bases;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
+using Testing.Infrastructure.Persistence.EntityConfigurations;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
 namespace Testing.Infrastructure.Persistence;
@@ -22,26 +23,17 @@ public class TestingContext : DbContext, IUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TestingContext).Assembly);
-
-        //modelBuilder.Entity<DomainTask>().HasKey(x => x.Id);
+        modelBuilder.ApplyConfiguration(new SolutionEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TaskEntityConfiguration());
     }
 
-    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
+    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
-        // Dispatch Domain Events collection. 
-        // Choices:
-        // A) Right BEFORE committing data (EF SaveChanges) into the DB will make a single transaction including  
-        // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
-        // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
-        // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
         if (_mediator != null)
         {
             await _mediator.DispatchDomainEventsAsync(this);
         }
 
-        // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
-        // performed through the DbContext will be committed
         var result = await base.SaveChangesAsync(cancellationToken);
 
         return true;

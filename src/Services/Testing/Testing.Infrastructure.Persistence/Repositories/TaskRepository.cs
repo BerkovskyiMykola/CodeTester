@@ -20,9 +20,7 @@ public class TaskRepository
     {
         if (task.IsTransient())
         {
-            return _context.Tasks
-                .Add(task)
-                .Entity;
+            return _context.Tasks.Add(task).Entity;
         }
 
         return task;
@@ -30,27 +28,23 @@ public class TaskRepository
 
     public DomainTask Update(DomainTask task)
     {
-        return _context.Tasks
-            .Update(task)
-            .Entity;
+        return _context.Tasks.Update(task).Entity;
     }
 
     public async Task Delete(Guid id)
     {
-        DomainTask? task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == id);
-        if (task! != null!)
+        var task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (task != null)
         {
             _context.Tasks.Remove(task);
         }
     }
 
-    public async Task<DomainTask> FindByIdAsync(Guid id)
+    public async Task<DomainTask?> FindByIdAsync(Guid id)
     {
         return await _context.Tasks
-                .Where(b => b.Id == id)
-                .SingleOrDefaultAsync();
-
-        //nullable result?
-        //Task<DomainTask?>
+            .Where(b => b.Id == id)
+            .FirstOrDefaultAsync();
     }
 }

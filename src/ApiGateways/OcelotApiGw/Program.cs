@@ -1,5 +1,5 @@
 using Common.Logging;
-using OcelotApiGw;
+using OcelotApiGw.Extensions;
 using Serilog;
 
 var configuration = GetConfiguration();

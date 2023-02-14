@@ -1,6 +1,6 @@
 using Common.Logging;
 using Serilog;
-using WebStatus;
+using WebStatus.Extensions;
 
 var configuration = GetConfiguration();
 

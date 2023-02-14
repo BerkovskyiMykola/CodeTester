@@ -15,14 +15,11 @@ public class SolutionRepository : ISolutionRepository
         _context = context;
     }
 
-    public async Task<Solution> FindByIdAsync(Guid id)
+    public async Task<Solution?> FindByIdAsync(Guid id)
     {
         return await _context.Solutions
-                .Where(b => b.Id == id)
-                .SingleOrDefaultAsync();
-
-        //nullable result?
-        //Task<Solution?>
+            .Where(b => b.Id == id)
+            .FirstOrDefaultAsync();
     }
 
     public Solution Upsert(Solution solution)
@@ -31,6 +28,6 @@ public class SolutionRepository : ISolutionRepository
             EntityState.Added :
             EntityState.Modified;
 
-        return solution; //will work?
+        return solution;
     }
 }

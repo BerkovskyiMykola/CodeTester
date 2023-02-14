@@ -1,6 +1,6 @@
 using Common.Logging;
 using Serilog;
-using WebSPA;
+using WebSPA.Extensions;
 
 var configuration = GetConfiguration();
 

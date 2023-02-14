@@ -1,8 +1,7 @@
-﻿using Dictionary.API.DTO.Requests;
-using Dictionary.API.DTO.Responses;
-using Dictionary.API.Entities;
+﻿using Dictionary.API.DTOs.Difficulties;
 using Dictionary.API.Extensions;
-using Dictionary.API.Persistence;
+using Dictionary.API.Infrastructure;
+using Dictionary.API.Infrastructure.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +12,9 @@ namespace Dictionary.API.Controllers;
 [ApiController]
 public class DifficultiesController : ControllerBase
 {
-    private readonly DictionaryDBContext _context;
+    private readonly DictionaryContext _context;
 
-    public DifficultiesController(DictionaryDBContext context)
+    public DifficultiesController(DictionaryContext context)
     {
         _context = context;
     }

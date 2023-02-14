@@ -6,5 +6,5 @@ namespace Testing.Core.Domain.Repositories;
 public interface ISolutionRepository : IRepository<Solution>
 {
     Solution Upsert(Solution solution);
-    Task<Solution> FindByIdAsync(Guid id);
+    Task<Solution?> FindByIdAsync(Guid id);
 }

@@ -1,6 +1,6 @@
 using Common.Logging;
 using Serilog;
-using Testing.API;
+using Testing.API.Extensions;
 
 var configuration = GetConfiguration();
 

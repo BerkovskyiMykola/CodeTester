@@ -1,5 +1,5 @@
 using Common.Logging;
-using Dictionary.API;
+using Dictionary.API.Extensions;
 using Serilog;
 
 var configuration = GetConfiguration();
