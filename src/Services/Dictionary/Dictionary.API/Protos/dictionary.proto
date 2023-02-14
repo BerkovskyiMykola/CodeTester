@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option csharp_namespace = "Dictionary.API.Protos";
+
+service DictionaryGrpc {
+	rpc GetDifficultyById (DifficultyIdRequest) returns (DifficultyResponse);
+	rpc GetProgrammingLanguageById (ProgrammingLanguageIdRequest) returns (ProgrammingLanguageResponse);
+	rpc GetTaskTypeById (TaskTypeIdRequest) returns (TaskTypeResponse);
+}
+
+message DifficultyIdRequest {
+	int32 id = 1;
+}
+
+message DifficultyResponse {
+	int32 id = 1;
+	string name = 2;
+}
+
+message ProgrammingLanguageIdRequest {
+	int32 id = 1;
+}
+
+message ProgrammingLanguageResponse {
+	int32 id = 1;
+	string name = 2;
+}
+
+message TaskTypeIdRequest {
+	int32 id = 1;
+}
+
+message TaskTypeResponse {
+	int32 id = 1;
+	string name = 2;
+}

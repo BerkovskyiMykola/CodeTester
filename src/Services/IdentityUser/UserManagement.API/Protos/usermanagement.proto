@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserManagement.API.Protos";
+
+service UserManagementGrpc {
+	rpc GetUserById (UserIdRequest) returns (UserResponse);
+}
+
+message UserIdRequest {
+	string id = 1;
+}
+
+message UserResponse {
+	string id = 1;
+	string email = 2;
+	string lastname = 3;
+	string firstname = 4;
+}

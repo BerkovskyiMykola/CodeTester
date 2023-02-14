@@ -1,4 +1,5 @@
 ﻿using Dictionary.API.Controllers;
+using Dictionary.API.Grpc;
 using Dictionary.API.Infrastructure;
 using Dictionary.API.Infrastructure.Filters;
 using HealthChecks.UI.Client;
@@ -19,6 +20,7 @@ public static class HostingExtensions
         var configuration = builder.Configuration;
 
         builder.Services
+            .AddCustomGrpc(configuration)
             .AddCustomSwagger(configuration)
             .AddCustomDbContext(configuration)
             .AddCustomAuthentication(configuration)
@@ -48,7 +50,7 @@ public static class HostingExtensions
         app.UseAuthorization();
 
         app.MapControllers();
-
+        app.MapGrpcService<DictionaryService>();
         app.MapHealthChecks("/hc", new HealthCheckOptions()
         {
             Predicate = _ => true,
@@ -193,6 +195,16 @@ public static class HostingExtensions
             configuration["ConnectionString"]!,
             name: "DictionaryDB-check",
             tags: new string[] { "DictionaryDB" });
+
+        return services;
+    }
+
+    private static IServiceCollection AddCustomGrpc(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddGrpc(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
 
         return services;
     }
