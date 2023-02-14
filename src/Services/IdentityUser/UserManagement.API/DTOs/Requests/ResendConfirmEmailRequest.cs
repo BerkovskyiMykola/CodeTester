@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserManagement.API.DTO.Requests;
+namespace UserManagement.API.DTOs.Requests;
 
-public class ResetPasswordRequest
+public class ResendConfirmEmailRequest
 {
     [Required]
     [EmailAddress]

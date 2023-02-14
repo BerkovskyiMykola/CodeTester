@@ -1,4 +1,4 @@
-﻿namespace UserManagement.API.DTO.Responses;
+﻿namespace UserManagement.API.DTOs.Responses;
 
 public class ProfileResponse
 {

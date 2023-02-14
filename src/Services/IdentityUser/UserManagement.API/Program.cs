@@ -1,6 +1,6 @@
 using Common.Logging;
 using Serilog;
-using UserManagement.API;
+using UserManagement.API.Extensions;
 
 var configuration = GetConfiguration();
 

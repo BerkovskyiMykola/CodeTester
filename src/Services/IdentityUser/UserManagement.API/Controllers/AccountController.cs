@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using UserManagement.API.DTO.Requests;
-using UserManagement.API.DTO.Responses;
-using UserManagement.API.EmailService;
-using UserManagement.API.IdentityService;
+using UserManagement.API.DTOs.Requests;
+using UserManagement.API.DTOs.Responses;
+using UserManagement.API.Infrastructure.Services;
+using UserManagement.API.Infrastructure.Services.EmailService;
 
 namespace UserManagement.API.Controllers;
 
@@ -224,9 +224,9 @@ public class AccountController : ControllerBase
         }
 
         await _publishEndpoint.Publish(new UserUpdatedIntegrationEvent(
-            Guid.Parse(userId), 
-            user.Email!, 
-            user.FirstName, 
+            Guid.Parse(userId),
+            user.Email!,
+            user.FirstName,
             user.LastName));
 
         return NoContent();

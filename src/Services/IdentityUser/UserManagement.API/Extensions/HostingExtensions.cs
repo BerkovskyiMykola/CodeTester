@@ -11,11 +11,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
-using UserManagement.API.EmailService;
-using UserManagement.API.Filters;
-using UserManagement.API.IdentityService;
+using UserManagement.API.Infrastructure.Filters;
+using UserManagement.API.Infrastructure.Services;
+using UserManagement.API.Infrastructure.Services.EmailService;
 
-namespace UserManagement.API;
+namespace UserManagement.API.Extensions;
 
 public static class HostingExtensions
 {
@@ -219,7 +219,7 @@ public static class HostingExtensions
     private static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<IIdentityService, IdentityService.IdentityService>();
+        services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IEmailSender, EmailSender>();
 
         return services;

@@ -3,7 +3,13 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace UserManagement.API.EmailService;
+namespace UserManagement.API.Infrastructure.Services.EmailService;
+
+public interface IEmailSender
+{
+    void SendEmail(Message message);
+    Task SendEmailAsync(Message message);
+}
 
 public class EmailSender : IEmailSender
 {
@@ -35,7 +41,7 @@ public class EmailSender : IEmailSender
         emailMessage.To.AddRange(message.To);
         emailMessage.Subject = message.Subject;
 
-        var bodyBuilder = new BodyBuilder { HtmlBody = string.Format("<h2 style='color:red;'>{0}</h2>", message.Content) };
+        var bodyBuilder = new BodyBuilder { HtmlBody = message.Content };
 
         if (message.Attachments != null && message.Attachments.Any())
         {

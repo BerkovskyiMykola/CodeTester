@@ -39,7 +39,7 @@ services:
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=mssql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - ConnectionString=Server=mssql-server;Database=Services.IdentityDB;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - UserManagementApiClient=http://localhost:8001
       - DictionaryApiClient=http://localhost:8002
       - TestingApiClient=http://localhost:8003
@@ -51,7 +51,7 @@ services:
   usermanagement-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=mssql-server;Database=Services.IdentityDb;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
+      - ConnectionString=Server=mssql-server;Database=Services.IdentityDB;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
@@ -62,7 +62,7 @@ services:
   dictionary-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDb;Username=postgres;Password=postgres;
+      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.DictionaryDB;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - SeqServerUrl=http://seq
@@ -72,7 +72,7 @@ services:
   testing-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.TestingDb;Username=postgres;Password=postgres;
+      - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.TestingDB;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672

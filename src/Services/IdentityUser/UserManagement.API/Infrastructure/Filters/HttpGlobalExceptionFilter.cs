@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
+using UserManagement.API.Infrastructure.ActionResults;
 
-namespace UserManagement.API.Filters;
+namespace UserManagement.API.Infrastructure.Filters;
 
 public class HttpGlobalExceptionFilter : IExceptionFilter
 {
@@ -42,14 +42,5 @@ public class HttpGlobalExceptionFilter : IExceptionFilter
         public string[] Messages { get; set; } = Array.Empty<string>();
 
         public string? DeveloperMessage { get; set; }
-    }
-}
-
-public class InternalServerErrorObjectResult : ObjectResult
-{
-    public InternalServerErrorObjectResult(object error)
-        : base(error)
-    {
-        StatusCode = StatusCodes.Status500InternalServerError;
     }
 }

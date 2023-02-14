@@ -1,4 +1,9 @@
-﻿namespace UserManagement.API.IdentityService;
+﻿namespace UserManagement.API.Infrastructure.Services;
+
+public interface IIdentityService
+{
+    string GetUserIdentity();
+}
 
 public class IdentityService : IIdentityService
 {
