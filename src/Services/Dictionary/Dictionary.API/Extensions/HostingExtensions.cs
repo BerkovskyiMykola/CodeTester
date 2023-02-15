@@ -2,6 +2,7 @@
 using Dictionary.API.Infrastructure;
 using Dictionary.API.Infrastructure.Filters;
 using Dictionary.API.Infrastructure.GrpcServices;
+using Dictionary.API.Infrastructure.Interceptors;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -201,9 +202,12 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomGrpc(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ServerLoggerInterceptor>();
+
         services.AddGrpc(options =>
         {
             options.EnableDetailedErrors = true;
+            options.Interceptors.Add<ServerLoggerInterceptor>();
         });
 
         return services;

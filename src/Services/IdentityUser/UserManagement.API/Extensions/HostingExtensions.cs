@@ -13,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
 using UserManagement.API.Infrastructure.Filters;
 using UserManagement.API.Infrastructure.GrpcServices;
+using UserManagement.API.Infrastructure.Interceptors;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
 
@@ -261,9 +262,12 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomGrpc(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ServerLoggerInterceptor>();
+
         services.AddGrpc(options =>
         {
             options.EnableDetailedErrors = true;
+            options.Interceptors.Add<ServerLoggerInterceptor>();
         });
 
         return services;

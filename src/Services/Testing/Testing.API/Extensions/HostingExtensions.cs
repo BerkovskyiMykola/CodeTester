@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.Filters;
+using Testing.API.Infrastructure.Interceptors;
 using Testing.Infrastructure.Persistence;
 using UserManagement.API.Protos;
 
@@ -250,15 +251,17 @@ public static class HostingExtensions
 
     public static IServiceCollection AddGrpcServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ClientLoggerInterceptor>();
+
         services.AddGrpcClient<DictionaryGrpc.DictionaryGrpcClient>(options =>
         {
             options.Address = new Uri(configuration["DictionaryUrl"]!);
-        });
+        }).AddInterceptor<ClientLoggerInterceptor>();
 
         services.AddGrpcClient<UserManagementGrpc.UserManagementGrpcClient>(options =>
         {
             options.Address = new Uri(configuration["UserManagementUrl"]!);
-        });
+        }).AddInterceptor<ClientLoggerInterceptor>();
 
         return services;
     }
