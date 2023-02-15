@@ -33,6 +33,8 @@ try
         });
     });
 
+    builder.Host.UseSerilog();
+
     var app = builder
         .ConfigureServices()
         .ConfigurePipeline();

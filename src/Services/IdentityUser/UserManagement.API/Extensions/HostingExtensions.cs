@@ -11,8 +11,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
-using UserManagement.API.Grpc;
 using UserManagement.API.Infrastructure.Filters;
+using UserManagement.API.Infrastructure.GrpcServices;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
 

@@ -1,16 +1,20 @@
-﻿using EventBus.Messages.Common;
+﻿using Dictionary.API.Protos;
+using EventBus.Messages.Common;
 using HealthChecks.UI.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.Filters;
 using Testing.Infrastructure.Persistence;
+using UserManagement.API.Protos;
 
 namespace Testing.API.Extensions;
 
@@ -27,7 +31,8 @@ public static class HostingExtensions
             .AddCustomHealthCheck(configuration)
             .AddCustomConfiguration(configuration)
             .AddCustomDbContext(configuration)
-            .AddEventBus(configuration);
+            .AddEventBus(configuration)
+            .AddGrpcServices(configuration);
 
         return builder.Build();
     }
@@ -238,6 +243,21 @@ public static class HostingExtensions
                     
                 });
             });
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddGrpcServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddGrpcClient<DictionaryGrpc.DictionaryGrpcClient>(options =>
+        {
+            options.Address = new Uri(configuration["DictionaryUrl"]!);
+        });
+
+        services.AddGrpcClient<UserManagementGrpc.UserManagementGrpcClient>(options =>
+        {
+            options.Address = new Uri(configuration["UserManagementUrl"]!);
         });
 
         return services;

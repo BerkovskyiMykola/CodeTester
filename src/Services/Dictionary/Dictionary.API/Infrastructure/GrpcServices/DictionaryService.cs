@@ -1,9 +1,8 @@
-﻿using Dictionary.API.Infrastructure;
-using Dictionary.API.Protos;
+﻿using Dictionary.API.Protos;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dictionary.API.Grpc;
+namespace Dictionary.API.Infrastructure.GrpcServices;
 
 public class DictionaryService : DictionaryGrpc.DictionaryGrpcBase
 {
@@ -11,7 +10,7 @@ public class DictionaryService : DictionaryGrpc.DictionaryGrpcBase
     private readonly ILogger<DictionaryService> _logger;
 
     public DictionaryService(
-        DictionaryContext context, 
+        DictionaryContext context,
         ILogger<DictionaryService> logger)
     {
         _context = context;
@@ -23,7 +22,7 @@ public class DictionaryService : DictionaryGrpc.DictionaryGrpcBase
         _logger.LogInformation($"Begin grpc call DictionaryService.GetDifficultyById for difficulty id {request.Id}.");
 
         var difficulty = await _context.Difficulties.FirstOrDefaultAsync(x => x.Id == request.Id);
-        
+
         if (difficulty == null)
         {
             throw new RpcException(new Status(StatusCode.NotFound, $"Difficulty with Id={request.Id} is not found."));

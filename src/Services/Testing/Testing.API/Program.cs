@@ -16,6 +16,8 @@ try
     builder.WebHost.UseConfiguration(configuration);
     builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
 
+    builder.Host.UseSerilog();
+
     var app = builder
         .ConfigureServices()
         .ConfigurePipeline();
