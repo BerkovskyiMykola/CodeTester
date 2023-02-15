@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option csharp_namespace = "UserManagement.API.Protos";
 
+package UserManagementApi;
+
 service UserManagementGrpc {
 	rpc GetUserById (UserIdRequest) returns (UserResponse);
 }

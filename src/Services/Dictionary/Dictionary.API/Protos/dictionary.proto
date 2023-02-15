@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option csharp_namespace = "Dictionary.API.Protos";
 
+package DictionaryApi;
+
 service DictionaryGrpc {
 	rpc GetDifficultyById (DifficultyIdRequest) returns (DifficultyResponse);
 	rpc GetProgrammingLanguageById (ProgrammingLanguageIdRequest) returns (ProgrammingLanguageResponse);

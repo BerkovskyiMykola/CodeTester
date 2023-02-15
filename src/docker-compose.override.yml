@@ -56,8 +56,11 @@ services:
       - IdentityUrlExternal=http://localhost:8000
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
+      - GRPC_PORT=81
+      - PORT=80
     ports:
       - 8001:80
+      - 9001:81
 
   dictionary-api:
     environment:
@@ -66,8 +69,11 @@ services:
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
       - SeqServerUrl=http://seq
+      - GRPC_PORT=81
+      - PORT=80
     ports:
       - 8002:80
+      - 9002:81
 
   testing-api:
     environment:
