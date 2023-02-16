@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Polly;
 
-namespace Identity.API;
+namespace Identity.API.Extensions;
 
 public static class MigrationExtentions
 {

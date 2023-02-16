@@ -165,11 +165,11 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<ApplicationContext>(options =>
         {
             options.UseSqlServer(configuration["ConnectionString"], sqlOptions =>
             {
-                sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name);
+                sqlOptions.MigrationsAssembly(typeof(ApplicationContext).Assembly.GetName().Name);
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
             });
         });
@@ -184,7 +184,7 @@ public static class HostingExtensions
             options.User.RequireUniqueEmail = true;
             options.SignIn.RequireConfirmedEmail = true;
         })
-        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddEntityFrameworkStores<ApplicationContext>()
         .AddDefaultTokenProviders();
 
         services.Configure<DataProtectionTokenProviderOptions>(options =>

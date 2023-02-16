@@ -1,8 +1,8 @@
 ﻿using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
-using Identity.API.Configuration;
+using Identity.API.Infrastructure.Configuration;
 
-namespace Identity.API.Data;
+namespace Identity.API.Infrastructure;
 
 public class ConfigurationDbContextSeed
 {

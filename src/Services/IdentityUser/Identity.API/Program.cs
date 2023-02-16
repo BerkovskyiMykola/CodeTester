@@ -1,5 +1,5 @@
 using Common.Logging;
-using Identity.API;
+using Identity.API.Extensions;
 using Serilog;
 
 var configuration = GetConfiguration();

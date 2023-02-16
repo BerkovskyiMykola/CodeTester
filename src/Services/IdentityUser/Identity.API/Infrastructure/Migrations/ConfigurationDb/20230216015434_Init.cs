@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Identity.API.Migrations.ConfigurationDb
+namespace Identity.API.Infrastructure.Migrations.ConfigurationDb
 {
     /// <inheritdoc />
     public partial class Init : Migration

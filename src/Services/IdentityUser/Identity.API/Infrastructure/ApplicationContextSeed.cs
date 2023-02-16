@@ -1,14 +1,14 @@
-﻿using DataAccess.Entities;
+﻿using DataAccess.Data;
+using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
-namespace DataAccess.Data;
+namespace Identity.API.Infrastructure;
 
-public class ApplicationDbContextSeed
+public class ApplicationContextSeed
 {
     public async Task SeedAsync(
-        ApplicationDbContext context,
-        ILogger<ApplicationDbContextSeed> logger,
+        ApplicationContext context,
+        ILogger<ApplicationContextSeed> logger,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         int retry = 0)
@@ -35,7 +35,6 @@ public class ApplicationDbContextSeed
                 };
 
                 await userManager.CreateAsync(user, "Password@1");
-
                 await userManager.AddToRoleAsync(user, "Admin");
 
                 await context.SaveChangesAsync();
@@ -47,7 +46,7 @@ public class ApplicationDbContextSeed
             {
                 retryForAvaiability++;
 
-                logger.LogError(ex, "EXCEPTION ERROR while migrating {DbContextName}", nameof(ApplicationDbContext));
+                logger.LogError(ex, "EXCEPTION ERROR while migrating {DbContextName}", nameof(ApplicationContext));
 
                 await SeedAsync(context, logger, userManager, roleManager, retryForAvaiability);
             }

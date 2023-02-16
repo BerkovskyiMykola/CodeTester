@@ -3,14 +3,14 @@ using DataAccess.Entities;
 using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using HealthChecks.UI.Client;
-using Identity.API.Data;
+using Identity.API.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Identity.API;
+namespace Identity.API.Extensions;
 
 public static class HostingExtensions
 {
@@ -69,13 +69,13 @@ public static class HostingExtensions
 
     public static WebApplication ApplyMigrations(this WebApplication app)
     {
-        app.MigrateDbContext<ApplicationDbContext>((context, services) =>
+        app.MigrateDbContext<ApplicationContext>((context, services) =>
         {
-            var logger = services.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
+            var logger = services.GetRequiredService<ILogger<ApplicationContextSeed>>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-            new ApplicationDbContextSeed()
+            new ApplicationContextSeed()
                 .SeedAsync(context, logger, userManager, roleManager)
                 .Wait();
         });
@@ -95,11 +95,11 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<ApplicationContext>(options =>
         {
             options.UseSqlServer(configuration["ConnectionString"], sqlOptions =>
             {
-                sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name);
+                sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
             });
         });
@@ -115,7 +115,7 @@ public static class HostingExtensions
                 options.User.RequireUniqueEmail = true;
                 options.SignIn.RequireConfirmedEmail = true;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddEntityFrameworkStores<ApplicationContext>()
             .AddDefaultTokenProviders();
 
         return services;

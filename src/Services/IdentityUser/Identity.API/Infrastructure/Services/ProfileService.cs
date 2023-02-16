@@ -2,7 +2,7 @@
 using Duende.IdentityServer.Services;
 using IdentityModel;
 
-namespace Identity.API.Services;
+namespace Identity.API.Infrastructure.Services;
 
 public sealed class ProfileService : IProfileService
 {

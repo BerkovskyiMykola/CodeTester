@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Identity.API.Migrations.PersistedGrantDb
+namespace Identity.API.Infrastructure.Migrations.PersistedGrantDb
 {
     /// <inheritdoc />
     public partial class Init : Migration

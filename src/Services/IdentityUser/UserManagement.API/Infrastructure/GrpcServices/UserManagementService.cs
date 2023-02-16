@@ -7,9 +7,9 @@ namespace UserManagement.API.Infrastructure.GrpcServices;
 
 public class UserManagementService : UserManagementGrpc.UserManagementGrpcBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationContext _context;
 
-    public UserManagementService(ApplicationDbContext context)
+    public UserManagementService(ApplicationContext context)
     {
         _context = context;
     }
