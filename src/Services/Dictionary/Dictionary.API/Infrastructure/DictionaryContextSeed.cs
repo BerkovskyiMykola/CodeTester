@@ -16,18 +16,9 @@ public class DictionaryContextSeed
             if (!context.Difficulties.Any())
             {
                 context.Difficulties.AddRange(
-                    new Difficulty
-                    {
-                        Name = "Easy"
-                    },
-                    new Difficulty
-                    {
-                        Name = "Medium"
-                    },
-                    new Difficulty
-                    {
-                        Name = "Hard"
-                    }
+                    new Difficulty("Easy"),
+                    new Difficulty("Medium"),
+                    new Difficulty("Hard")
                 );
 
                 await context.SaveChangesAsync();
@@ -36,18 +27,9 @@ public class DictionaryContextSeed
             if (!context.ProgrammingLanguages.Any())
             {
                 context.ProgrammingLanguages.AddRange(
-                    new ProgrammingLanguage
-                    {
-                        Name = "C#"
-                    },
-                    new ProgrammingLanguage
-                    {
-                        Name = "Python"
-                    },
-                    new ProgrammingLanguage
-                    {
-                        Name = "JavaScript"
-                    }
+                    new ProgrammingLanguage("C#"),
+                    new ProgrammingLanguage("Python"),
+                    new ProgrammingLanguage("JavaScript")
                 );
 
                 await context.SaveChangesAsync();
@@ -56,18 +38,9 @@ public class DictionaryContextSeed
             if (!context.TaskTypes.Any())
             {
                 context.TaskTypes.AddRange(
-                    new TaskType
-                    {
-                        Name = "Array"
-                    },
-                    new TaskType
-                    {
-                        Name = "String"
-                    },
-                    new TaskType
-                    {
-                        Name = "Math"
-                    }
+                    new TaskType("Array"),
+                    new TaskType("String"),
+                    new TaskType("Math")
                 );
 
                 await context.SaveChangesAsync();

@@ -64,8 +64,7 @@ public class DifficultiesController : ControllerBase
             return NotFound();
         }
 
-        difficulty.Id = request.Id;
-        difficulty.Name = request.Name;
+        difficulty.SetNewName(request.Name);
 
         try
         {
@@ -89,7 +88,7 @@ public class DifficultiesController : ControllerBase
             return BadRequest("The specified name already exists");
         }
 
-        var difficulty = new Difficulty() { Name = request.Name };
+        var difficulty = new Difficulty(request.Name);
 
         _context.Difficulties.Add(difficulty);
         await _context.SaveChangesAsync();

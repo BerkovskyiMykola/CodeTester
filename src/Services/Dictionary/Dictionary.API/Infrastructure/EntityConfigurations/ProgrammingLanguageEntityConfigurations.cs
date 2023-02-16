@@ -10,8 +10,12 @@ public class ProgrammingLanguageEntityConfigurations : IEntityTypeConfiguration<
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(ci => ci.Id)
+            .UseHiLo("ProgrammingLanguage_hilo")
+            .IsRequired(true);
+
         builder.Property(x => x.Name)
-            .IsRequired()
-            .HasMaxLength(256);
+            .IsRequired(true)
+            .HasMaxLength(50);
     }
 }

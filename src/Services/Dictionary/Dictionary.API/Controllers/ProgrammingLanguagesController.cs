@@ -65,8 +65,7 @@ public class ProgrammingLanguagesController : ControllerBase
             return NotFound();
         }
 
-        programmingLanguage.Id = request.Id;
-        programmingLanguage.Name = request.Name;
+        programmingLanguage.SetNewName(request.Name);
 
         try
         {
@@ -90,7 +89,7 @@ public class ProgrammingLanguagesController : ControllerBase
             return BadRequest("The specified name already exists");
         }
 
-        var programmingLanguage = new ProgrammingLanguage() { Name = request.Name };
+        var programmingLanguage = new ProgrammingLanguage(request.Name);
 
         _context.ProgrammingLanguages.Add(programmingLanguage);
         await _context.SaveChangesAsync();

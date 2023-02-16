@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -11,13 +10,24 @@ namespace Dictionary.API.Infrastructure.DictionaryMigrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateSequence(
+                name: "difficulty_hilo",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence(
+                name: "ProgrammingLanguage_hilo",
+                incrementBy: 10);
+
+            migrationBuilder.CreateSequence(
+                name: "TaskType_hilo",
+                incrementBy: 10);
+
             migrationBuilder.CreateTable(
                 name: "Difficulties",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,9 +38,8 @@ namespace Dictionary.API.Infrastructure.DictionaryMigrations
                 name: "ProgrammingLanguages",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,9 +50,8 @@ namespace Dictionary.API.Infrastructure.DictionaryMigrations
                 name: "TaskTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,6 +70,15 @@ namespace Dictionary.API.Infrastructure.DictionaryMigrations
 
             migrationBuilder.DropTable(
                 name: "TaskTypes");
+
+            migrationBuilder.DropSequence(
+                name: "difficulty_hilo");
+
+            migrationBuilder.DropSequence(
+                name: "ProgrammingLanguage_hilo");
+
+            migrationBuilder.DropSequence(
+                name: "TaskType_hilo");
         }
     }
 }

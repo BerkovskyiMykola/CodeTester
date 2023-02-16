@@ -10,8 +10,12 @@ public class DifficultyEntityConfigurations : IEntityTypeConfiguration<Difficult
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(ci => ci.Id)
+            .UseHiLo("difficulty_hilo")
+            .IsRequired(true);
+
         builder.Property(x => x.Name)
-            .IsRequired()
-            .HasMaxLength(256);
+            .IsRequired(true)
+            .HasMaxLength(50);
     }
 }

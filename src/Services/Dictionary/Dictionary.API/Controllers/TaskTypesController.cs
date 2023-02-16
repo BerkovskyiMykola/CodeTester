@@ -65,8 +65,7 @@ public class TaskTypesController : ControllerBase
             return NotFound();
         }
 
-        taskType.Id = request.Id;
-        taskType.Name = request.Name;
+        taskType.SetNewName(request.Name);
 
         try
         {
@@ -90,7 +89,7 @@ public class TaskTypesController : ControllerBase
             return BadRequest("The specified name already exists");
         }
 
-        var taskType = new TaskType() { Name = request.Name };
+        var taskType = new TaskType(request.Name);
 
         _context.TaskTypes.Add(taskType);
         await _context.SaveChangesAsync();
