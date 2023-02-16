@@ -22,8 +22,8 @@ public class TestingContextSeed
             if (!context.Tasks.Any())
             {
                 context.Tasks.AddRange(
-                    new DomainTask[] 
-                        { 
+                    new DomainTask[]
+                        {
                             new(
                                 seedGuids.ElementAt(0),
                                 Title.Create("Easy problem").Value!,

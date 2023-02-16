@@ -14,9 +14,9 @@ public class Task : Entity, IAggregateRoot
 
     public DateTime CreateDate { get; private set; }
 
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     protected Task() { }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
     public Task(
         Guid id,

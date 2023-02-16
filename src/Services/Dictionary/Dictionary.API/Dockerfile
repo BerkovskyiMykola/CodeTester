@@ -7,6 +7,8 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["Services/Dictionary/Dictionary.API/Dictionary.API.csproj", "Services/Dictionary/Dictionary.API/"]
+COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Common.Logging/"]
+COPY ["BuildingBlocks/Grpc.Interceptors/Grpc.Interceptors.csproj", "BuildingBlocks/Grpc.Interceptors/"]
 RUN dotnet restore "Services/Dictionary/Dictionary.API/Dictionary.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Dictionary/Dictionary.API"

@@ -12,9 +12,9 @@ public class Solution : Entity, IAggregateRoot
     public SolutionValue Value { get; private set; }
     public bool Success { get; private set; }
 
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     protected Solution() { }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
     public Solution(
         Guid id,

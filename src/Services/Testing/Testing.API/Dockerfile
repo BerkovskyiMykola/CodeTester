@@ -8,6 +8,10 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["Services/Testing/Testing.API/Testing.API.csproj", "Services/Testing/Testing.API/"]
 COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Common.Logging/"]
+COPY ["BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "BuildingBlocks/EventBus.Messages/"]
+COPY ["BuildingBlocks/Grpc.Interceptors/Grpc.Interceptors.csproj", "BuildingBlocks/Grpc.Interceptors/"]
+COPY ["Services/Testing/Testing.Infrastructure.Persistence/Testing.Infrastructure.Persistence.csproj", "Services/Testing/Testing.Infrastructure.Persistence/"]
+COPY ["Services/Testing/Testing.Core/Testing.Core.csproj", "Services/Testing/Testing.Core/"]
 RUN dotnet restore "Services/Testing/Testing.API/Testing.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Testing/Testing.API"

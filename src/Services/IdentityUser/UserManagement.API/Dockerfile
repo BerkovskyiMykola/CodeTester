@@ -7,6 +7,9 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["Services/IdentityUser/UserManagement.API/UserManagement.API.csproj", "Services/IdentityUser/UserManagement.API/"]
+COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Common.Logging/"]
+COPY ["BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "BuildingBlocks/EventBus.Messages/"]
+COPY ["BuildingBlocks/Grpc.Interceptors/Grpc.Interceptors.csproj", "BuildingBlocks/Grpc.Interceptors/"]
 COPY ["Services/IdentityUser/DataAccess/DataAccess.csproj", "Services/IdentityUser/DataAccess/"]
 RUN dotnet restore "Services/IdentityUser/UserManagement.API/UserManagement.API.csproj"
 COPY . .

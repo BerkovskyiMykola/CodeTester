@@ -2,7 +2,7 @@
 using Dictionary.API.Infrastructure;
 using Dictionary.API.Infrastructure.Filters;
 using Dictionary.API.Infrastructure.GrpcServices;
-using Dictionary.API.Infrastructure.Interceptors;
+using Grpc.Interceptors;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;

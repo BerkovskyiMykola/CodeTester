@@ -1,7 +1,8 @@
-﻿using Grpc.Core.Interceptors;
-using Grpc.Core;
+﻿using Grpc.Core;
+using Grpc.Core.Interceptors;
+using Microsoft.Extensions.Logging;
 
-namespace Testing.API.Infrastructure.Interceptors;
+namespace Grpc.Interceptors;
 
 public class ClientLoggerInterceptor : Interceptor
 {

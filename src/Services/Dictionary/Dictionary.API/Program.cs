@@ -2,7 +2,6 @@ using Common.Logging;
 using Dictionary.API.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Serilog;
-using System.Configuration;
 using System.Net;
 
 var configuration = GetConfiguration();

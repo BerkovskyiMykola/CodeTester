@@ -1,5 +1,4 @@
-﻿using Azure;
-using Dictionary.API.Protos;
+﻿using Dictionary.API.Protos;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 

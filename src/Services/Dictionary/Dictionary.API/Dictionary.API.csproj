@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Common.Logging\Common.Logging.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Grpc.Interceptors\Grpc.Interceptors.csproj" />
   </ItemGroup>
   
   <ItemGroup>

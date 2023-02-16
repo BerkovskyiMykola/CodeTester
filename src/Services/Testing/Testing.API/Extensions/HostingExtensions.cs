@@ -1,19 +1,17 @@
 ﻿using Dictionary.API.Protos;
 using EventBus.Messages.Common;
+using Grpc.Interceptors;
 using HealthChecks.UI.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.Filters;
-using Testing.API.Infrastructure.Interceptors;
 using Testing.Infrastructure.Persistence;
 using UserManagement.API.Protos;
 
@@ -233,15 +231,15 @@ public static class HostingExtensions
 
     private static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMassTransit(config => 
+        services.AddMassTransit(config =>
         {
-            config.UsingRabbitMq((context, cfg) => 
+            config.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(configuration["EventBusHostAddress"]);
 
                 cfg.ReceiveEndpoint(EventBusConstants.TestingQueue, c =>
                 {
-                    
+
                 });
             });
         });

@@ -1,5 +1,6 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
+using Grpc.Interceptors;
 using HealthChecks.UI.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,7 +14,6 @@ using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
 using UserManagement.API.Infrastructure.Filters;
 using UserManagement.API.Infrastructure.GrpcServices;
-using UserManagement.API.Infrastructure.Interceptors;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
 
