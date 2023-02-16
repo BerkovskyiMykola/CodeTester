@@ -4,7 +4,7 @@ namespace Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 
 public class Solution : Entity, IAggregateRoot
 {
-    public User User { get; private set; }
+    private Guid _userId;
 
     public Guid TaskId => _taskId;
     private Guid _taskId;
@@ -12,22 +12,22 @@ public class Solution : Entity, IAggregateRoot
     public SolutionValue Value { get; private set; }
     public bool Success { get; private set; }
 
-#pragma warning disable CS8618
+    //Only for migrations
+    #pragma warning disable CS8618
     protected Solution() { }
-#pragma warning restore CS8618
+    #pragma warning restore CS8618
 
     public Solution(
         Guid id,
         Guid taskId,
-        User user,
+        Guid userId,
         SolutionValue value,
         bool success)
     {
-        Value = value;
         Id = id;
+        Value = value;
         Success = success;
-
-        User = user;
+        _userId = userId;
         _taskId = taskId;
     }
 }

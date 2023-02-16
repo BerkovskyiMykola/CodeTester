@@ -44,7 +44,6 @@ public class TaskRepository
     public async Task<DomainTask?> FindByIdAsync(Guid id)
     {
         return await _context.Tasks
-            .Where(b => b.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 }

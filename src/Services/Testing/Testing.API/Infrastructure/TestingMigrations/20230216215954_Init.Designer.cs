@@ -12,7 +12,7 @@ using Testing.Infrastructure.Persistence;
 namespace Testing.API.Infrastructure.TestingMigrations
 {
     [DbContext(typeof(TestingContext))]
-    [Migration("20230214004707_Init")]
+    [Migration("20230216215954_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -38,9 +38,15 @@ namespace Testing.API.Infrastructure.TestingMigrations
                         .HasColumnType("uuid")
                         .HasColumnName("TaskId");
 
+                    b.Property<Guid>("_userId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("_taskId");
+
+                    b.HasIndex("_userId");
 
                     b.ToTable("Solutions");
                 });
@@ -59,11 +65,28 @@ namespace Testing.API.Infrastructure.TestingMigrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("Testing.Core.Domain.AggregatesModel.UserAggregate.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("Testing.Core.Domain.AggregatesModel.SolutionAggregate.Solution", b =>
                 {
                     b.HasOne("Testing.Core.Domain.AggregatesModel.TaskAggregate.Task", null)
                         .WithMany()
                         .HasForeignKey("_taskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Testing.Core.Domain.AggregatesModel.UserAggregate.User", null)
+                        .WithMany()
+                        .HasForeignKey("_userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -83,37 +106,6 @@ namespace Testing.API.Infrastructure.TestingMigrations
                             b1.WithOwner()
                                 .HasForeignKey("SolutionId");
                         });
-
-                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.SolutionAggregate.User", "User", b1 =>
-                        {
-                            b1.Property<Guid>("SolutionId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Firstname")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Lastname")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("SolutionId");
-
-                            b1.ToTable("Solutions");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SolutionId");
-                        });
-
-                    b.Navigation("User")
-                        .IsRequired();
 
                     b.Navigation("Value")
                         .IsRequired();
@@ -284,6 +276,53 @@ namespace Testing.API.Infrastructure.TestingMigrations
                         .IsRequired();
 
                     b.Navigation("Type")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Testing.Core.Domain.AggregatesModel.UserAggregate.User", b =>
+                {
+                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.UserAggregate.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("Users");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.UserAggregate.UserProfile", "Profile", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Firstname")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Lastname")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("Users");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.Navigation("Email")
+                        .IsRequired();
+
+                    b.Navigation("Profile")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

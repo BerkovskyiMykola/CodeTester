@@ -49,25 +49,25 @@ public class TestingContextSeed
 
                 if (!context.Solutions.Any())
                 {
-                    context.Solutions.AddRange(
-                        new Solution[]
-                            {
-                            new(
-                                Guid.NewGuid(),
-                                seedGuids.ElementAt(0),
-                                User.Create(Guid.NewGuid(), "test@mail.com", "Tester", "Gregor").Value!,
-                                SolutionValue.Create("<solution code>").Value!,
-                                true
-                            ),
-                            new(
-                                Guid.NewGuid(),
-                                seedGuids.ElementAt(0),
-                                User.Create(Guid.NewGuid(), "test2@mail.com", "Gate", "Mike").Value!,
-                                SolutionValue.Create("<solution code>").Value!,
-                                false
-                            )
-                            }
-                        );
+                    //context.Solutions.AddRange(
+                    //    new Solution[]
+                    //        {
+                    //        new(
+                    //            Guid.NewGuid(),
+                    //            seedGuids.ElementAt(0),
+                    //            User.Create(Guid.NewGuid(), "test@mail.com", "Tester", "Gregor").Value!,
+                    //            SolutionValue.Create("<solution code>").Value!,
+                    //            true
+                    //        ),
+                    //        new(
+                    //            Guid.NewGuid(),
+                    //            seedGuids.ElementAt(0),
+                    //            User.Create(Guid.NewGuid(), "test2@mail.com", "Gate", "Mike").Value!,
+                    //            SolutionValue.Create("<solution code>").Value!,
+                    //            false
+                    //        )
+                    //        }
+                    //    );
                 }
 
                 await context.SaveChangesAsync();

@@ -1,35 +1,41 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
+using Testing.Core.Domain.AggregatesModel.UserAggregate;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
 namespace Testing.Infrastructure.Persistence.EntityConfigurations;
 
 
-public class SolutionEntityConfiguration
-    : IEntityTypeConfiguration<Solution>
+public class SolutionEntityConfiguration : IEntityTypeConfiguration<Solution>
 {
-    public void Configure(EntityTypeBuilder<Solution> solutionConfiguration)
+    public void Configure(EntityTypeBuilder<Solution> builder)
     {
-        solutionConfiguration.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-        solutionConfiguration.Ignore(x => x.DomainEvents);
+        builder.Ignore(x => x.DomainEvents);
 
-        solutionConfiguration
-            .OwnsOne(x => x.User);
+        builder.OwnsOne(x => x.Value);
 
-        solutionConfiguration
-            .OwnsOne(x => x.Value);
-
-        solutionConfiguration
+        builder
             .Property<Guid>("_taskId")
             .UsePropertyAccessMode(PropertyAccessMode.Field)
             .HasColumnName("TaskId")
             .IsRequired(true);
 
-        solutionConfiguration.HasOne<DomainTask>()
+        builder
+            .Property<Guid>("_userId")
+            .UsePropertyAccessMode(PropertyAccessMode.Field)
+            .HasColumnName("UserId")
+            .IsRequired(true);
+
+        builder.HasOne<DomainTask>()
             .WithMany()
             .IsRequired(true)
             .HasForeignKey("_taskId");
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey("_userId");
     }
 }

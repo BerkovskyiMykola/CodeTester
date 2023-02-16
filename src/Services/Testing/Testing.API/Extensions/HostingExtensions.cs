@@ -12,12 +12,12 @@ using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
+using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Services;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
-using UserManagement.API.Protos;
 
 namespace Testing.API.Extensions;
 
@@ -238,7 +238,8 @@ public static class HostingExtensions
     {
         services.AddMassTransit(config =>
         {
-            config.AddConsumer<UserUpdatedConsumer>();
+            config.AddConsumer<UserProfileUpdatedConsumer>();
+            config.AddConsumer<UserCreatedConsumer>();
 
             config.UsingRabbitMq((context, cfg) =>
             {
@@ -246,7 +247,8 @@ public static class HostingExtensions
 
                 cfg.ReceiveEndpoint(EventBusConstants.TestingQueue, c =>
                 {
-                    c.ConfigureConsumer<UserUpdatedConsumer>(context);
+                    c.ConfigureConsumer<UserProfileUpdatedConsumer>(context);
+                    c.ConfigureConsumer<UserCreatedConsumer>(context);
                 });
             });
         });
@@ -260,12 +262,7 @@ public static class HostingExtensions
 
         services.AddGrpcClient<DictionaryGrpc.DictionaryGrpcClient>(options =>
         {
-            options.Address = new Uri(configuration["DictionaryUrl"]!);
-        }).AddInterceptor<ClientLoggerInterceptor>();
-
-        services.AddGrpcClient<UserManagementGrpc.UserManagementGrpcClient>(options =>
-        {
-            options.Address = new Uri(configuration["UserManagementUrl"]!);
+            options.Address = new Uri(configuration["DictionaryGrpcUrl"]!);
         }).AddInterceptor<ClientLoggerInterceptor>();
 
         return services;
@@ -277,6 +274,7 @@ public static class HostingExtensions
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<ISolutionRepository, SolutionRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

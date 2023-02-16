@@ -56,11 +56,8 @@ services:
       - IdentityUrlExternal=http://localhost:8000
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
-      - GRPC_PORT=81
-      - PORT=80
     ports:
       - 8001:80
-      - 9001:81
 
   dictionary-api:
     environment:
@@ -81,8 +78,7 @@ services:
       - ConnectionString=Host=pgsql-server;Port=5432;Database=Services.TestingDB;Username=postgres;Password=postgres;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
-      - DictionaryUrl=http://dictionary-api:81
-      - UserManagementUrl=http://usermanagement-api:81
+      - DictionaryGrpcUrl=http://dictionary-api:81
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:

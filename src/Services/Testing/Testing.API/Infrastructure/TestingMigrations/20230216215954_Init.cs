@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -38,17 +39,28 @@ namespace Testing.API.Infrastructure.TestingMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EmailValue = table.Column<string>(name: "Email_Value", type: "text", nullable: false),
+                    ProfileLastname = table.Column<string>(name: "Profile_Lastname", type: "text", nullable: false),
+                    ProfileFirstname = table.Column<string>(name: "Profile_Firstname", type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Solutions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(name: "User_Id", type: "uuid", nullable: false),
-                    UserEmail = table.Column<string>(name: "User_Email", type: "text", nullable: false),
-                    UserLastname = table.Column<string>(name: "User_Lastname", type: "text", nullable: false),
-                    UserFirstname = table.Column<string>(name: "User_Firstname", type: "text", nullable: false),
                     ValueValue = table.Column<string>(name: "Value_Value", type: "text", nullable: false),
                     Success = table.Column<bool>(type: "boolean", nullable: false),
-                    TaskId = table.Column<Guid>(type: "uuid", nullable: false)
+                    TaskId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,12 +71,23 @@ namespace Testing.API.Infrastructure.TestingMigrations
                         principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Solutions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Solutions_TaskId",
                 table: "Solutions",
                 column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Solutions_UserId",
+                table: "Solutions",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -75,6 +98,9 @@ namespace Testing.API.Infrastructure.TestingMigrations
 
             migrationBuilder.DropTable(
                 name: "Tasks");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

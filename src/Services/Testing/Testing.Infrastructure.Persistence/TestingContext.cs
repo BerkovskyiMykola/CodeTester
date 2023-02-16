@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Testing.Core.Bases;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
+using Testing.Core.Domain.AggregatesModel.UserAggregate;
 using Testing.Infrastructure.Persistence.EntityConfigurations;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
@@ -11,6 +12,7 @@ public class TestingContext : DbContext, IUnitOfWork
 {
     public DbSet<DomainTask> Tasks => Set<DomainTask>();
     public DbSet<Solution> Solutions => Set<Solution>();
+    public DbSet<User> Users => Set<User>();
 
     private readonly IMediator? _mediator;
 
@@ -25,6 +27,7 @@ public class TestingContext : DbContext, IUnitOfWork
     {
         modelBuilder.ApplyConfiguration(new SolutionEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TaskEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
     }
 
     public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)

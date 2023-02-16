@@ -44,9 +44,6 @@
     <Protobuf Include="..\..\Dictionary\Dictionary.API\Protos\dictionary.proto" GrpcServices="Client">
       <Link>Protos\dictionary.proto</Link>
     </Protobuf>
-    <Protobuf Include="..\..\IdentityUser\UserManagement.API\Protos\usermanagement.proto" GrpcServices="Client">
-      <Link>Protos\usermanagement.proto</Link>
-    </Protobuf>
   </ItemGroup>
 
 </Project>

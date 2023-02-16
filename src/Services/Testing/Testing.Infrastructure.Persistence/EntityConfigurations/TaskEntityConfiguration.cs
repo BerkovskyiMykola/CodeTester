@@ -4,34 +4,26 @@ using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
 namespace Testing.Infrastructure.Persistence.EntityConfigurations;
 
-public class TaskEntityConfiguration
-    : IEntityTypeConfiguration<DomainTask>
+public class TaskEntityConfiguration : IEntityTypeConfiguration<DomainTask>
 {
-    public void Configure(EntityTypeBuilder<DomainTask> taskConfiguration)
+    public void Configure(EntityTypeBuilder<DomainTask> builder)
     {
-        taskConfiguration.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-        taskConfiguration.Ignore(x => x.DomainEvents);
+        builder.Ignore(x => x.DomainEvents);
 
-        taskConfiguration
-            .OwnsOne(x => x.Title);
+        builder.OwnsOne(x => x.Title);
 
-        taskConfiguration
-            .OwnsOne(x => x.Description);
+        builder.OwnsOne(x => x.Description);
 
-        taskConfiguration
-            .OwnsOne(x => x.Difficulty);
+        builder.OwnsOne(x => x.Difficulty);
 
-        taskConfiguration
-            .OwnsOne(x => x.Type);
+        builder.OwnsOne(x => x.Type);
 
-        taskConfiguration
-            .OwnsOne(x => x.ProgrammingLanguage);
+        builder.OwnsOne(x => x.ProgrammingLanguage);
 
-        taskConfiguration
-            .OwnsOne(x => x.SolutionExample);
+        builder.OwnsOne(x => x.SolutionExample);
 
-        taskConfiguration
-            .OwnsOne(x => x.ExecutionCondition);
+        builder.OwnsOne(x => x.ExecutionCondition);
     }
 }
