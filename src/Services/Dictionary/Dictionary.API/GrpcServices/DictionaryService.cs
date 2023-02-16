@@ -1,8 +1,9 @@
-﻿using Dictionary.API.Protos;
+﻿using Dictionary.API.Infrastructure;
+using Dictionary.API.Protos;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dictionary.API.Infrastructure.GrpcServices;
+namespace Dictionary.API.GrpcServices;
 
 public class DictionaryService : DictionaryGrpc.DictionaryGrpcBase
 {

@@ -3,7 +3,7 @@ using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using UserManagement.API.Protos;
 
-namespace UserManagement.API.Infrastructure.GrpcServices;
+namespace UserManagement.API.GrpcServices;
 
 public class UserManagementService : UserManagementGrpc.UserManagementGrpcBase
 {
