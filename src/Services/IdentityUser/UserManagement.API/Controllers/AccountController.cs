@@ -126,6 +126,12 @@ public class AccountController : ControllerBase
             return BadRequest("Confirmation failed.");
         }
 
+        await _publishEndpoint.Publish(new UserCreatedIntegrationEvent(
+            Guid.Parse(user.Id),
+            user.Email!,
+            user.FirstName,
+            user.LastName));
+
         return NoContent();
     }
 
@@ -223,9 +229,8 @@ public class AccountController : ControllerBase
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 
-        await _publishEndpoint.Publish(new UserUpdatedIntegrationEvent(
+        await _publishEndpoint.Publish(new UserProfileUpdatedIntegrationEvent(
             Guid.Parse(userId),
-            user.Email!,
             user.FirstName,
             user.LastName));
 

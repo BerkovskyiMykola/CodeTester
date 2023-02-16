@@ -17,20 +17,6 @@ try
     builder.WebHost.CaptureStartupErrors(false);
     builder.WebHost.UseConfiguration(configuration);
     builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        var ports = GetDefinedPorts(configuration);
-
-        options.Listen(IPAddress.Any, ports.httpPort, listenOptions =>
-        {
-            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-        });
-
-        options.Listen(IPAddress.Any, ports.grpcPort, listenOptions =>
-        {
-            listenOptions.Protocols = HttpProtocols.Http2;
-        });
-    });
 
     builder.Host.UseSerilog();
 
@@ -62,13 +48,6 @@ IConfiguration GetConfiguration()
         .AddEnvironmentVariables();
 
     return builder.Build();
-}
-
-(int httpPort, int grpcPort) GetDefinedPorts(IConfiguration config)
-{
-    var grpcPort = config.GetValue("GRPC_PORT", 81);
-    var port = config.GetValue("PORT", 80);
-    return (port, grpcPort);
 }
 
 public partial class Program

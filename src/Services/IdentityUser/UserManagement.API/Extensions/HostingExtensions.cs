@@ -1,6 +1,5 @@
 ﻿using DataAccess.Data;
 using DataAccess.Entities;
-using Grpc.Interceptors;
 using HealthChecks.UI.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +11,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using UserManagement.API.Controllers;
-using UserManagement.API.GrpcServices;
 using UserManagement.API.Infrastructure.Filters;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
@@ -26,7 +24,6 @@ public static class HostingExtensions
         var configuration = builder.Configuration;
 
         builder.Services
-            .AddCustomGrpc(configuration)
             .AddCustomMvc(configuration)
             .AddCustomDbContext(configuration)
             .AddCustomDbContext(configuration)
@@ -60,7 +57,6 @@ public static class HostingExtensions
         app.UseAuthorization();
 
         app.MapControllers();
-        app.MapGrpcService<UserManagementService>();
         app.MapHealthChecks("/hc", new HealthCheckOptions()
         {
             Predicate = _ => true,
@@ -255,19 +251,6 @@ public static class HostingExtensions
             {
                 cfg.Host(configuration["EventBusHostAddress"]);
             });
-        });
-
-        return services;
-    }
-
-    private static IServiceCollection AddCustomGrpc(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddSingleton<ServerLoggerInterceptor>();
-
-        services.AddGrpc(options =>
-        {
-            options.EnableDetailedErrors = true;
-            options.Interceptors.Add<ServerLoggerInterceptor>();
         });
 
         return services;
