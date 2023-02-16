@@ -9,10 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.Filters;
+using Testing.API.Infrastructure.Services;
+using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
+using Testing.Infrastructure.Persistence.Repositories;
 using UserManagement.API.Protos;
 
 namespace Testing.API.Extensions;
@@ -31,7 +35,8 @@ public static class HostingExtensions
             .AddCustomConfiguration(configuration)
             .AddCustomDbContext(configuration)
             .AddEventBus(configuration)
-            .AddGrpcServices(configuration);
+            .AddGrpcServices(configuration)
+            .AddCustomIntegrations(configuration);
 
         return builder.Build();
     }
@@ -233,13 +238,15 @@ public static class HostingExtensions
     {
         services.AddMassTransit(config =>
         {
+            config.AddConsumer<UserUpdatedConsumer>();
+
             config.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(configuration["EventBusHostAddress"]);
 
                 cfg.ReceiveEndpoint(EventBusConstants.TestingQueue, c =>
                 {
-
+                    c.ConfigureConsumer<UserUpdatedConsumer>(context);
                 });
             });
         });
@@ -260,6 +267,16 @@ public static class HostingExtensions
         {
             options.Address = new Uri(configuration["UserManagementUrl"]!);
         }).AddInterceptor<ClientLoggerInterceptor>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddTransient<IIdentityService, IdentityService>();
+        services.AddScoped<ISolutionRepository, SolutionRepository>();
+        services.AddScoped<ITaskRepository, TaskRepository>();
 
         return services;
     }
