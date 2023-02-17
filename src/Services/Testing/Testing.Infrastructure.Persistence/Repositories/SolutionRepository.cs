@@ -18,8 +18,7 @@ public class SolutionRepository : ISolutionRepository
     public async Task<Solution?> FindByIdAsync(Guid id)
     {
         return await _context.Solutions
-            .Where(b => b.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public Solution Upsert(Solution solution)

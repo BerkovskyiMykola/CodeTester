@@ -1,6 +1,5 @@
 ﻿using EventBus.Messages.Events;
 using MassTransit;
-using StudentProfile.API.Infrastructure.EventBusConsumers;
 using Testing.Core.Domain.AggregatesModel.UserAggregate;
 using Testing.Core.Domain.Repositories;
 

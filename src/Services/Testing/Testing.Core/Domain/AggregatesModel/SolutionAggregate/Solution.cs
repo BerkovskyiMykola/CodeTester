@@ -4,6 +4,7 @@ namespace Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 
 public class Solution : Entity, IAggregateRoot
 {
+    public Guid UserId => _userId;
     private Guid _userId;
 
     public Guid TaskId => _taskId;
