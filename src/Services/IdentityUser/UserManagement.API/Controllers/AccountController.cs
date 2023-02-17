@@ -75,6 +75,12 @@ public class AccountController : ControllerBase
 
         await _emailSender.SendEmailAsync(message);
 
+        await _publishEndpoint.Publish(new UserCreatedIntegrationEvent(
+            Guid.Parse(user.Id),
+            user.Email!,
+            user.FirstName,
+            user.LastName));
+
         return NoContent();
     }
 
@@ -125,12 +131,6 @@ public class AccountController : ControllerBase
         {
             return BadRequest("Confirmation failed.");
         }
-
-        await _publishEndpoint.Publish(new UserCreatedIntegrationEvent(
-            Guid.Parse(user.Id),
-            user.Email!,
-            user.FirstName,
-            user.LastName));
 
         return NoContent();
     }
