@@ -6,9 +6,8 @@ using Testing.API.DTOs.Tasks;
 using Testing.API.Services;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Core.Domain.Repositories;
-using DomainType = Testing.Core.Domain.AggregatesModel.TaskAggregate.Type;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
-using System.Threading.Tasks;
+using DomainType = Testing.Core.Domain.AggregatesModel.TaskAggregate.Type;
 
 namespace Testing.API.Controllers;
 
@@ -207,6 +206,8 @@ public class TaskController : Controller
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> DeleteTaskAsync(string id)
     {
         try
