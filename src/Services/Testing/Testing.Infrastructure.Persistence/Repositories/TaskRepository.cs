@@ -28,6 +28,7 @@ public class TaskRepository
 
     public DomainTask Update(DomainTask task)
     {
+        //_context.Entry(task).State = EntityState.Modified;
         return _context.Tasks.Update(task).Entity;
     }
 

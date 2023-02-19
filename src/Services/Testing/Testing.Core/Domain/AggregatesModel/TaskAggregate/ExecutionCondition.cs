@@ -16,7 +16,7 @@ public record ExecutionCondition
             return Result.Fail<ExecutionCondition>("Tests can't be empty");
 
         if (timeLimit.TotalSeconds < 1)
-            return Result.Fail<ExecutionCondition>("TimeLimit can't be 1 second");
+            return Result.Fail<ExecutionCondition>("TimeLimit can't be less than 1 second");
 
         return Result.Ok(new ExecutionCondition(tests, timeLimit));
     }

@@ -11,10 +11,13 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
+using Testing.API.Application.Queries.Solutions;
+using Testing.API.Application.Queries.Tasks;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Services;
+using Testing.API.Services;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -275,6 +278,10 @@ public static class HostingExtensions
         services.AddScoped<ISolutionRepository, SolutionRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<ISolutionQueries, SolutionQueries>();
+        services.AddScoped<ITaskQueries, TaskQueries>();
+        services.AddScoped<IDictionaryService, DictionaryService>();
 
         return services;
     }

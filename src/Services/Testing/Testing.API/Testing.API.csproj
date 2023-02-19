@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
+    <PackageReference Include="Dapper.Mapper" Version="2.0.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
     <PackageReference Include="MassTransit" Version="8.0.12" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
@@ -44,10 +45,6 @@
     <Protobuf Include="..\..\Dictionary\Dictionary.API\Protos\dictionary.proto" GrpcServices="Client">
       <Link>Protos\dictionary.proto</Link>
     </Protobuf>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>
