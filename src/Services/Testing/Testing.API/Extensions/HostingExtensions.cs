@@ -267,6 +267,8 @@ public static class HostingExtensions
             options.Address = new Uri(configuration["DictionaryGrpcUrl"]!);
         }).AddInterceptor<ClientLoggerInterceptor>();
 
+        services.AddScoped<IDictionaryService, DictionaryService>();
+
         return services;
     }
 
@@ -274,13 +276,13 @@ public static class HostingExtensions
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IIdentityService, IdentityService>();
+
         services.AddScoped<ISolutionRepository, SolutionRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<ISolutionQueries, SolutionQueries>();
         services.AddScoped<ITaskQueries, TaskQueries>();
-        services.AddScoped<IDictionaryService, DictionaryService>();
 
         return services;
     }
