@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Testing.API.Application.Queries.Solutions;
 using Testing.API.DTOs.Solutions;
-using Testing.API.Services;
+using Testing.API.Infrastructure.Services;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 using Testing.Core.Domain.Repositories;
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Testing.API.Application.Queries.Tasks;
 using Testing.API.DTOs.Tasks;
-using Testing.API.Services;
+using Testing.API.Infrastructure.Services;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Core.Domain.Repositories;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
