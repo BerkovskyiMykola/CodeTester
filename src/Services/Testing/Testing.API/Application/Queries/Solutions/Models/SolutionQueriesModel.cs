@@ -1,6 +1,6 @@
-﻿namespace Testing.API.DTOs.Solutions;
+﻿namespace Testing.API.Application.Queries.Solutions.Models;
 
-public class SolutionResponse
+public class SolutionQueriesModel
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

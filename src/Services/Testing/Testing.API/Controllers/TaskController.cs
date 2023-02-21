@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Testing.API.Application.Queries.Tasks;
+using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.DTOs.Tasks;
 using Testing.API.Infrastructure.Services;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
@@ -16,8 +16,8 @@ namespace Testing.API.Controllers;
 [ApiController]
 public class TaskController : Controller
 {
-    private readonly IDictionaryService _dictionary;
-    private readonly ITaskRepository _tasks;
+    private readonly IDictionaryService _dictionaryService;
+    private readonly ITaskRepository _taskRepository;
     private readonly ITaskQueries _taskQueries;
 
     public TaskController(
@@ -25,19 +25,17 @@ public class TaskController : Controller
         ITaskRepository taskRepository,
         ITaskQueries taskQueries)
     {
-        _dictionary = dictionaryService;
-        _tasks = taskRepository;
+        _dictionaryService = dictionaryService;
+        _taskRepository = taskRepository;
         _taskQueries = taskQueries;
     }
 
     [HttpGet("{taskId}")]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<TaskResponse>> GetTaskAsync(string taskId)
+    public async Task<ActionResult<TaskQueriesModel>> GetTaskAsync(Guid taskId)
     {
         try
         {
-            var task = await _taskQueries.GetTaskAsync(new Guid(taskId));
+            var task = await _taskQueries.GetTaskAsync(taskId);
             return Ok(task);
         }
         catch
@@ -47,9 +45,7 @@ public class TaskController : Controller
     }
 
     [HttpGet]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<IEnumerable<TaskResponse>>> GetAllTasksAsync()
+    public async Task<ActionResult<IEnumerable<TaskQueriesModel>>> GetAllTasksAsync()
     {
         try
         {
@@ -63,9 +59,7 @@ public class TaskController : Controller
     }
 
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<TaskResponse>> CreateTaskAsync([FromBody] CreateTaskRequest request)
+    public async Task<ActionResult<TaskQueriesModel>> CreateTaskAsync(CreateTaskRequest request)
     {
         var title = Title.Create(request.Title);
         if (title.IsFailure)
@@ -73,41 +67,41 @@ public class TaskController : Controller
             return BadRequest("Title is invalid");
         }
 
-        var description = Description.Create(request.DescriptionText, request.DescriptionExamples,
-                                             request.DescriptionCases, request.DescriptionNote);
+        var description = Description.Create(request.TaskDescription.Text, request.TaskDescription.Examples,
+                                             request.TaskDescription.SomeCases, request.TaskDescription.Note);
         if (description.IsFailure)
         {
             return BadRequest("Description is invalid");
         }
 
-        var difficultyData = await _dictionary.GetDifficultyByIdAsync(request.DifficultyId);
+        var difficultyData = await _dictionaryService.GetDifficultyByIdAsync(request.DifficultyId);
         if (difficultyData == null)
         {
-            return BadRequest("Difficulty is invalid");
+            return NotFound("Difficulty is not found");
         }
         var difficulty = Difficulty.Create(difficultyData.Id, difficultyData.Name);
 
-        var taskTypeData = await _dictionary.GetTaskTypeByIdAsync(request.TaskTypeId);
+        var taskTypeData = await _dictionaryService.GetTaskTypeByIdAsync(request.TaskTypeId);
         if (taskTypeData == null)
         {
-            return BadRequest("TaskType is invalid");
+            return NotFound("TaskType is not found");
         }
         var taskType = DomainType.Create(taskTypeData.Id, taskTypeData.Name);
 
-        var programmingLanguageData = await _dictionary.GetProgrammingLanguageByIdAsync(request.ProgrammingLanguageId);
+        var programmingLanguageData = await _dictionaryService.GetProgrammingLanguageByIdAsync(request.ProgrammingLanguageId);
         if (programmingLanguageData == null)
         {
-            return BadRequest("ProgrammingLanguage is invalid");
+            return NotFound("ProgrammingLanguage is not found");
         }
         var programmingLanguage = ProgrammingLanguage.Create(programmingLanguageData.Id, programmingLanguageData.Name);
 
-        var solutionExample = SolutionExample.Create(request.SolutionExampleDescription, request.SolutionExample);
+        var solutionExample = SolutionExample.Create(request.TaskSolutionExample.Description, request.TaskSolutionExample.Solution);
         if (solutionExample.IsFailure)
         {
             return BadRequest("SolutionExample is invalid");
         }
 
-        var executionCondition = ExecutionCondition.Create(request.ExecutionConditionTests, request.ExecutionTimeLimit);
+        var executionCondition = ExecutionCondition.Create(request.TaskExecutionCondition.Tests, request.TaskExecutionCondition.TimeLimit);
         if (executionCondition.IsFailure)
         {
             return BadRequest("ExecutionCondition is invalid");
@@ -124,23 +118,20 @@ public class TaskController : Controller
             executionCondition.Value!
             );
 
-        task = _tasks.Add(task);
-        await _tasks.UnitOfWork.SaveChangesAsync();
+        task = _taskRepository.Add(task);
+        await _taskRepository.UnitOfWork.SaveChangesAsync();
 
         return Ok(task.Id);
     }
 
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<TaskResponse>> UpdateTaskAsync([FromBody] UpdateTaskRequest request)
+    public async Task<ActionResult<TaskQueriesModel>> UpdateTaskAsync(UpdateTaskRequest request)
     {
-        if (request.Id == null)
+        var task = await _taskRepository.FindByIdAsync(request.Id);
+        if (task == null)
         {
             return NotFound();
         }
-        Guid id = new Guid(request.Id.ToString()!);
 
         var title = Title.Create(request.Title);
         if (title.IsFailure)
@@ -148,73 +139,68 @@ public class TaskController : Controller
             return BadRequest("Title is invalid");
         }
 
-        var description = Description.Create(request.DescriptionText, request.DescriptionExamples,
-                                             request.DescriptionCases, request.DescriptionNote);
+        var description = Description.Create(request.TaskDescription.Text, request.TaskDescription.Examples,
+                                             request.TaskDescription.SomeCases, request.TaskDescription.Note);
         if (description.IsFailure)
         {
             return BadRequest("Description is invalid");
         }
 
-        var difficultyData = await _dictionary.GetDifficultyByIdAsync(request.DifficultyId);
+        var difficultyData = await _dictionaryService.GetDifficultyByIdAsync(request.DifficultyId);
         if (difficultyData == null)
         {
-            return BadRequest("Difficulty is invalid");
+            return NotFound("Difficulty is not found");
         }
         var difficulty = Difficulty.Create(difficultyData.Id, difficultyData.Name);
 
-        var taskTypeData = await _dictionary.GetTaskTypeByIdAsync(request.TaskTypeId);
+        var taskTypeData = await _dictionaryService.GetTaskTypeByIdAsync(request.TaskTypeId);
         if (taskTypeData == null)
         {
-            return BadRequest("TaskType is invalid");
+            return NotFound("TaskType is not found");
         }
         var taskType = DomainType.Create(taskTypeData.Id, taskTypeData.Name);
 
-        var programmingLanguageData = await _dictionary.GetProgrammingLanguageByIdAsync(request.ProgrammingLanguageId);
+        var programmingLanguageData = await _dictionaryService.GetProgrammingLanguageByIdAsync(request.ProgrammingLanguageId);
         if (programmingLanguageData == null)
         {
-            return BadRequest("ProgrammingLanguage is invalid");
+            return NotFound("ProgrammingLanguage is not found");
         }
         var programmingLanguage = ProgrammingLanguage.Create(programmingLanguageData.Id, programmingLanguageData.Name);
 
-        var solutionExample = SolutionExample.Create(request.SolutionExampleDescription, request.SolutionExample);
+        var solutionExample = SolutionExample.Create(request.TaskSolutionExample.Description, request.TaskSolutionExample.Solution);
         if (solutionExample.IsFailure)
         {
             return BadRequest("SolutionExample is invalid");
         }
 
-        var executionCondition = ExecutionCondition.Create(request.ExecutionConditionTests, request.ExecutionTimeLimit);
+        var executionCondition = ExecutionCondition.Create(request.TaskExecutionCondition.Tests, request.TaskExecutionCondition.TimeLimit);
         if (executionCondition.IsFailure)
         {
             return BadRequest("ExecutionCondition is invalid");
         }
 
-        var task = new DomainTask(
-            id,
-            title.Value!,
-            description.Value!,
-            difficulty.Value!,
-            taskType.Value!,
-            programmingLanguage.Value!,
-            solutionExample.Value!,
-            executionCondition.Value!
-            );
+        task.SetNewTitle(title.Value!);
+        task.SetNewDescription(description.Value!);
+        task.SetNewDifficulty(difficulty.Value!);
+        task.SetNewType(taskType.Value!);
+        task.SetNewProgrammingLanguage(programmingLanguage.Value!);
+        task.SetNewSolutionExample(solutionExample.Value!);
+        task.SetNewExecutionCondition(executionCondition.Value!);
 
-        task = _tasks.Update(task);
-        await _tasks.UnitOfWork.SaveChangesAsync();
+        task = _taskRepository.Update(task);
+        await _taskRepository.UnitOfWork.SaveChangesAsync();
 
         return Ok(task.Id);
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteTaskAsync(string id)
+    public async Task<IActionResult> DeleteTaskAsync(Guid id)
     {
         try
         {
-            var task = await _taskQueries.GetTaskAsync(new Guid(id));
-            await _tasks.Delete(task.Id);
-            await _tasks.UnitOfWork.SaveChangesAsync();
+            var task = await _taskQueries.GetTaskAsync(id);
+            await _taskRepository.Delete(task.Id);
+            await _taskRepository.UnitOfWork.SaveChangesAsync();
 
             return NoContent();
         }

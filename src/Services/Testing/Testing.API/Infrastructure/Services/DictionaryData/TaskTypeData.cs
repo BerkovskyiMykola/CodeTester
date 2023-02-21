@@ -1,4 +1,4 @@
-﻿namespace Testing.API.DTOs.DictionaryData;
+﻿namespace Testing.API.Infrastructure.Services.DictionaryData;
 
 public class TaskTypeData
 {

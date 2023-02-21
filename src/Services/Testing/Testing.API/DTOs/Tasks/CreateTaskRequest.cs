@@ -8,39 +8,44 @@ public class CreateTaskRequest
     [StringLength(100)]
     public string Title { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(1000)]
-    public string DescriptionText { get; set; } = string.Empty;
+    public CreateTaskRequestDescription TaskDescription { get; set; } = new();
 
-    [Required]
-    [StringLength(1000)]
-    public string DescriptionExamples { get; set; } = string.Empty;
-
-    [StringLength(1000)]
-    public string? DescriptionCases { get; set; }
-
-    [StringLength(1000)]
-    public string? DescriptionNote { get; set; }
-
-    [Range(1, int.MaxValue)]
     public int DifficultyId { get; set; }
 
-    [Range(1, int.MaxValue)]
     public int TaskTypeId { get; set; }
 
-    [Range(1, int.MaxValue)]
     public int ProgrammingLanguageId { get; set; }
 
+    public CreateTaskRequestSolutionExample TaskSolutionExample { get; set; } = new();
+    public CreateTaskRequestExecitonCondition TaskExecutionCondition { get; set; } = new();
+}
+
+public class CreateTaskRequestDescription
+{
+    [Required]
     [StringLength(1000)]
-    public string? SolutionExampleDescription { get; set; }
-
+    public string Text { get; set; } = string.Empty;
     [Required]
-    public string SolutionExample { get; set; } = string.Empty;
+    [StringLength(1000)]
+    public string Examples { get; set; } = string.Empty;
+    [StringLength(1000)]
+    public string? SomeCases { get; set; }
+    [StringLength(1000)]
+    public string? Note { get; set; }
+}
 
+public class CreateTaskRequestSolutionExample
+{
+    [StringLength(1000)]
+    public string? Description { get; set; }
     [Required]
-    public string ExecutionConditionTests { get; set; } = string.Empty;
-
+    public string Solution { get; set; } = string.Empty;
+}
+public class CreateTaskRequestExecitonCondition
+{
+    [Required]
+    public string Tests { get; set; } = string.Empty;
     [Required]
     [Range(typeof(TimeSpan), "00:00:01", "23:59")]
-    public TimeSpan ExecutionTimeLimit { get; set; }
+    public TimeSpan TimeLimit { get; set; }
 }

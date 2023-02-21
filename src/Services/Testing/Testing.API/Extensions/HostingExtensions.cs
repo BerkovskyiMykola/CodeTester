@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
@@ -130,6 +131,12 @@ public static class HostingExtensions
                     },
                     new List<string> { }
                 }
+            });
+
+            options.MapType<TimeSpan>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Example = new OpenApiString("00:00:01")
             });
         });
 

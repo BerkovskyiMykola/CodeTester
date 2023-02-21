@@ -1,6 +1,6 @@
 ﻿using Dictionary.API.Protos;
 using Grpc.Core;
-using Testing.API.DTOs.DictionaryData;
+using Testing.API.Infrastructure.Services.DictionaryData;
 
 namespace Testing.API.Infrastructure.Services;
 
