@@ -14,13 +14,13 @@ namespace Testing.API.Controllers;
 [Route("api/v1/[controller]")]
 [Authorize]
 [ApiController]
-public class TaskController : ControllerBase
+public class TasksController : ControllerBase
 {
     private readonly IDictionaryService _dictionaryService;
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskQueries _taskQueries;
 
-    public TaskController(
+    public TasksController(
         IDictionaryService dictionaryService,
         ITaskRepository taskRepository,
         ITaskQueries taskQueries)

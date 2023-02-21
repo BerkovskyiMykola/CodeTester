@@ -11,12 +11,12 @@ namespace Testing.API.Controllers;
 [Route("api/v1/[controller]")]
 [Authorize]
 [ApiController]
-public class SolutionController : ControllerBase
+public class SolutionsController : ControllerBase
 {
     private readonly ISolutionRepository _solutionRepository;
     private readonly ISolutionQueries _solutionQueries;
 
-    public SolutionController(
+    public SolutionsController(
         ISolutionRepository solutionRepository,
         ISolutionQueries solutionQueries)
     {
