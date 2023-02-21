@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Testing.API.DTOs.Tasks;
+
+public class CreateTaskRequest
+{
+    [Required]
+    [StringLength(100)]
+    public string Title { get; set; } = string.Empty;
+
+    public TaskDescriptionRequest TaskDescription { get; set; } = new();
+
+    public int DifficultyId { get; set; }
+
+    public int TaskTypeId { get; set; }
+
+    public int ProgrammingLanguageId { get; set; }
+
+    public TaskSolutionExampleRequest TaskSolutionExample { get; set; } = new();
+    public TaskExecitonConditionRequest TaskExecutionCondition { get; set; } = new();
+}

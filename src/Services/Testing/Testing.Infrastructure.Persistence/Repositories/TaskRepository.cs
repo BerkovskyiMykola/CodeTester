@@ -31,14 +31,9 @@ public class TaskRepository
         return _context.Tasks.Update(task).Entity;
     }
 
-    public async Task Delete(Guid id)
+    public DomainTask Delete(DomainTask task)
     {
-        var task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (task != null)
-        {
-            _context.Tasks.Remove(task);
-        }
+       return _context.Tasks.Remove(task).Entity;
     }
 
     public async Task<DomainTask?> FindByIdAsync(Guid id)

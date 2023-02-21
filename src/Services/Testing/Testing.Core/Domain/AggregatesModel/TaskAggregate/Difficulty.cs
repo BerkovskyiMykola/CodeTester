@@ -15,9 +15,6 @@ public record Difficulty
         if (id <= 0)
             return Result.Fail<Difficulty>("Id is less than one");
 
-        if (name.Length > 50)
-            return Result.Fail<Difficulty>("Name is too long");
-
         if (string.IsNullOrWhiteSpace(name))
             return Result.Fail<Difficulty>("Name can't be empty");
 

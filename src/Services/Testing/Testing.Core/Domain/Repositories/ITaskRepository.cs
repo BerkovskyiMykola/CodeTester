@@ -7,6 +7,6 @@ public interface ITaskRepository : IRepository<DomainTask>
 {
     DomainTask Add(DomainTask task);
     DomainTask Update(DomainTask task);
-    Task Delete(Guid id);
+    DomainTask Delete(DomainTask task);
     Task<DomainTask?> FindByIdAsync(Guid id);
 }

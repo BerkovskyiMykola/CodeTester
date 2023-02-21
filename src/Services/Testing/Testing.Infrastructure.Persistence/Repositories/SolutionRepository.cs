@@ -23,10 +23,13 @@ public class SolutionRepository : ISolutionRepository
 
     public Solution Upsert(Solution solution)
     {
-        _context.Entry(solution).State = solution.IsTransient() ?
-            EntityState.Added :
-            EntityState.Modified;
-
-        return solution;
+        if (solution.IsTransient())
+        {
+            return _context.Solutions.Add(solution).Entity;
+        }
+        else
+        {
+            return _context.Update(solution).Entity;
+        }
     }
 }

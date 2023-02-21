@@ -8,13 +8,17 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
+using Testing.API.Application.Queries.Solutions;
+using Testing.API.Application.Queries.Tasks;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Services;
+using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -128,6 +132,12 @@ public static class HostingExtensions
                     },
                     new List<string> { }
                 }
+            });
+
+            options.MapType<TimeSpan>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Example = new OpenApiString("00:00:01")
             });
         });
 
@@ -265,6 +275,8 @@ public static class HostingExtensions
             options.Address = new Uri(configuration["DictionaryGrpcUrl"]!);
         }).AddInterceptor<ClientLoggerInterceptor>();
 
+        services.AddScoped<IDictionaryService, DictionaryService>();
+
         return services;
     }
 
@@ -272,9 +284,13 @@ public static class HostingExtensions
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IIdentityService, IdentityService>();
+
         services.AddScoped<ISolutionRepository, SolutionRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<ISolutionQueries, SolutionQueries>();
+        services.AddScoped<ITaskQueries, TaskQueries>();
 
         return services;
     }
