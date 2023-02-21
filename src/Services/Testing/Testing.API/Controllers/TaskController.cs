@@ -14,7 +14,7 @@ namespace Testing.API.Controllers;
 [Route("api/v1/[controller]")]
 [Authorize]
 [ApiController]
-public class TaskController : Controller
+public class TaskController : ControllerBase
 {
     private readonly IDictionaryService _dictionaryService;
     private readonly ITaskRepository _taskRepository;
@@ -30,8 +30,8 @@ public class TaskController : Controller
         _taskQueries = taskQueries;
     }
 
-    [HttpGet("{taskId}")]
-    public async Task<ActionResult<TaskQueriesModel>> GetTaskAsync(Guid taskId)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TaskQueryModel>> GetTaskAsync(Guid taskId)
     {
         try
         {
@@ -40,12 +40,12 @@ public class TaskController : Controller
         }
         catch
         {
-            return NotFound();
+            return NotFound("Task not found");
         }
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskQueriesModel>>> GetAllTasksAsync()
+    public async Task<ActionResult<IEnumerable<TaskQueryModel>>> GetAllTasksAsync()
     {
         try
         {
@@ -54,12 +54,12 @@ public class TaskController : Controller
         }
         catch
         {
-            return NotFound();
+            return NotFound("Tasks not found");
         }
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskQueriesModel>> CreateTaskAsync(CreateTaskRequest request)
+    public async Task<ActionResult<TaskQueryModel>> CreateTaskAsync(CreateTaskRequest request)
     {
         var title = Title.Create(request.Title);
         if (title.IsFailure)
@@ -125,12 +125,12 @@ public class TaskController : Controller
     }
 
     [HttpPut]
-    public async Task<ActionResult<TaskQueriesModel>> UpdateTaskAsync(UpdateTaskRequest request)
+    public async Task<ActionResult<TaskQueryModel>> UpdateTaskAsync(UpdateTaskRequest request)
     {
         var task = await _taskRepository.FindByIdAsync(request.Id);
         if (task == null)
         {
-            return NotFound();
+            return NotFound("Task to update not found");
         }
 
         var title = Title.Create(request.Title);
@@ -196,17 +196,15 @@ public class TaskController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTaskAsync(Guid id)
     {
-        try
+        var task = await _taskRepository.FindByIdAsync(id);
+        if (task == null)
         {
-            var task = await _taskQueries.GetTaskAsync(id);
-            await _taskRepository.Delete(task.Id);
-            await _taskRepository.UnitOfWork.SaveChangesAsync();
+            return NotFound("Task to delete not found");
+        }
 
-            return NoContent();
-        }
-        catch
-        {
-            return NotFound();
-        }
+        _taskRepository.Delete(task);
+        await _taskRepository.UnitOfWork.SaveChangesAsync();
+
+        return Ok();
     }
 }

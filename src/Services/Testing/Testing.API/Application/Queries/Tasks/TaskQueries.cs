@@ -7,9 +7,9 @@ namespace Testing.API.Application.Queries.Tasks;
 
 public interface ITaskQueries
 {
-    Task<TaskQueriesModel> GetTaskAsync(Guid id);
+    Task<TaskQueryModel> GetTaskAsync(Guid id);
 
-    Task<IEnumerable<TaskQueriesModel>> GetAllTasksAsync();
+    Task<IEnumerable<TaskQueryModel>> GetAllTasksAsync();
 }
 
 public class TaskQueries : ITaskQueries
@@ -21,7 +21,7 @@ public class TaskQueries : ITaskQueries
         _connectionString = configuration["connectionString"]!;
     }
 
-    public async Task<TaskQueriesModel> GetTaskAsync(Guid id)
+    public async Task<TaskQueryModel> GetTaskAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
@@ -45,7 +45,7 @@ public class TaskQueries : ITaskQueries
         return MapToTaskQueriesModel(result.ElementAt(0));
     }
 
-    public async Task<IEnumerable<TaskQueriesModel>> GetAllTasksAsync()
+    public async Task<IEnumerable<TaskQueryModel>> GetAllTasksAsync()
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
@@ -60,43 +60,43 @@ public class TaskQueries : ITaskQueries
                     from ""Tasks"""
         );
 
-        return result.Select(x => (TaskQueriesModel)MapToTaskQueriesModel(x)).AsEnumerable();
+        return result.Select(MapToTaskQueriesModel).ToList();
     }
 
-    private TaskQueriesModel MapToTaskQueriesModel(dynamic obj)
+    private TaskQueryModel MapToTaskQueriesModel(dynamic obj)
     {
-        return new TaskQueriesModel()
+        return new TaskQueryModel()
         {
             Id = obj.Id,
             Title = obj.Title,
-            Description = new TaskQueriesModelDescription()
+            Description = new DescriptionQueryModel()
             {
                 Examples = obj.DescriptionExamples,
                 SomeCases = obj.DescriptionCases,
                 Note = obj.DescriptionNote,
                 Text = obj.DescriptionText
             },
-            Difficulty = new TaskQueriesModelDifficulty()
+            Difficulty = new DifficultyQueryModel()
             {
                 Id = obj.DifficultyId,
                 Name = obj.DifficultyName
             },
-            TaskType = new TaskQueriesModelTaskType()
+            TaskType = new TaskTypeQueryModel()
             {
                 Id = obj.TaskTypeId,
                 Name = obj.TaskTypeName
             },
-            ProgrammingLanguage = new TaskQueriesModelProgrammingLanguage()
+            ProgrammingLanguage = new ProgrammingLanguageQueryModel()
             {
                 Id = obj.ProgrammingLanguageId,
                 Name = obj.ProgrammingLanguageName,
             },
-            SolutionExample = new TaskQueriesModelSolutionExample()
+            SolutionExample = new SolutionExampleQueryModel()
             {
                 Description = obj.SolutionExampleDescription,
                 Solution = obj.SolutionExample
             },
-            ExecutionCondition = new TaskQueriesModelExecutionCondition()
+            ExecutionCondition = new ExecutionConditionQueryModel()
             {
                 Tests = obj.ExecutionConditionTests,
                 TimeLimit = obj.ExecutionTimeLimit,

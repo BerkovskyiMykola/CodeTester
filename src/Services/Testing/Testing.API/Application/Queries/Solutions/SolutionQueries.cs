@@ -6,9 +6,9 @@ namespace Testing.API.Application.Queries.Solutions;
 
 public interface ISolutionQueries
 {
-    Task<SolutionQueriesModel> GetSolutionAsync(Guid id);
+    Task<SolutionQueryModel> GetSolutionAsync(Guid id);
 
-    Task<IEnumerable<SolutionQueriesModel>> GetAllSolutionsAsync();
+    Task<IEnumerable<SolutionQueryModel>> GetAllSolutionsAsync();
 }
 
 public class SolutionQueries : ISolutionQueries
@@ -20,12 +20,12 @@ public class SolutionQueries : ISolutionQueries
         _connectionString = configuration["connectionString"]!;
     }
 
-    public async Task<SolutionQueriesModel> GetSolutionAsync(Guid id)
+    public async Task<SolutionQueryModel> GetSolutionAsync(Guid id)
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
 
-        var result = await connection.QueryAsync<SolutionQueriesModel>(
+        var result = await connection.QueryAsync<SolutionQueryModel>(
             @"select ""Id"" as Id, ""Value_Value"" as SolutionValue, ""Success"" as Success, ""TaskId"" as TaskId, ""UserId"" as UserId
                     FROM ""Solutions""
 					WHERE ""Id"" = @id"
@@ -38,12 +38,12 @@ public class SolutionQueries : ISolutionQueries
         return result.ElementAt(0);
     }
 
-    public async Task<IEnumerable<SolutionQueriesModel>> GetAllSolutionsAsync()
+    public async Task<IEnumerable<SolutionQueryModel>> GetAllSolutionsAsync()
     {
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
 
-        return await connection.QueryAsync<SolutionQueriesModel>(
+        return await connection.QueryAsync<SolutionQueryModel>(
             @"select ""Id"" as Id, ""Value_Value"" as SolutionValue, ""Success"" as Success, ""TaskId"" as TaskId, ""UserId"" as UserId
                     FROM ""Solutions"""
         );

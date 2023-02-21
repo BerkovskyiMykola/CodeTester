@@ -11,7 +11,7 @@ namespace Testing.API.Controllers;
 [Route("api/v1/[controller]")]
 [Authorize]
 [ApiController]
-public class SolutionController : Controller
+public class SolutionController : ControllerBase
 {
     private readonly ISolutionRepository _solutionRepository;
     private readonly ISolutionQueries _solutionQueries;
@@ -24,8 +24,8 @@ public class SolutionController : Controller
         _solutionQueries = solutionQueries;
     }
 
-    [HttpGet("{solutionId}")]
-    public async Task<ActionResult<SolutionQueriesModel>> GetSolutionAsync(Guid solutionId)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<SolutionQueryModel>> GetSolutionAsync(Guid solutionId)
     {
         try
         {
@@ -34,12 +34,12 @@ public class SolutionController : Controller
         }
         catch
         {
-            return NotFound();
+            return NotFound("Solution not found");
         }
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SolutionQueriesModel>>> GetAllSolutionsAsync()
+    public async Task<ActionResult<IEnumerable<SolutionQueryModel>>> GetAllSolutionsAsync()
     {
         try
         {
@@ -48,12 +48,12 @@ public class SolutionController : Controller
         }
         catch
         {
-            return NotFound();
+            return NotFound("Solutions not found");
         }
     }
 
     [HttpPut]
-    public async Task<ActionResult<SolutionQueriesModel>> UpsertSolutionAsync(UpsertSolutionRequest request)
+    public async Task<ActionResult<SolutionQueryModel>> UpsertSolutionAsync(UpsertSolutionRequest request)
     {
         var solutionValue = SolutionValue.Create(request.SolutionValue);
         if (solutionValue.IsFailure)
