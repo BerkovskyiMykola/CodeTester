@@ -1,9 +1,7 @@
 ﻿using Dapper;
 using MassTransit.Initializers;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 using Testing.API.Application.Queries.Tasks.Models;
-using Testing.API.DTOs.Tasks;
 
 namespace Testing.API.Application.Queries.Tasks;
 
@@ -71,7 +69,7 @@ public class TaskQueries : ITaskQueries
         {
             Id = obj.Id,
             Title = obj.Title,
-            Description = new TaskQueriesModelDescription() 
+            Description = new TaskQueriesModelDescription()
             {
                 Examples = obj.DescriptionExamples,
                 SomeCases = obj.DescriptionCases,

@@ -19,7 +19,7 @@ public class DictionaryService : IDictionaryService
     private readonly ILogger<DictionaryService> _logger;
 
     public DictionaryService(
-        DictionaryGrpc.DictionaryGrpcClient dictionaryClient, 
+        DictionaryGrpc.DictionaryGrpcClient dictionaryClient,
         ILogger<DictionaryService> logger)
     {
         _dictionaryClient = dictionaryClient;

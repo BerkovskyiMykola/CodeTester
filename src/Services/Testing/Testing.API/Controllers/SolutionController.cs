@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Testing.API.Application.Queries.Solutions;
 using Testing.API.Application.Queries.Solutions.Models;
 using Testing.API.DTOs.Solutions;
