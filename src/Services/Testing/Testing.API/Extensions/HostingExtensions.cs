@@ -18,6 +18,7 @@ using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Services;
+using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;

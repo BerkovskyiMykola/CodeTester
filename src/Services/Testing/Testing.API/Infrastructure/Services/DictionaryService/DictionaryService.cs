@@ -1,16 +1,16 @@
 ﻿using Dictionary.API.Protos;
 using Grpc.Core;
-using Testing.API.Infrastructure.Services.DictionaryData;
+using Testing.API.Infrastructure.Services.DictionaryService.DictionaryModels;
 
-namespace Testing.API.Infrastructure.Services;
+namespace Testing.API.Infrastructure.Services.DictionaryService;
 
 public interface IDictionaryService
 {
-    Task<DifficultyData?> GetDifficultyByIdAsync(int id);
+    Task<DifficultyModel?> GetDifficultyByIdAsync(int id);
 
-    Task<ProgrammingLanguageData?> GetProgrammingLanguageByIdAsync(int id);
+    Task<ProgrammingLanguageModel?> GetProgrammingLanguageByIdAsync(int id);
 
-    Task<TaskTypeData?> GetTaskTypeByIdAsync(int id);
+    Task<TaskTypeModel?> GetTaskTypeByIdAsync(int id);
 }
 
 public class DictionaryService : IDictionaryService
@@ -26,7 +26,7 @@ public class DictionaryService : IDictionaryService
         _logger = logger;
     }
 
-    public async Task<DifficultyData?> GetDifficultyByIdAsync(int id)
+    public async Task<DifficultyModel?> GetDifficultyByIdAsync(int id)
     {
         try
         {
@@ -34,7 +34,7 @@ public class DictionaryService : IDictionaryService
 
             _logger.LogDebug("grpc response {@response}", response);
 
-            return new DifficultyData
+            return new DifficultyModel
             {
                 Id = response.Id,
                 Name = response.Name
@@ -46,7 +46,7 @@ public class DictionaryService : IDictionaryService
         }
     }
 
-    public async Task<TaskTypeData?> GetTaskTypeByIdAsync(int id)
+    public async Task<TaskTypeModel?> GetTaskTypeByIdAsync(int id)
     {
         try
         {
@@ -54,7 +54,7 @@ public class DictionaryService : IDictionaryService
 
             _logger.LogDebug("grpc response {@response}", response);
 
-            return new TaskTypeData
+            return new TaskTypeModel
             {
                 Id = response.Id,
                 Name = response.Name
@@ -66,7 +66,7 @@ public class DictionaryService : IDictionaryService
         }
     }
 
-    public async Task<ProgrammingLanguageData?> GetProgrammingLanguageByIdAsync(int id)
+    public async Task<ProgrammingLanguageModel?> GetProgrammingLanguageByIdAsync(int id)
     {
         try
         {
@@ -74,7 +74,7 @@ public class DictionaryService : IDictionaryService
 
             _logger.LogDebug("grpc response {@response}", response);
 
-            return new ProgrammingLanguageData
+            return new ProgrammingLanguageModel
             {
                 Id = response.Id,
                 Name = response.Name

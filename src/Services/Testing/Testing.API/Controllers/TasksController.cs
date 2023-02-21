@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Testing.API.Application.Queries.Tasks;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.DTOs.Tasks;
-using Testing.API.Infrastructure.Services;
+using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Core.Domain.Repositories;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
@@ -187,7 +187,7 @@ public class TasksController : ControllerBase
         task.SetNewSolutionExample(solutionExample.Value!);
         task.SetNewExecutionCondition(executionCondition.Value!);
 
-        task = _taskRepository.Update(task);
+        _taskRepository.Update(task);
         await _taskRepository.UnitOfWork.SaveChangesAsync();
 
         return Ok(task.Id);
@@ -205,6 +205,6 @@ public class TasksController : ControllerBase
         _taskRepository.Delete(task);
         await _taskRepository.UnitOfWork.SaveChangesAsync();
 
-        return Ok();
+        return NoContent();
     }
 }
