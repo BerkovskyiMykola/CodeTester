@@ -121,6 +121,10 @@ public class Callback : PageModel
 
             if(user != null)
             {
+                user.EmailConfirmed = true;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded) throw new Exception(updateResult.Errors.First().Description);
+
                 var addLoginResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
                 if (!addLoginResult.Succeeded) throw new Exception(addLoginResult.Errors.First().Description);
 
