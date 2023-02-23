@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace Identity.API.Pages.ExternalLogin;
@@ -111,48 +112,59 @@ public class Callback : PageModel
 
     private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims)
     {
-        var sub = Guid.NewGuid().ToString();
-
-        var user = new ApplicationUser
-        {
-            Id = sub,
-            UserName = sub, // don't need a username, since the user will be using an external provider to login
-        };
-
-        // email
         var email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ??
                     claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+
+        if(email != null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user != null)
+            {
+                var addLoginResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
+                if (!addLoginResult.Succeeded) throw new Exception(addLoginResult.Errors.First().Description);
+
+                return user;
+            }
+        }
+
+        var sub = Guid.NewGuid().ToString();
+        var newUser = new ApplicationUser
+        {
+            Id = sub,
+            UserName = sub
+        };
+
         if (email != null)
         {
-            user.Email = email;
-            user.EmailConfirmed = true;
+            newUser.Email = email;
+            newUser.EmailConfirmed = true;
         }
 
-        // user's display name
-        var first = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
+        var firstname = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
                         claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value;
-        var last = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
+        var lastname = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
                    claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
 
-        if (first != null)
+        if (firstname != null)
         {
-            user.FirstName = first;
+            newUser.FirstName = firstname;
         }
-        if (last != null)
+        if (lastname != null)
         {
-            user.LastName = last;
+            newUser.LastName = lastname;
         }
 
-        var identityResult = await _userManager.CreateAsync(user);
+        var identityResult = await _userManager.CreateAsync(newUser);
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        identityResult = await _userManager.AddToRoleAsync(user, "User");
+        identityResult = await _userManager.AddToRoleAsync(newUser, "User");
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
+        identityResult = await _userManager.AddLoginAsync(newUser, new UserLoginInfo(provider, providerUserId, provider));
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        return user;
+        return newUser;
     }
 
     // if the external login is OIDC-based, there are certain things we need to preserve to make logout work
