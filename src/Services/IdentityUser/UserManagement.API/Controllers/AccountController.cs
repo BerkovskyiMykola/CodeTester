@@ -38,7 +38,7 @@ public class AccountController : ControllerBase
         _publishEndpoint = publishEndpoint;
     }
 
-    [HttpPost("register-user")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
         if(!await _roleManager.RoleExistsAsync("User"))
