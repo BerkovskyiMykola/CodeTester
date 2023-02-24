@@ -17,5 +17,6 @@ public record RegisterUserRequest
     public string Email { get; init; } = string.Empty;
 
     [Required]
+    [RegularExpression("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$^+=!*()@%&]).{6,}$")]
     public string Password { get; init; } = string.Empty;
 }

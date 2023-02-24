@@ -17,18 +17,21 @@ namespace UserManagement.API.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
     private readonly IEmailSender _emailSender;
     private readonly IIdentityService _identityService;
     private readonly IPublishEndpoint _publishEndpoint;
     public AccountController(
         UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
         IOptions<ApiBehaviorOptions> apiBehaviorOptions,
         IEmailSender emailSender,
         IIdentityService identityService,
         IPublishEndpoint publishEndpoint)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _emailSender = emailSender;
         _apiBehaviorOptions = apiBehaviorOptions.Value;
         _identityService = identityService;
@@ -38,17 +41,27 @@ public class AccountController : ControllerBase
     [HttpPost("register-user")]
     public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
+        if(!await _roleManager.RoleExistsAsync("User"))
+        {
+            return BadRequest("The specified role does not exist");
+        }
+
         var user = new ApplicationUser
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
             UserName = request.Email,
-            Email = request.Email,
-            EmailConfirmed = false
+            Email = request.Email
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
+        if (!result.Succeeded)
+        {
+            AddErrors(result);
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
 
+        result = await _userManager.AddToRoleAsync(user, "User");
         if (!result.Succeeded)
         {
             AddErrors(result);
@@ -56,24 +69,7 @@ public class AccountController : ControllerBase
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-        var confirmationLink = $"Email:{user.Email} Token:{token}";
-
-        var message = new Message(
-            new EmailAddress[]
-            {
-                new EmailAddress
-                {
-                    DisplayName = $"{user.FirstName} {user.LastName}",
-                    Address = user.Email
-                }
-            },
-            "Confirmation email link",
-            confirmationLink!);
-
-        await _userManager.AddToRoleAsync(user, "User");
-
-        await _emailSender.SendEmailAsync(message);
+        await SendConfirmEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", user.Id, token);
 
         await _publishEndpoint.Publish(new UserCreatedIntegrationEvent(
             Guid.Parse(user.Id),
@@ -91,26 +87,11 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return NotFound("User was not found.");
+            return NotFound("No user found");
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-        var confirmationLink = $"Email:{user.Email} Token:{token}";
-
-        var message = new Message(
-            new EmailAddress[]
-            {
-                new EmailAddress
-                {
-                    DisplayName = $"{user.FirstName} {user.LastName}",
-                    Address = user.Email!
-                }
-            },
-            "Confirmation email link",
-            confirmationLink);
-
-        await _emailSender.SendEmailAsync(message);
+        await SendConfirmEmailAsync(user.Email!, $"{user.FirstName} {user.LastName}", user.Id, token);
 
         return NoContent();
     }
@@ -118,74 +99,67 @@ public class AccountController : ControllerBase
     [HttpPost("confirm-email")]
     public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var user = await _userManager.FindByIdAsync(request.UserId);
 
         if (user == null)
         {
-            return NotFound("User was not found.");
+            return NotFound("No user found");
         }
 
         var result = await _userManager.ConfirmEmailAsync(user, request.Token);
 
         if (!result.Succeeded)
         {
-            return BadRequest("Confirmation failed.");
+            return BadRequest("Confirmation failed");
         }
 
         return NoContent();
     }
 
-    [HttpPost("forgot-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
-    {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+    // TODO
+    // Should be in Identity.API maybe
 
-        if (user == null)
-        {
-            return NotFound("User was not found.");
-        }
+    //[HttpPost("forgot-password")]
+    //public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    //{
+    //    var user = await _userManager.FindByEmailAsync(request.Email);
 
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+    //    if (user == null)
+    //    {
+    //        return NotFound("No user found");
+    //    }
 
-        var callback = $"Email:{user.Email} Token:{token}";
+    //    if (user.Email == null)
+    //    {
+    //        return BadRequest("The user does not have an email address");
+    //    }
 
-        var message = new Message(
-            new EmailAddress[]
-            {
-                new EmailAddress
-                {
-                    DisplayName = $"{user.FirstName} {user.LastName}",
-                    Address = user.Email!
-                }
-            },
-            "Reset password token",
-            callback);
+    //    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+    //    await SendResetPasswordEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", token);
 
-        await _emailSender.SendEmailAsync(message);
+    //    return NoContent();
+    //}
 
-        return NoContent();
-    }
+    //[HttpPost("confirm-reset-password")]
+    //public async Task<IActionResult> ConfirmResetPassword(ResetPasswordConfirmRequest request)
+    //{
+    //    var user = await _userManager.FindByEmailAsync(request.Email);
 
-    [HttpPost("confirm-reset-password")]
-    public async Task<IActionResult> ConfirmResetPassword(ResetPasswordConfirmRequest request)
-    {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+    //    if (user == null)
+    //    {
+    //        return NotFound("No user found");
+    //    }
 
-        if (user == null)
-        {
-            return NotFound("User was not found.");
-        }
+    //    var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
-        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+    //    if (!result.Succeeded)
+    //    {
+    //        AddErrors(result);
+    //        return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+    //    }
 
-        if (!result.Succeeded)
-        {
-            AddErrors(result);
-            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
-        }
-
-        return NoContent();
-    }
+    //    return NoContent();
+    //}
 
     [HttpGet("profile")]
     [Authorize]
@@ -215,7 +189,7 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return NotFound();
+            return NotFound("No user found");
         }
 
         user.FirstName = request.FirstName;
@@ -246,22 +220,21 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return NotFound();
+            return NotFound("No user found");
         }
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
+            AddErrors(result);
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
         }
 
         return NoContent();
     }
+
+    #region Help methods
 
     private void AddErrors(IdentityResult result)
     {
@@ -270,4 +243,44 @@ public class AccountController : ControllerBase
             ModelState.TryAddModelError(error.Code, error.Description);
         }
     }
+
+    private async Task SendConfirmEmailAsync(string email, string displayReceiverName, string userId, string token)
+    {
+        var confirmationLink = $"UserId:{userId} Token:{token}";
+
+        var message = new Message(
+            new EmailAddress[]
+            {
+                new EmailAddress
+                {
+                    DisplayName = displayReceiverName,
+                    Address = email
+                }
+            },
+            "Confirm email",
+            confirmationLink!);
+
+        await _emailSender.SendEmailAsync(message);
+    }
+
+    private async Task SendResetPasswordEmailAsync(string email, string displayReceiverName, string token)
+    {
+        var callback = $"Email:{email} Token:{token}";
+
+        var message = new Message(
+            new EmailAddress[]
+            {
+                new EmailAddress
+                {
+                    DisplayName = displayReceiverName,
+                    Address = email
+                }
+            },
+            "Reset password",
+            callback);
+
+        await _emailSender.SendEmailAsync(message);
+    }
+
+    #endregion
 }

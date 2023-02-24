@@ -1,7 +1,5 @@
 using Common.Logging;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Serilog;
-using System.Net;
 using UserManagement.API.Extensions;
 
 var configuration = GetConfiguration();
