@@ -110,7 +110,10 @@ public static class HostingExtensions
     private static IServiceCollection AddCustomIdentity(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+            })
             .AddEntityFrameworkStores<ApplicationContext>()
             .AddDefaultTokenProviders();
 

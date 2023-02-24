@@ -112,37 +112,20 @@ public class Callback : PageModel
 
     private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims)
     {
-        var email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ??
-                    claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-
-        if(email != null)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if(user != null)
-            {
-                user.EmailConfirmed = true;
-                var updateResult = await _userManager.UpdateAsync(user);
-                if (!updateResult.Succeeded) throw new Exception(updateResult.Errors.First().Description);
-
-                var addLoginResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
-                if (!addLoginResult.Succeeded) throw new Exception(addLoginResult.Errors.First().Description);
-
-                return user;
-            }
-        }
-
         var sub = Guid.NewGuid().ToString();
-        var newUser = new ApplicationUser
+        var user = new ApplicationUser
         {
             Id = sub,
             UserName = sub
         };
 
+        var email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ??
+                    claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+
         if (email != null)
         {
-            newUser.Email = email;
-            newUser.EmailConfirmed = true;
+            user.Email = email;
+            user.EmailConfirmed = true;
         }
 
         var firstname = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
@@ -152,23 +135,23 @@ public class Callback : PageModel
 
         if (firstname != null)
         {
-            newUser.FirstName = firstname;
+            user.FirstName = firstname;
         }
         if (lastname != null)
         {
-            newUser.LastName = lastname;
+            user.LastName = lastname;
         }
 
-        var identityResult = await _userManager.CreateAsync(newUser);
+        var identityResult = await _userManager.CreateAsync(user);
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        identityResult = await _userManager.AddToRoleAsync(newUser, "User");
+        identityResult = await _userManager.AddToRoleAsync(user, "User");
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        identityResult = await _userManager.AddLoginAsync(newUser, new UserLoginInfo(provider, providerUserId, provider));
+        identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
 
-        return newUser;
+        return user;
     }
 
     // if the external login is OIDC-based, there are certain things we need to preserve to make logout work
