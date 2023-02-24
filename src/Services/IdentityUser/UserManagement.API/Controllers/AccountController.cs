@@ -39,7 +39,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
+    public async Task<IActionResult> Register(RegisterUserRequest request)
     {
         if(!await _roleManager.RoleExistsAsync("User"))
         {
