@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UserManagement.API.DTOs.Requests;
 using UserManagement.API.DTOs.Responses;
+using UserManagement.API.Infrastructure.Attributes;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
 
@@ -22,13 +23,16 @@ public class AccountController : ControllerBase
     private readonly IEmailSender _emailSender;
     private readonly IIdentityService _identityService;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
     public AccountController(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IOptions<ApiBehaviorOptions> apiBehaviorOptions,
         IEmailSender emailSender,
         IIdentityService identityService,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        IWebHostEnvironment webHostEnvironment)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -36,6 +40,7 @@ public class AccountController : ControllerBase
         _apiBehaviorOptions = apiBehaviorOptions.Value;
         _identityService = identityService;
         _publishEndpoint = publishEndpoint;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpPost("register")]
@@ -211,7 +216,7 @@ public class AccountController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("change-password")]
+    [HttpPut("password")]
     [Authorize]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
     {
@@ -229,6 +234,82 @@ public class AccountController : ControllerBase
         {
             AddErrors(result);
             return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("photo")]
+    [Authorize]
+    public async Task<IActionResult> PutPhoto(
+        [MaxFileSize(2 * 1024 * 1024)]
+        [AllowedExtensions(".jpg", ".jpeg", ".png")] 
+        IFormFile file)
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound("No user found");
+        }
+
+        var photoDicrectoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "Pictures", "Photos", userid);
+
+        if (!Directory.Exists(photoDicrectoryPath))
+        {
+            Directory.CreateDirectory(photoDicrectoryPath);
+        }
+
+        if (user.PhotoFileName != null)
+        {
+            var filePath = Path.Combine(photoDicrectoryPath, user.PhotoFileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+
+        var newFilePath = Path.Combine(photoDicrectoryPath, file.FileName);
+
+        using var stream = System.IO.File.Create(newFilePath);
+        await file.CopyToAsync(stream);
+
+        user.PhotoFileName = file.FileName;
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
+    [HttpDelete("photo")]
+    [Authorize]
+    public async Task<IActionResult> DeletePhoto()
+    {
+        var userid = _identityService.GetUserIdentity();
+        var user = await _userManager.FindByIdAsync(userid);
+
+        if (user == null)
+        {
+            return NotFound("No user found");
+        }
+
+        var photoDicrectoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "Pictures", "Photos", userid);
+
+        if (!Directory.Exists(photoDicrectoryPath))
+        {
+            Directory.CreateDirectory(photoDicrectoryPath);
+        }
+
+        if (user.PhotoFileName != null)
+        {
+            var filePath = Path.Combine(photoDicrectoryPath, user.PhotoFileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            user.PhotoFileName = null;
+            await _userManager.UpdateAsync(user);
         }
 
         return NoContent();

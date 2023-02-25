@@ -58,6 +58,8 @@ services:
       - SeqServerUrl=http://seq
     ports:
       - 8001:80
+    volumes: 
+      - photo-accounts:/app/wwwroot/Pictures/Photos
 
   dictionary-api:
     environment:
@@ -124,3 +126,4 @@ services:
 volumes:
   mssql-server-data:
   pgsql-server-data:
+  photo-accounts:
