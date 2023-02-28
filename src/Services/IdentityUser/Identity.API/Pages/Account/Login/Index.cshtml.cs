@@ -19,6 +19,7 @@ public class Index : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IConfiguration _configuration;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IClientStore _clientStore;
     private readonly IEventService _events;
@@ -31,6 +32,7 @@ public class Index : PageModel
     public InputModel Input { get; set; }
 
     public Index(
+        IConfiguration configuration,
         IIdentityServerInteractionService interaction,
         IClientStore clientStore,
         IAuthenticationSchemeProvider schemeProvider,
@@ -46,6 +48,7 @@ public class Index : PageModel
         _schemeProvider = schemeProvider;
         _identityProviderStore = identityProviderStore;
         _events = events;
+        _configuration = configuration;
     }
 
     public async Task<IActionResult> OnGet(string returnUrl)
@@ -63,6 +66,12 @@ public class Index : PageModel
 
     public async Task<IActionResult> OnPost()
     {
+        // the user clicked the "forgotPassword" button
+        if (Input.Button == "forgotPassword")
+        {
+            return Redirect(_configuration["SpaFrogotPasswordUrl"]);
+        }
+
         // check if we are in the context of an authorization request
         var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 

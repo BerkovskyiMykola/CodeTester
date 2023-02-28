@@ -44,6 +44,7 @@ services:
       - DictionaryApiClient=http://localhost:8002
       - TestingApiClient=http://localhost:8003
       - SpaClient=http://localhost:8011
+      - SpaFrogotPasswordUrl=http://localhost:8011/ForgotPassword
       - SeqServerUrl=http://seq
     ports:
       - 8000:80
