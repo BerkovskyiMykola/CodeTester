@@ -82,7 +82,7 @@ public class AccountController : ControllerBase
             user.FirstName,
             user.LastName));
 
-        return NoContent();
+        return Ok("Registration successful, please check your email for verification instructions");
     }
 
     [HttpPost("resend-confirm-email")]
@@ -92,13 +92,13 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return NotFound("No user found");
+            return Ok("Please check your email for verification instructions");
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         await SendConfirmEmailAsync(user.Email!, $"{user.FirstName} {user.LastName}", user.Id, token);
 
-        return NoContent();
+        return Ok("Please check your email for verification instructions");
     }
 
     [HttpPost("confirm-email")]
@@ -108,7 +108,7 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return NotFound("No user found");
+            return Ok("Verification successful, you can now login");
         }
 
         var result = await _userManager.ConfirmEmailAsync(user, request.Token);
@@ -118,53 +118,45 @@ public class AccountController : ControllerBase
             return BadRequest("Confirmation failed");
         }
 
-        return NoContent();
+        return Ok("Verification successful, you can now login");
     }
 
-    // TODO
-    // Should be in Identity.API maybe
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
-    //[HttpPost("forgot-password")]
-    //public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
-    //{
-    //    var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+        {
+            return Ok("Please check your email for password reset instructions");
+        }
 
-    //    if (user == null)
-    //    {
-    //        return NotFound("No user found");
-    //    }
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        await SendResetPasswordEmailAsync(user.Email!, $"{user.FirstName} {user.LastName}", token);
 
-    //    if (user.Email == null)
-    //    {
-    //        return BadRequest("The user does not have an email address");
-    //    }
+        return Ok("Please check your email for password reset instructions");
+    }
 
-    //    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    //    await SendResetPasswordEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", token);
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
-    //    return NoContent();
-    //}
+        if (user == null)
+        {
+            return Ok("Password reset successful, you can now login");
+        }
 
-    //[HttpPost("confirm-reset-password")]
-    //public async Task<IActionResult> ConfirmResetPassword(ResetPasswordConfirmRequest request)
-    //{
-    //    var user = await _userManager.FindByEmailAsync(request.Email);
+        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
-    //    if (user == null)
-    //    {
-    //        return NotFound("No user found");
-    //    }
+        if (!result.Succeeded)
+        {
+            AddErrors(result);
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
 
-    //    var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
-
-    //    if (!result.Succeeded)
-    //    {
-    //        AddErrors(result);
-    //        return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
-    //    }
-
-    //    return NoContent();
-    //}
+        return Ok("Password reset successful, you can now login");
+    }
 
     [HttpGet("profile")]
     [Authorize]
