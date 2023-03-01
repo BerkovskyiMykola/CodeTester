@@ -4,6 +4,7 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using HealthChecks.UI.Client;
 using Identity.API.Infrastructure;
+using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public static class HostingExtensions
             .AddCustomAuthentication(configuration)
             .AddCustomConfiguration(configuration)
             .AddCustomHealthCheck(configuration)
+            .AddEventBus(configuration)
             .AddRazorPages();
 
         return builder.Build();
@@ -184,6 +186,24 @@ public static class HostingExtensions
             configuration["ConnectionString"]!,
             name: "IdentityDB-check",
             tags: new string[] { "IdentityDB" });
+
+        hcBuilder.AddRabbitMQ(
+            configuration["EventBusHostAddress"]!,
+            name: "identity-rabbitmqbus-check",
+            tags: new string[] { "rabbitmqbus" });
+
+        return services;
+    }
+
+    private static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMassTransit(config =>
+        {
+            config.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(configuration["EventBusHostAddress"]);
+            });
+        });
 
         return services;
     }

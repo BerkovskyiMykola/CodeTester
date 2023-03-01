@@ -12,7 +12,7 @@ using Testing.Infrastructure.Persistence;
 namespace Testing.API.Infrastructure.TestingMigrations
 {
     [DbContext(typeof(TestingContext))]
-    [Migration("20230216215954_Init")]
+    [Migration("20230301004303_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -281,23 +281,6 @@ namespace Testing.API.Infrastructure.TestingMigrations
 
             modelBuilder.Entity("Testing.Core.Domain.AggregatesModel.UserAggregate.User", b =>
                 {
-                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.UserAggregate.Email", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("Users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
                     b.OwnsOne("Testing.Core.Domain.AggregatesModel.UserAggregate.UserProfile", "Profile", b1 =>
                         {
                             b1.Property<Guid>("UserId")
@@ -318,9 +301,6 @@ namespace Testing.API.Infrastructure.TestingMigrations
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
                         });
-
-                    b.Navigation("Email")
-                        .IsRequired();
 
                     b.Navigation("Profile")
                         .IsRequired();

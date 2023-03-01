@@ -12,8 +12,6 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
 
         builder.Ignore(x => x.DomainEvents);
 
-        builder.OwnsOne(x => x.Email);
-
         builder.OwnsOne(x => x.Profile);
     }
 }

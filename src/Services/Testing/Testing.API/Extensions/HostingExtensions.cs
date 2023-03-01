@@ -249,7 +249,7 @@ public static class HostingExtensions
         services.AddMassTransit(config =>
         {
             config.AddConsumer<UserProfileUpdatedConsumer>();
-            config.AddConsumer<UserCreatedConsumer>();
+            config.AddConsumer<UserProfileCreatedConsumer>();
 
             config.UsingRabbitMq((context, cfg) =>
             {
@@ -258,7 +258,7 @@ public static class HostingExtensions
                 cfg.ReceiveEndpoint(EventBusConstants.TestingQueue, c =>
                 {
                     c.ConfigureConsumer<UserProfileUpdatedConsumer>(context);
-                    c.ConfigureConsumer<UserCreatedConsumer>(context);
+                    c.ConfigureConsumer<UserProfileCreatedConsumer>(context);
                 });
             });
         });

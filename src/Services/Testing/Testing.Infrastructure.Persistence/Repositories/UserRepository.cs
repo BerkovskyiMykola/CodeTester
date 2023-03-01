@@ -17,12 +17,7 @@ public class UserRepository : IUserRepository
 
     public User Add(User user)
     {
-        if (user.IsTransient())
-        {
-            return _context.Users.Add(user).Entity;
-        }
-
-        return user;
+        return _context.Users.Add(user).Entity;
     }
 
     public User Update(User user)

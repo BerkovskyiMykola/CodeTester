@@ -18,12 +18,7 @@ public class TaskRepository
 
     public DomainTask Add(DomainTask task)
     {
-        if (task.IsTransient())
-        {
-            return _context.Tasks.Add(task).Entity;
-        }
-
-        return task;
+        return _context.Tasks.Add(task).Entity;
     }
 
     public DomainTask Update(DomainTask task)

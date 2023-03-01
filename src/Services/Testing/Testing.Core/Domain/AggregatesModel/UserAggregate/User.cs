@@ -4,7 +4,6 @@ namespace Testing.Core.Domain.AggregatesModel.UserAggregate;
 
 public class User : Entity, IAggregateRoot
 {
-    public Email Email { get; private set; }
     public UserProfile Profile { get; private set; }
 
     //Only for migrations
@@ -12,10 +11,9 @@ public class User : Entity, IAggregateRoot
     protected User() { }
     #pragma warning restore CS8618
 
-    public User(Guid id, Email email, UserProfile profile)
+    public User(Guid id, UserProfile profile)
     {
         Id = id;
-        Email = email;
         Profile = profile;
     }
 

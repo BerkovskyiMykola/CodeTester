@@ -2,13 +2,14 @@ using DataAccess.Entities;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
+using EventBus.Messages.Events;
 using IdentityModel;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace Identity.API.Pages.ExternalLogin;
@@ -22,6 +23,7 @@ public class Callback : PageModel
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<Callback> _logger;
     private readonly IEventService _events;
 
@@ -30,11 +32,13 @@ public class Callback : PageModel
         IEventService events,
         ILogger<Callback> logger,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IPublishEndpoint publishEndpoint)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _interaction = interaction;
+        _publishEndpoint = publishEndpoint;
         _logger = logger;
         _events = events;
     }
@@ -150,6 +154,11 @@ public class Callback : PageModel
 
         identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+
+        await _publishEndpoint.Publish(new UserProfileCreatedIntegrationEvent(
+            Guid.Parse(user.Id),
+            user.FirstName,
+            user.LastName));
 
         return user;
     }

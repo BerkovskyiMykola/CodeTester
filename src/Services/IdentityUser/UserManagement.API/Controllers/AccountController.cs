@@ -1,13 +1,10 @@
 ﻿using DataAccess.Entities;
 using EventBus.Messages.Events;
 using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UserManagement.API.DTOs.Requests;
-using UserManagement.API.DTOs.Responses;
-using UserManagement.API.Infrastructure.Attributes;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
 
@@ -46,7 +43,7 @@ public class AccountController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserRequest request)
     {
-        if(!await _roleManager.RoleExistsAsync("User"))
+        if (!await _roleManager.RoleExistsAsync("User"))
         {
             return BadRequest("The specified role does not exist");
         }
@@ -76,9 +73,8 @@ public class AccountController : ControllerBase
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         await SendConfirmEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", user.Id, token);
 
-        await _publishEndpoint.Publish(new UserCreatedIntegrationEvent(
+        await _publishEndpoint.Publish(new UserProfileCreatedIntegrationEvent(
             Guid.Parse(user.Id),
-            user.Email!,
             user.FirstName,
             user.LastName));
 

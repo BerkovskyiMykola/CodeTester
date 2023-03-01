@@ -5,20 +5,20 @@ using Testing.Core.Domain.Repositories;
 
 namespace Testing.API.Infrastructure.EventBusConsumers;
 
-public class UserCreatedConsumer : IConsumer<UserCreatedIntegrationEvent>
+public class UserProfileCreatedConsumer : IConsumer<UserProfileCreatedIntegrationEvent>
 {
     private readonly IUserRepository _userRepository;
-    private readonly ILogger<UserCreatedConsumer> _logger;
+    private readonly ILogger<UserProfileCreatedConsumer> _logger;
 
-    public UserCreatedConsumer(
+    public UserProfileCreatedConsumer(
         IUserRepository userRepository,
-        ILogger<UserCreatedConsumer> logger)
+        ILogger<UserProfileCreatedConsumer> logger)
     {
         _userRepository = userRepository;
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<UserCreatedIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<UserProfileCreatedIntegrationEvent> context)
     {
         using (Serilog.Context.LogContext.PushProperty("IntegrationEventContext", $"{context.Message.Id}-{Program.AppName}"))
         {
@@ -37,16 +37,7 @@ public class UserCreatedConsumer : IConsumer<UserCreatedIntegrationEvent>
                 return;
             }
 
-            var createUserEmailResult = Email.Create(
-                context.Message.Email);
-
-            if (!createUserEmailResult.Success)
-            {
-                _logger.LogInformation("----- Integration event failed - UserId: {UserId}", context.Message.UserId);
-                return;
-            }
-
-            var user = new User(context.Message.UserId, createUserEmailResult.Value!, createUserProfileResult.Value!);
+            var user = new User(context.Message.UserId, createUserProfileResult.Value!);
 
             _userRepository.Add(user);
 

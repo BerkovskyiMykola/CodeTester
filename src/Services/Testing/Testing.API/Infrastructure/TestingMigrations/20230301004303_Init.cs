@@ -43,7 +43,6 @@ namespace Testing.API.Infrastructure.TestingMigrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    EmailValue = table.Column<string>(name: "Email_Value", type: "text", nullable: false),
                     ProfileLastname = table.Column<string>(name: "Profile_Lastname", type: "text", nullable: false),
                     ProfileFirstname = table.Column<string>(name: "Profile_Firstname", type: "text", nullable: false)
                 },
