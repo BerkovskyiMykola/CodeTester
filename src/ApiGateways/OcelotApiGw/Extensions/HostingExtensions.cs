@@ -1,4 +1,5 @@
-﻿using Ocelot.Cache.CacheManager;
+﻿using Microsoft.IdentityModel.Tokens;
+using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
@@ -11,7 +12,8 @@ public static class HostingExtensions
         var configuration = builder.Configuration;
 
         builder.Services
-            .AddCustomOcelot(configuration);
+            .AddCustomOcelot(configuration)
+            .AddCustomAuthentication(configuration);
 
         return builder.Build();
     }
@@ -26,16 +28,16 @@ public static class HostingExtensions
 
     private static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddAuthentication()
-        //    .AddJwtBearer("IdentityApiKey", x =>
-        //    {
-        //        x.Authority = configuration["IdentityUrl"];
-        //        x.RequireHttpsMetadata = false;
-        //        x.TokenValidationParameters = new TokenValidationParameters()
-        //        {
-        //            ValidAudiences = new[] { "usermanagment", "dictionary", "testing", "testingagg" }
-        //        };
-        //    });
+        services.AddAuthentication()
+            .AddJwtBearer("IdentityApiKey", x =>
+            {
+                x.Authority = configuration["IdentityUrl"];
+                x.RequireHttpsMetadata = false;
+                x.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidAudiences = new[] { "usermanagement", "dictionary", "testing" }
+                };
+            });
 
         return services;
     }

@@ -2,7 +2,7 @@
 
 namespace UserManagement.API.DTOs.Requests;
 
-public class UpdateProfileRequest
+public class UpdateProfileFullnameRequest
 {
     [Required]
     [StringLength(50, MinimumLength = 2)]
