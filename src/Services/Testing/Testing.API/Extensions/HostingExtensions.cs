@@ -19,6 +19,7 @@ using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
+using Testing.API.Infrastructure.Services.TerminalService;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -291,6 +292,8 @@ public static class HostingExtensions
 
         services.AddScoped<ISolutionQueries, SolutionQueries>();
         services.AddScoped<ITaskQueries, TaskQueries>();
+
+        services.AddScoped<ITerminalService, TerminalService>();
 
         return services;
     }
