@@ -4,6 +4,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
 
+RUN apt update && apt install -y docker.io
+
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["Services/Testing/Testing.API/Testing.API.csproj", "Services/Testing/Testing.API/"]

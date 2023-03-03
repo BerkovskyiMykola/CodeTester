@@ -87,6 +87,8 @@ services:
       - SeqServerUrl=http://seq
     ports:
       - 8003:80
+    volumes:
+      - /var/run/docker.sock.raw:/var/run/docker.sock
 
   ocelotapigw:
     environment:
