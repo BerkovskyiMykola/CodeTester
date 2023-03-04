@@ -63,7 +63,7 @@ public class TerminalService : ITerminalService
                         cmd.ExitCode);
                 }
 
-                throw new ProcessExecutionTimeoutException("The process takes longer to execute than the time limit set");
+                throw new TerminalExecutionTimeoutException("The process takes longer to execute than the time limit set");
             }
             stopWatch.Stop();
 
@@ -75,7 +75,7 @@ public class TerminalService : ITerminalService
         }
         catch (Exception e)
         {
-            throw new ProcessExecutionException("Fatal error for command " + string.Join(" ", command) + " : " + e.Message);
+            throw new TerminalExecutionException("Fatal error for command " + string.Join(" ", command) + " : " + e.Message);
         }
     }
 }
