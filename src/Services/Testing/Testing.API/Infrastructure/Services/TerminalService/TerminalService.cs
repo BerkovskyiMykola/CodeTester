@@ -75,7 +75,7 @@ public class TerminalService : ITerminalService
         }
         catch (Exception e)
         {
-            throw new CommandExecutionException("Fatal error for command " + string.Join(" ", command) + " : " + e.Message);
+            throw new ProcessExecutionException("Fatal error for command " + string.Join(" ", command) + " : " + e.Message);
         }
     }
 }
