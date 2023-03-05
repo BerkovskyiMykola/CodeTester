@@ -15,4 +15,4 @@ RUN dotnet publish "Program.csproj" -c Release -o /app/publish /p:UseAppHost=fal
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Program.dll"]
+ENTRYPOINT [ "timeout", "{timeLimit}", "dotnet", "Program.dll"]
