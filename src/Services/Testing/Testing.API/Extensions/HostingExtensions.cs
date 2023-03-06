@@ -21,6 +21,7 @@ using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.API.Infrastructure.Services.DockerService;
 using Testing.API.Infrastructure.Services.TerminalService;
+using Testing.API.Infrastructure.Services.TestExecutionSerivce.Models;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -228,6 +229,8 @@ public static class HostingExtensions
                 };
             };
         });
+
+        services.Configure<TestTemplateSettings>(configuration.GetSection(nameof(TestTemplateSettings)));
 
         return services;
     }
