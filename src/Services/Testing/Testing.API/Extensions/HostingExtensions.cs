@@ -230,7 +230,7 @@ public static class HostingExtensions
             };
         });
 
-        services.Configure<TestTemplateSettings>(configuration.GetSection(nameof(TestTemplateSettings)));
+        services.Configure<ExecutionSettings>(configuration.GetSection(nameof(ExecutionSettings)));
 
         return services;
     }
