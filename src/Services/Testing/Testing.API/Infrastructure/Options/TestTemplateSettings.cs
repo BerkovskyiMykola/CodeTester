@@ -1,4 +1,4 @@
-﻿namespace Testing.API.Infrastructure.Services.TestExecutionSerivce.Models;
+﻿namespace Testing.API.Infrastructure.Options;
 
 public class TestTemplateSettings
 {
