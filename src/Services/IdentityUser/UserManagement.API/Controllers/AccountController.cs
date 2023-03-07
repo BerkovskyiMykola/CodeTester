@@ -170,8 +170,8 @@ public class AccountController : ControllerBase
             .AppendPathSegment("confirm-email")
             .SetQueryParams(new
             {
-                UserId = userId,
-                Token = token
+                userId,
+                token
             });
 
         var message = new Message(
@@ -195,8 +195,8 @@ public class AccountController : ControllerBase
             .AppendPathSegment("reset-password")
             .SetQueryParams(new
             {
-                Email = email,
-                Token = token
+                email,
+                token
             });
 
         var message = new Message(
