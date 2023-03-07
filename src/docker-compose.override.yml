@@ -44,7 +44,7 @@ services:
       - DictionaryApiClient=http://localhost:8002
       - TestingApiClient=http://localhost:8003
       - SpaClient=http://localhost:8011
-      - SpaFrogotPasswordUrl=http://localhost:8011/ForgotPassword
+      - SpaForgotPasswordUrl=http://localhost:8011/ForgotPassword
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:
