@@ -167,6 +167,7 @@ public class AccountController : ControllerBase
     private async Task SendConfirmEmailAsync(string email, string displayReceiverName, string userId, string token)
     {
         var url = _configuration["SpaClient"]
+            .AppendPathSegment("account")
             .AppendPathSegment("confirm-email")
             .SetQueryParams(new
             {
@@ -192,6 +193,7 @@ public class AccountController : ControllerBase
     private async Task SendResetPasswordEmailAsync(string email, string displayReceiverName, string token)
     {
         var url = _configuration["SpaClient"]
+            .AppendPathSegment("account")
             .AppendPathSegment("reset-password")
             .SetQueryParams(new
             {

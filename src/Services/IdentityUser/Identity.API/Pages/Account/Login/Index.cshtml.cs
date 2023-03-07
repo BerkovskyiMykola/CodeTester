@@ -69,7 +69,7 @@ public class Index : PageModel
         // the user clicked the "forgotPassword" button
         if (Input.Button == "forgotPassword")
         {
-            return Redirect(_configuration["SpaClient"] + "/forgot-password");
+            return Redirect($"{_configuration["SpaClient"]}/account/forgot-password");
         }
 
         // check if we are in the context of an authorization request
