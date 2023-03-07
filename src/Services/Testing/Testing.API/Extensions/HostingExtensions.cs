@@ -17,8 +17,12 @@ using Testing.API.Application.Queries.Tasks;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
+using Testing.API.Infrastructure.Options;
 using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
+using Testing.API.Infrastructure.Services.DockerService;
+using Testing.API.Infrastructure.Services.TerminalService;
+using Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -227,6 +231,8 @@ public static class HostingExtensions
             };
         });
 
+        services.Configure<ExecutionSettings>(configuration.GetSection(nameof(ExecutionSettings)));
+
         return services;
     }
 
@@ -291,6 +297,11 @@ public static class HostingExtensions
 
         services.AddScoped<ISolutionQueries, SolutionQueries>();
         services.AddScoped<ITaskQueries, TaskQueries>();
+
+        services.AddScoped<ITerminalService, TerminalService>();
+        services.AddScoped<IDockerService, DockerService>();
+        services.AddScoped<IExecutionGenerator, ExecutionGenerator>();
+
 
         return services;
     }

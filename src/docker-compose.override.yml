@@ -44,7 +44,6 @@ services:
       - DictionaryApiClient=http://localhost:8002
       - TestingApiClient=http://localhost:8003
       - SpaClient=http://localhost:8011
-      - SpaForgotPasswordUrl=http://localhost:8011/ForgotPassword
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:
@@ -56,6 +55,7 @@ services:
       - ConnectionString=Server=mssql-server;Database=Services.IdentityDB;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - SpaClient=http://localhost:8011
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:
@@ -87,6 +87,8 @@ services:
       - SeqServerUrl=http://seq
     ports:
       - 8003:80
+    volumes:
+      - /var/run/docker.sock.raw:/var/run/docker.sock
 
   ocelotapigw:
     environment:
