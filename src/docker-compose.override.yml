@@ -55,6 +55,7 @@ services:
       - ConnectionString=Server=mssql-server;Database=Services.IdentityDB;User Id=sa;Password=SwN12345678;Trust Server Certificate=true;
       - IdentityUrl=http://identity-api
       - IdentityUrlExternal=http://localhost:8000
+      - SpaClient=http://localhost:8011
       - EventBusHostAddress=amqp://guest:guest@rabbitmq:5672
       - SeqServerUrl=http://seq
     ports:

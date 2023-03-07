@@ -1,9 +1,12 @@
 ﻿using DataAccess.Entities;
 using EventBus.Messages.Events;
+using Flurl;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System.Text.Encodings.Web;
 using UserManagement.API.DTOs.Requests;
 using UserManagement.API.Infrastructure.Services;
 using UserManagement.API.Infrastructure.Services.EmailService;
@@ -18,26 +21,23 @@ public class AccountController : ControllerBase
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApiBehaviorOptions _apiBehaviorOptions;
     private readonly IEmailSender _emailSender;
-    private readonly IIdentityService _identityService;
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IConfiguration _configuration;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IOptions<ApiBehaviorOptions> apiBehaviorOptions,
         IEmailSender emailSender,
-        IIdentityService identityService,
         IPublishEndpoint publishEndpoint,
-        IWebHostEnvironment webHostEnvironment)
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _emailSender = emailSender;
         _apiBehaviorOptions = apiBehaviorOptions.Value;
-        _identityService = identityService;
         _publishEndpoint = publishEndpoint;
-        _webHostEnvironment = webHostEnvironment;
+        _configuration = configuration;
     }
 
     [HttpPost("register")]
@@ -166,7 +166,13 @@ public class AccountController : ControllerBase
 
     private async Task SendConfirmEmailAsync(string email, string displayReceiverName, string userId, string token)
     {
-        var confirmationLink = $"UserId:{userId} Token:{token}";
+        var url = _configuration["SpaClient"]
+            .AppendPathSegment("confirm-email")
+            .SetQueryParams(new
+            {
+                UserId = userId,
+                Token = token
+            });
 
         var message = new Message(
             new EmailAddress[]
@@ -177,15 +183,21 @@ public class AccountController : ControllerBase
                     Address = email
                 }
             },
-            "Confirm email",
-            confirmationLink!);
+            "Confirm your email",
+            $"Please confirm your account by <a href='{url}'>clicking here</a>.");
 
         await _emailSender.SendEmailAsync(message);
     }
 
     private async Task SendResetPasswordEmailAsync(string email, string displayReceiverName, string token)
     {
-        var callback = $"Email:{email} Token:{token}";
+        var url = _configuration["SpaClient"]
+            .AppendPathSegment("reset-password")
+            .SetQueryParams(new
+            {
+                Email = email,
+                Token = token
+            });
 
         var message = new Message(
             new EmailAddress[]
@@ -196,8 +208,8 @@ public class AccountController : ControllerBase
                     Address = email
                 }
             },
-            "Reset password",
-            callback);
+            "Reset Password",
+            $"Please reset your password by <a href='{url}'>clicking here</a>.");
 
         await _emailSender.SendEmailAsync(message);
     }
