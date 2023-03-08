@@ -1,4 +1,4 @@
-﻿namespace Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions.Models;
+﻿namespace Testing.API.Infrastructure.Services.ExecutionGenerator.Models;
 
 public class ExecutionOptions
 {
@@ -8,5 +8,4 @@ public class ExecutionOptions
     public string ExecutionsFolderPath { get; set; } = string.Empty;
     public int TimeLimit { get; set; }
     public string Code { get; set; } = string.Empty;
-    public string Tests { get; set; } = string.Empty;
 }

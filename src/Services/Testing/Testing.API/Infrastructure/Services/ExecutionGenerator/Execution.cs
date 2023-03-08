@@ -1,6 +1,6 @@
-﻿using Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions.Models;
+﻿using Testing.API.Infrastructure.Services.ExecutionGenerator.Models;
 
-namespace Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions;
+namespace Testing.API.Infrastructure.Services.ExecutionGenerator;
 
 public class Execution
 {
@@ -47,11 +47,7 @@ public class Execution
     private void PrepareExecutionFileToExecution()
     {
         var executionFile = Path.Combine(_executionPath, _options.TemplateDockerfileName);
-        var content = File.ReadAllText(executionFile)
-            .Replace("{code}", _options.Code)
-            .Replace("{tests}", _options.Tests);
-
-        File.WriteAllText(executionFile, content);
+        File.WriteAllText(executionFile, _options.Code);
     }
 
     public void DeleteExecutionDirectory()

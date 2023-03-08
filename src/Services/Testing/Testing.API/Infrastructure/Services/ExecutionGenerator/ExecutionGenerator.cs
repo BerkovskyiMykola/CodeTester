@@ -2,7 +2,7 @@
 using Testing.API.Infrastructure.Options;
 using Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions.Models;
 
-namespace Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions;
+namespace Testing.API.Infrastructure.Services.ExecutionGenerator;
 
 public interface IExecutionGenerator
 {
@@ -38,8 +38,7 @@ public class ExecutionGenerator : IExecutionGenerator
             TemplateExecutionFileName = template.ExecutionFileName,
             ExecutionsFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, _executionSettings.ExecutionsRelativePath),
             TimeLimit = timeLimit,
-            Code = code,
-            Tests = tests
+            Code = code
         });
     }
 }
