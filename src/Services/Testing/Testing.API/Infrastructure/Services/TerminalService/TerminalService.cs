@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using Testing.API.Infrastructure.Models;
 using Testing.API.Infrastructure.Services.TerminalService.Exceptions;
-using Testing.API.Infrastructure.Services.TerminalService.Models;
 
 namespace Testing.API.Infrastructure.Services.TerminalService;
 
