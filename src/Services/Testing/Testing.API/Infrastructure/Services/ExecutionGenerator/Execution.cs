@@ -1,20 +1,38 @@
-﻿using Testing.API.Infrastructure.Services.ExecutionGenerator.Models;
-
-namespace Testing.API.Infrastructure.Services.ExecutionGenerator;
+﻿namespace Testing.API.Infrastructure.Services.ExecutionGenerator;
 
 public class Execution
-{
-    public Guid Id { get; init; }
-    private readonly ExecutionOptions _options;
+{    
+    private const string EXECUTION_FOLDER_PREFIX_NAME = "execution-";
 
+    private readonly Guid _id;
+    private readonly int _timeLimit;
+    private readonly string _code;
+    private readonly string _dockerfileName;
+    private readonly string _executionFileName;
+    private readonly string _templatePath;
     private readonly string _executionPath;
 
-    public Execution(ExecutionOptions options)
-    {
-        Id = Guid.NewGuid();
-        _options = options;
+    public Guid Id => _id;
+    public string ExecutionPath => _executionPath;
+    public string DockerfileName => _dockerfileName;
 
-        _executionPath = Path.Combine(options.ExecutionsFolderPath, Id.ToString());
+    public Execution(
+        string templatePath,
+        string templateDockerfileName,
+        string templateExecutionFileName,
+        string executionsFolderPath,
+        int timeLimit,
+        string code)
+    {
+        _id = Guid.NewGuid();
+        _timeLimit = timeLimit;
+        _code = code;
+
+        _executionFileName = templateExecutionFileName;
+        _dockerfileName = templateDockerfileName;
+
+        _templatePath = templatePath;
+        _executionPath = Path.Combine(executionsFolderPath, EXECUTION_FOLDER_PREFIX_NAME + _id);
     }
 
     public void CreateExecutionDirectory()
@@ -28,7 +46,7 @@ public class Execution
 
     private void CopyTemplateFilesToExecutionDirectory()
     {
-        var source = new DirectoryInfo(_options.TemplatePath);
+        var source = new DirectoryInfo(_templatePath);
         var target = new DirectoryInfo(_executionPath);
 
         foreach (FileInfo fi in source.GetFiles())
@@ -39,15 +57,15 @@ public class Execution
 
     private void PrepareDockerFileToExecution()
     {
-        var dockerFile = Path.Combine(_executionPath, _options.TemplateDockerfileName);
-        var content = File.ReadAllText(dockerFile).Replace("{timeLimit}", _options.TimeLimit.ToString());
+        var dockerFile = Path.Combine(_executionPath, _dockerfileName);
+        var content = File.ReadAllText(dockerFile).Replace("{timeLimit}", _timeLimit.ToString());
         File.WriteAllText(dockerFile, content);
     }
 
     private void PrepareExecutionFileToExecution()
     {
-        var executionFile = Path.Combine(_executionPath, _options.TemplateDockerfileName);
-        File.WriteAllText(executionFile, _options.Code);
+        var executionFile = Path.Combine(_executionPath, _executionFileName);
+        File.WriteAllText(executionFile, _code);
     }
 
     public void DeleteExecutionDirectory()
