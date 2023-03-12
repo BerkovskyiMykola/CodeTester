@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Npgsql;
 using System.Data;
 
 namespace Testing.API.Infrastructure.Services;
@@ -17,5 +17,5 @@ public class DapperService : IDapperService
         _connectionString = configuration["connectionString"]!;
     }
 
-    public IDbConnection CreateConnection() => new SqlConnection(_connectionString);
+    public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
 }

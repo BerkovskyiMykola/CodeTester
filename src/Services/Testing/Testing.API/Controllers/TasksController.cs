@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Testing.API.Application.Queries.Tasks;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.DTOs.Tasks;
+using Testing.API.Infrastructure.Models;
+using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Core.Domain.Repositories;
@@ -12,49 +14,72 @@ using DomainType = Testing.Core.Domain.AggregatesModel.TaskAggregate.Type;
 namespace Testing.API.Controllers;
 
 [Route("api/v1/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class TasksController : ControllerBase
 {
     private readonly IDictionaryService _dictionaryService;
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskQueries _taskQueries;
+    private readonly IIdentityService _identityService;
 
     public TasksController(
         IDictionaryService dictionaryService,
         ITaskRepository taskRepository,
-        ITaskQueries taskQueries)
+        ITaskQueries taskQueries,
+        IIdentityService identityService)
     {
         _dictionaryService = dictionaryService;
         _taskRepository = taskRepository;
         _taskQueries = taskQueries;
+        _identityService = identityService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TaskQueryModel>> GetTaskAsync(Guid taskId)
-    {
-        try
-        {
-            var task = await _taskQueries.GetTaskAsync(taskId);
-            return Ok(task);
-        }
-        catch
-        {
-            return NotFound("Task not found");
-        }
-    }
+    //[HttpGet("{id}")]
+    //public async Task<ActionResult<TaskQueryModel>> GetTaskAsync(Guid taskId)
+    //{
+    //    try
+    //    {
+    //        var task = await _taskQueries.GetTaskAsync(taskId);
+    //        return Ok(task);
+    //    }
+    //    catch
+    //    {
+    //        return NotFound("Task not found");
+    //    }
+    //}
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskQueryModel>>> GetAllTasksAsync()
+    public async Task<ActionResult<PaginationResult<ComplitedCardTaskQueryModel>>> GetTasksAsync(
+        [FromQuery] string? search,
+        [FromQuery] int? difficultyId,
+        [FromQuery] int? programmingLanguageId,
+        [FromQuery] int? typeId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
+        //var userId = _identityService.GetUserIdentity();
+
+        //if(userId == null)
+        //{
+        //    return NotFound("No user found");
+        //}
+
         try
         {
-            var tasks = await _taskQueries.GetAllTasksAsync();
+            var tasks = await _taskQueries.GetComplitedCardTasksWithPaginingAsync(
+                Guid.NewGuid().ToString(),
+                pageNumber,
+                pageSize,
+                search,
+                difficultyId,
+                programmingLanguageId,
+                typeId);
             return Ok(tasks);
         }
-        catch
+        catch(Exception ex)
         {
-            return NotFound("Tasks not found");
+            return NotFound(ex.Message);
         }
     }
 
