@@ -295,6 +295,7 @@ public static class HostingExtensions
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddSingleton<IDapperService, DapperService>();
         services.AddScoped<ISolutionQueries, SolutionQueries>();
         services.AddScoped<ITaskQueries, TaskQueries>();
 
