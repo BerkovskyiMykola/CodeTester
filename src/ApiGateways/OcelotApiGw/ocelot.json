@@ -51,6 +51,18 @@
       ],
       "UpstreamPathTemplate": "/api/{version}/um/Pictures/{everything}",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/{version}/Tasks/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "testing-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/{version}/t/Tasks/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "GlobalConfiguration": {}
