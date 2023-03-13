@@ -32,7 +32,6 @@ public class TerminalService : ITerminalService
 
         try
         {
-            _logger.LogInformation("Start executing the command");
             using var cmd = new Process();
             cmd.StartInfo.FileName = "/bin/bash";
             cmd.StartInfo.RedirectStandardError = true;
