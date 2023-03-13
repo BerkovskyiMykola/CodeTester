@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using MassTransit.Initializers;
-using Npgsql;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.Infrastructure.Models;
 using Testing.API.Infrastructure.Services;
@@ -10,13 +9,14 @@ namespace Testing.API.Application.Queries.Tasks;
 public interface ITaskQueries
 {
     Task<PaginationResult<ComplitedCardTaskQueryModel>> GetComplitedCardTasksWithPaginingAsync(
-        string userId,
-        int pageNumber,
-        int pageSize,
+        Guid userId,
+        PaginationParameters pagination,
         string? search = null,
         int? difficultyId = null,
         int? programmingLanguageId = null,
         int? typeId = null);
+
+    Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId);
 }
 
 public class TaskQueries : ITaskQueries
@@ -29,9 +29,8 @@ public class TaskQueries : ITaskQueries
     }
 
     public async Task<PaginationResult<ComplitedCardTaskQueryModel>> GetComplitedCardTasksWithPaginingAsync(
-        string userId,
-        int pageNumber,
-        int pageSize,
+        Guid userId,
+        PaginationParameters pagination,
         string? search = null,
         int? difficultyId = null,
         int? programmingLanguageId = null,
@@ -48,7 +47,7 @@ public class TaskQueries : ITaskQueries
 
         using var connection = _dapperService.CreateConnection();
 
-        var query = 
+        var query =
             @$"SELECT COUNT(*) FROM ""Tasks"";
 
             SELECT ""Id"", ""Title_Value"", 
@@ -66,13 +65,34 @@ public class TaskQueries : ITaskQueries
             FROM ""Tasks""
             {filterString}
             ORDER BY ""CreateDate"" DESC
-            OFFSET {(pageNumber - 1) * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY;";
+            OFFSET {(pagination.PageNumber - 1) * pagination.PageSize} ROWS FETCH NEXT {pagination.PageSize} ROWS ONLY;";
 
         var multi = await connection.QueryMultipleAsync(query);
         var totalRowCount = multi.Read<long>().Single();
         var gridDataRows = multi.Read<dynamic>().Select(MapToComplitedCardTaskQueryModel).ToList();
 
-        return new PaginationResult<ComplitedCardTaskQueryModel>(gridDataRows, totalRowCount, pageNumber, pageSize);
+        return new PaginationResult<ComplitedCardTaskQueryModel>(gridDataRows, totalRowCount, pagination.PageNumber, pagination.PageSize);
+    }
+
+    public async Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId)
+    {
+        using var connection = _dapperService.CreateConnection();
+
+        var query =
+            @$"SELECT ""Id"", ""Title_Value"", 
+            ""Description_Text"", ""Description_Examples"", ""Description_SomeCases"", ""Description_Note"",
+            ""Difficulty_Id"", ""Difficulty_Name"",  
+            ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
+            ""Type_Id"", ""Type_Name""
+            FROM ""Tasks""
+            WHERE ""Id"" = '{taskId}';";
+
+        var result = await connection.QueryAsync<dynamic>(query);
+
+        if (result.AsList().Count == 0)
+            throw new KeyNotFoundException();
+
+        return MapToDetailedTaskQueryModel(result);
     }
 
     private ComplitedCardTaskQueryModel MapToComplitedCardTaskQueryModel(dynamic obj)
@@ -98,6 +118,37 @@ public class TaskQueries : ITaskQueries
             },
             ComplitedAmount = obj.ComplitedAmount,
             IsComplited = obj.IsComplited,
+        };
+    }
+
+    private DetailedTaskQueryModel MapToDetailedTaskQueryModel(dynamic obj)
+    {
+        return new DetailedTaskQueryModel()
+        {
+            Id = obj[0].Id,
+            Title = obj[0].Title_Value,
+            Difficulty = new DifficultyQueryModel()
+            {
+                Id = obj[0].Difficulty_Id,
+                Name = obj[0].Difficulty_Name
+            },
+            TaskType = new TaskTypeQueryModel()
+            {
+                Id = obj[0].Type_Id,
+                Name = obj[0].Type_Name
+            },
+            ProgrammingLanguage = new ProgrammingLanguageQueryModel()
+            {
+                Id = obj[0].ProgrammingLanguage_Id,
+                Name = obj[0].ProgrammingLanguage_Name,
+            },
+            Description = new DescriptionQueryModel()
+            {
+                Text = obj[0].Description_Text,
+                Examples = obj[0].Description_Examples,
+                SomeCases = obj[0].Description_SomeCases,
+                Note = obj[0].Description_Note
+            }
         };
     }
 }

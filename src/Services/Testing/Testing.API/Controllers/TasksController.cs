@@ -14,7 +14,7 @@ using DomainType = Testing.Core.Domain.AggregatesModel.TaskAggregate.Type;
 namespace Testing.API.Controllers;
 
 [Route("api/v1/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class TasksController : ControllerBase
 {
@@ -35,56 +35,55 @@ public class TasksController : ControllerBase
         _identityService = identityService;
     }
 
-    //[HttpGet("{id}")]
-    //public async Task<ActionResult<TaskQueryModel>> GetTaskAsync(Guid taskId)
-    //{
-    //    try
-    //    {
-    //        var task = await _taskQueries.GetTaskAsync(taskId);
-    //        return Ok(task);
-    //    }
-    //    catch
-    //    {
-    //        return NotFound("Task not found");
-    //    }
-    //}
+    [HttpGet("detailed/{id}")]
+    public async Task<ActionResult<DetailedTaskQueryModel>> GetTaskAsync(Guid id)
+    {
+        try
+        {
+            var task = await _taskQueries.GetDetailedTaskAsync(id);
+            return Ok(task);
+        }
+        catch
+        {
+            return NotFound("Task not found");
+        }
+    }
 
-    [HttpGet]
+    [HttpGet("cards")]
     public async Task<ActionResult<PaginationResult<ComplitedCardTaskQueryModel>>> GetTasksAsync(
         [FromQuery] string? search,
         [FromQuery] int? difficultyId,
         [FromQuery] int? programmingLanguageId,
         [FromQuery] int? typeId,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10)
+        [FromQuery] PaginationParameters pagination)
     {
-        //var userId = _identityService.GetUserIdentity();
+        var userId = _identityService.GetUserIdentity();
 
-        //if(userId == null)
-        //{
-        //    return NotFound("No user found");
-        //}
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
 
         try
         {
             var tasks = await _taskQueries.GetComplitedCardTasksWithPaginingAsync(
-                Guid.NewGuid().ToString(),
-                pageNumber,
-                pageSize,
+                Guid.Parse(userId),
+                pagination,
                 search,
                 difficultyId,
                 programmingLanguageId,
                 typeId);
+
             return Ok(tasks);
         }
-        catch(Exception ex)
+        catch
         {
-            return NotFound(ex.Message);
+            return NotFound("Tasks not found");
         }
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskQueryModel>> CreateTaskAsync(CreateTaskRequest request)
+    public async Task<ActionResult<DetailedTaskQueryModel>> CreateTaskAsync(CreateTaskRequest request)
     {
         var title = Title.Create(request.Title);
         if (title.IsFailure)
@@ -150,7 +149,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult<TaskQueryModel>> UpdateTaskAsync(UpdateTaskRequest request)
+    public async Task<ActionResult<DetailedTaskQueryModel>> UpdateTaskAsync(UpdateTaskRequest request)
     {
         var task = await _taskRepository.FindByIdAsync(request.Id);
         if (task == null)
