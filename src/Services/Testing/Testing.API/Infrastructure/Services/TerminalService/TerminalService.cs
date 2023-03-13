@@ -7,14 +7,21 @@ namespace Testing.API.Infrastructure.Services.TerminalService;
 
 public interface ITerminalService
 {
-    Task<TerminalOutput> ExecuteCommand(string[] command, int timeout);
+    Task<TerminalOutput> ExecuteCommand(string[] command, int timeoutMiliseconds);
 }
 
 public class TerminalService : ITerminalService
 {
-    public async Task<TerminalOutput> ExecuteCommand(string[] command, int timeout)
+    private readonly ILogger<TerminalService> _logger;
+
+    public TerminalService(ILogger<TerminalService> logger)
     {
-        if (timeout <= 0)
+        _logger = logger;
+    }
+
+    public async Task<TerminalOutput> ExecuteCommand(string[] command, int timeoutMiliseconds)
+    {
+        if (timeoutMiliseconds <= 0)
         {
             throw new ArgumentException("Timeout should be a positive value");
         }
@@ -26,7 +33,7 @@ public class TerminalService : ITerminalService
 
         try
         {
-            var cmd = new Process();
+            using var cmd = new Process();
             cmd.StartInfo.FileName = "/bin/bash";
             cmd.StartInfo.RedirectStandardError = true;
             cmd.StartInfo.RedirectStandardInput = true;
@@ -46,11 +53,14 @@ public class TerminalService : ITerminalService
             var stopWatch = new Stopwatch();
 
             stopWatch.Start();
-            if (!cmd.WaitForExit(timeout))
+            if (!cmd.WaitForExit(timeoutMiliseconds))
             {
                 try
                 {
                     cmd.Kill();
+
+                    _logger.LogInformation("The process exceeded the {0} Miliseconds allowed for its execution", timeoutMiliseconds);
+                    throw new TerminalExecutionTimeoutException($"The process exceeded the {timeoutMiliseconds} Miliseconds allowed for its execution");
                 }
                 catch (InvalidOperationException)
                 {
@@ -62,8 +72,6 @@ public class TerminalService : ITerminalService
                         (int)stopWatch.Elapsed.TotalSeconds,
                         cmd.ExitCode);
                 }
-
-                throw new TerminalExecutionTimeoutException("The process takes longer to execute than the time limit set");
             }
             stopWatch.Stop();
 
@@ -75,6 +83,7 @@ public class TerminalService : ITerminalService
         }
         catch (Exception e)
         {
+            _logger.LogError("Unexpected error: {0}", e);
             throw new TerminalExecutionException("Fatal error for command " + string.Join(" ", command) + " : " + e.Message);
         }
     }
