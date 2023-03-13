@@ -10,7 +10,7 @@ namespace Testing.API.Infrastructure.Services.DockerService;
 public interface IDockerService
 {
     Task BuildImageAsync(string contextPath, string imageName, string dockerfileName);
-    Task<TerminalOutput> RunContainerAsync(string imageName, string containerName, int timeout, float maxCpus, Dictionary<string, string> envVariables);
+    Task<TerminalOutput> ExecuteImageAsync(string imageName, string containerName, int timeoutMiliseconds);
     Task<ContainerInfo> InspectAsync(string containerName);
     Task DeleteContainerAsync(string containerName);
     Task DeleteImageAsync(string imageName);
@@ -18,7 +18,7 @@ public interface IDockerService
 
 class DockerService : IDockerService
 {
-    private const int EXIT_CODE = 0;
+    private const int ExitCode = 0;
     private const int BuildTimeout = 60000;
     private const int CommandTimeout = 10000;
 
@@ -27,97 +27,135 @@ class DockerService : IDockerService
             "{{.State.ExitCode}}, \\\"Error\\\": \\\"{{.State.Error}}\\\"}\"";
 
     private readonly ITerminalService _terminalService;
+    private readonly ILogger<DockerService> _logger;
 
-    public DockerService(ITerminalService terminalExecutor)
+    public DockerService(ILogger<DockerService> logger, ITerminalService terminalExecutor)
     {
+        _logger = logger;
         _terminalService = terminalExecutor;
     }
 
     public async Task BuildImageAsync(string contextPath, string imageName, string dockerfileName)
     {
+        if (string.IsNullOrEmpty(contextPath))
+        {
+            throw new ArgumentException($"{nameof(contextPath)} must not be null or empty");;
+        }
+
+        if (string.IsNullOrEmpty(imageName))
+        {
+            throw new ArgumentException($"{nameof(imageName)} must not be null or empty");
+        }
+
+        if (string.IsNullOrEmpty(dockerfileName))
+        {
+            throw new ArgumentException($"{nameof(dockerfileName)} must not be null or empty");
+        }
+
         string dockerfilePath = contextPath + "/" + dockerfileName;
         var command = new string[] { "docker", "image", "build", "-f", dockerfilePath, "-t", imageName, contextPath };
-        var terminalOutput = await ExecuteDockerCommandAsync(command, BuildTimeout);
 
-        if (terminalOutput.Status != EXIT_CODE)
-        {
-            throw new DockerOperationFailedException(terminalOutput.StandardError);
-        }
+        await ExecuteDockerCommandAsync(command, BuildTimeout);
     }
 
-    public async Task<TerminalOutput> RunContainerAsync(string imageName, string containerName, int timeout, float maxCpus, Dictionary<string, string> envVariables)
+    public async Task<TerminalOutput> ExecuteImageAsync(string imageName, string containerName, int timeoutMiliseconds)
     {
-        var command = BuildDockerRunCommand(containerName, envVariables, maxCpus, imageName);
-
-        return await ExecuteDockerCommandAsync(command, timeout);
-    }
-
-    private string[] BuildDockerRunCommand(string containerName, Dictionary<string, string> envVariables, float cpus, string imageName)
-    {
-        //docker run --name [containerName] (-e [envKey=envValue])* --cpus=[cpu] [imageName]
-        var command = new List<string>() { "docker", "run", "--name", containerName };
-
-        foreach (var i in envVariables)
+        if (string.IsNullOrEmpty(imageName))
         {
-            command.Add("-e");
-            command.Add(i.Key + "=" + i.Value);
+            throw new ArgumentException($"{nameof(imageName)} must not be null or empty");
         }
 
-        var cpuParam = "--cpus=" + cpus;
-        command.Add(cpuParam);
-        command.Add(imageName);
+        if (string.IsNullOrEmpty(containerName))
+        {
+            throw new ArgumentException($"{nameof(containerName)} must not be null or empty");
+        }
 
-        return command.ToArray();
+        if (timeoutMiliseconds <= 0)
+        {
+            throw new ArgumentException($"{nameof(timeoutMiliseconds)} should be a positive value");
+        }
+
+        var runCommand = new string[] { "docker", "run", "--name", containerName, imageName };
+        var stopCommand = new string[] { "docker", "stop", containerName };
+
+        try
+        {
+            var containerOutput = await _terminalService.ExecuteCommand(runCommand, timeoutMiliseconds);
+
+            return containerOutput;
+        }
+        catch (TerminalExecutionException e)
+        {
+            throw new DockerOperationExecutionException(e.Message);
+        }
+        catch (TerminalExecutionTimeoutException)
+        {
+            throw new DockerOperationTimeoutException($"The Docker command exceeded the {timeoutMiliseconds} Miliseconds allowed for its execution");
+        }
+        finally
+        {
+            await _terminalService.ExecuteCommand(stopCommand, timeoutMiliseconds);
+        }
     }
 
     public async Task<ContainerInfo> InspectAsync(string containerName)
     {
+        if (string.IsNullOrEmpty(containerName))
+        {
+            throw new ArgumentException($"{nameof(containerName)} must not be null or empty");
+        }
+
         var command = new string[] { "docker", "inspect", ContainerInfoFormat, containerName };
         var terminalOutput = await ExecuteDockerCommandAsync(command, CommandTimeout);
-
-        if (terminalOutput.Status != EXIT_CODE)
-        {
-            throw new DockerOperationFailedException(terminalOutput.StandardError);
-        }
 
         return JsonSerializer.Deserialize<ContainerInfo>(terminalOutput.StandardOutput)!;
     }
 
     public async Task DeleteContainerAsync(string containerName)
     {
-        var command = new string[] { "docker", "rm", "-f", containerName };
-        var terminalOutput = await ExecuteDockerCommandAsync(command, CommandTimeout);
-
-        if (terminalOutput.Status != EXIT_CODE)
+        if (string.IsNullOrEmpty(containerName))
         {
-            throw new DockerOperationFailedException(terminalOutput.StandardError);
+            throw new ArgumentException($"{nameof(containerName)} must not be null or empty");
         }
+
+        var command = new string[] { "docker", "rm", "-f", containerName };
+        await ExecuteDockerCommandAsync(command, CommandTimeout);
     }
 
     public async Task DeleteImageAsync(string imageName)
     {
-        var command = new string[] { "docker", "rmi", "-f", imageName };
-        var terminalOutput = await ExecuteDockerCommandAsync(command, CommandTimeout);
-
-        if (terminalOutput.Status != EXIT_CODE)
+        if (string.IsNullOrEmpty(imageName))
         {
-            throw new DockerOperationFailedException(terminalOutput.StandardError);
+            throw new ArgumentException($"{nameof(imageName)} must not be null or empty");
         }
+
+        var command = new string[] { "docker", "rmi", "-f", imageName };
+        await ExecuteDockerCommandAsync(command, CommandTimeout);
     }
 
-    private async Task<TerminalOutput> ExecuteDockerCommandAsync(string[] command, int timeout)
+    private async Task<TerminalOutput> ExecuteDockerCommandAsync(string[] command, int timeoutMiliseconds)
     {
         try
         {
-            return await _terminalService.ExecuteCommand(command, timeout);
+            var terminalOutput = await _terminalService.ExecuteCommand(command, timeoutMiliseconds);
+
+            _logger.LogDebug("Command logs: {0} {1}", terminalOutput.StandardOutput, terminalOutput.StandardError);
+
+            if (terminalOutput.Status != ExitCode)
+            {
+                _logger.LogWarning("Command failed: {0}", string.Join(" ", command));
+                throw new DockerOperationFailedException(terminalOutput.StandardError);
+            }
+
+            return terminalOutput;
         }
         catch (TerminalExecutionException e)
         {
-            throw new DockerOperationFailedException(e.Message);
+            throw new DockerOperationExecutionException(e.Message);
         }
-        catch (TerminalExecutionTimeoutException e)
+        catch (TerminalExecutionTimeoutException)
         {
-            throw new DockerOperationTimeoutException(e.Message);
+            throw new DockerOperationTimeoutException($"The Docker command exceeded the {timeoutMiliseconds} Miliseconds allowed for its execution");
         }
     }
 }

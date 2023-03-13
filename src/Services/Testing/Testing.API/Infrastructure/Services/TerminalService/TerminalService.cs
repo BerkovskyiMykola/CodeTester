@@ -20,14 +20,14 @@ public class TerminalService : ITerminalService
 
     public async Task<TerminalOutput> ExecuteCommand(string[] command, int timeoutMiliseconds)
     {
-        if (timeoutMiliseconds <= 0)
-        {
-            throw new ArgumentException("Timeout should be a positive value");
-        }
-
         if (command.Length == 0)
         {
-            throw new ArgumentException("Command should have at least one element");
+            throw new ArgumentException($"{nameof(command)} should have at least one element");
+        }
+
+        if (timeoutMiliseconds <= 0)
+        {
+            throw new ArgumentException($"{nameof(timeoutMiliseconds)} should be a positive value");
         }
 
         try
@@ -58,7 +58,7 @@ public class TerminalService : ITerminalService
                 {
                     cmd.Kill();
 
-                    _logger.LogInformation("The process exceeded the {0} Miliseconds allowed for its execution", timeoutMiliseconds);
+                    _logger.LogInformation("The process exceeded the {0} Miliseconds allowed for its execution. Command: {1}", timeoutMiliseconds, string.Join(" ", command));
                     throw new TerminalExecutionTimeoutException($"The process exceeded the {timeoutMiliseconds} Miliseconds allowed for its execution");
                 }
                 catch (InvalidOperationException)
@@ -79,6 +79,10 @@ public class TerminalService : ITerminalService
                 await cmd.StandardError.ReadToEndAsync(),
                 (int)stopWatch.Elapsed.TotalSeconds,
                 cmd.ExitCode);
+        }
+        catch (TerminalExecutionTimeoutException)
+        {
+            throw;
         }
         catch (Exception e)
         {
