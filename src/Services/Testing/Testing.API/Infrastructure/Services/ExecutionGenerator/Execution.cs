@@ -1,12 +1,12 @@
 ﻿namespace Testing.API.Infrastructure.Services.ExecutionGenerator;
 
 public class Execution
-{    
+{
     private const string EXECUTION_FOLDER_PREFIX_NAME = "execution-";
 
     private readonly Guid _id;
-    private readonly int _timeLimit;
     private readonly string _code;
+    private readonly int _timeoutMiliseconds;
     private readonly string _dockerfileName;
     private readonly string _executionFileName;
     private readonly string _templatePath;
@@ -15,17 +15,44 @@ public class Execution
     public Guid Id => _id;
     public string ExecutionPath => _executionPath;
     public string DockerfileName => _dockerfileName;
+    public int TimeoutMiliseconds => _timeoutMiliseconds;
 
     public Execution(
         string templatePath,
         string templateDockerfileName,
         string templateExecutionFileName,
         string executionsFolderPath,
-        int timeLimit,
+        int timeoutMiliseconds,
         string code)
     {
         _id = Guid.NewGuid();
-        _timeLimit = timeLimit;
+
+        if (timeoutMiliseconds <= 0)
+        {
+            throw new ArgumentException($"{nameof(timeoutMiliseconds)} should be a positive value");
+        }
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            throw new ArgumentException($"{nameof(code)} must not be null or empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(templateExecutionFileName))
+        {
+            throw new ArgumentException($"{nameof(templateExecutionFileName)} must not be null or empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(templateDockerfileName))
+        {
+            throw new ArgumentException($"{nameof(templateDockerfileName)} must not be null or empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(templatePath))
+        {
+            throw new ArgumentException($"{nameof(templatePath)} must not be null or empty");
+        }
+
+        _timeoutMiliseconds = timeoutMiliseconds;
         _code = code;
 
         _executionFileName = templateExecutionFileName;
@@ -40,7 +67,6 @@ public class Execution
         Directory.CreateDirectory(_executionPath);
 
         CopyTemplateFilesToExecutionDirectory();
-        PrepareDockerFileToExecution();
         PrepareExecutionFileToExecution();
     }
 
@@ -53,13 +79,6 @@ public class Execution
         {
             fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
         }
-    }
-
-    private void PrepareDockerFileToExecution()
-    {
-        var dockerFile = Path.Combine(_executionPath, _dockerfileName);
-        var content = File.ReadAllText(dockerFile).Replace("{timeLimit}", _timeLimit.ToString());
-        File.WriteAllText(dockerFile, content);
     }
 
     private void PrepareExecutionFileToExecution()
