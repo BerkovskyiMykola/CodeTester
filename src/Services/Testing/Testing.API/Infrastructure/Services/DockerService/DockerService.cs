@@ -39,7 +39,7 @@ class DockerService : IDockerService
     {
         if (string.IsNullOrEmpty(contextPath))
         {
-            throw new ArgumentException($"{nameof(contextPath)} must not be null or empty");;
+            throw new ArgumentException($"{nameof(contextPath)} must not be null or empty");
         }
 
         if (string.IsNullOrEmpty(imageName))
@@ -94,7 +94,7 @@ class DockerService : IDockerService
         }
         finally
         {
-            await _terminalService.ExecuteCommand(stopCommand, timeoutMiliseconds);
+            await ExecuteDockerCommandAsync(stopCommand, timeoutMiliseconds);
         }
     }
 
