@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Testing.API.Application.Queries.Tasks;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.DTOs.Tasks;
+using Testing.API.Infrastructure.Models;
+using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Core.Domain.Repositories;
@@ -19,23 +21,26 @@ public class TasksController : ControllerBase
     private readonly IDictionaryService _dictionaryService;
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskQueries _taskQueries;
+    private readonly IIdentityService _identityService;
 
     public TasksController(
         IDictionaryService dictionaryService,
         ITaskRepository taskRepository,
-        ITaskQueries taskQueries)
+        ITaskQueries taskQueries,
+        IIdentityService identityService)
     {
         _dictionaryService = dictionaryService;
         _taskRepository = taskRepository;
         _taskQueries = taskQueries;
+        _identityService = identityService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TaskQueryModel>> GetTaskAsync(Guid taskId)
+    [HttpGet("detailed/{id}")]
+    public async Task<ActionResult<DetailedTaskQueryModel>> GetTaskAsync(Guid id)
     {
         try
         {
-            var task = await _taskQueries.GetTaskAsync(taskId);
+            var task = await _taskQueries.GetDetailedTaskAsync(id);
             return Ok(task);
         }
         catch
@@ -44,12 +49,31 @@ public class TasksController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskQueryModel>>> GetAllTasksAsync()
+    [HttpGet("cards")]
+    public async Task<ActionResult<PaginationResult<ComplitedCardTaskQueryModel>>> GetTasksAsync(
+        [FromQuery] string? search,
+        [FromQuery] int? difficultyId,
+        [FromQuery] int? programmingLanguageId,
+        [FromQuery] int? typeId,
+        [FromQuery] PaginationParameters pagination)
     {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
         try
         {
-            var tasks = await _taskQueries.GetAllTasksAsync();
+            var tasks = await _taskQueries.GetComplitedCardTasksWithPaginingAsync(
+                Guid.Parse(userId),
+                pagination,
+                search,
+                difficultyId,
+                programmingLanguageId,
+                typeId);
+
             return Ok(tasks);
         }
         catch
@@ -59,7 +83,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskQueryModel>> CreateTaskAsync(CreateTaskRequest request)
+    public async Task<ActionResult<DetailedTaskQueryModel>> CreateTaskAsync(CreateTaskRequest request)
     {
         var title = Title.Create(request.Title);
         if (title.IsFailure)
@@ -125,7 +149,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult<TaskQueryModel>> UpdateTaskAsync(UpdateTaskRequest request)
+    public async Task<ActionResult<DetailedTaskQueryModel>> UpdateTaskAsync(UpdateTaskRequest request)
     {
         var task = await _taskRepository.FindByIdAsync(request.Id);
         if (task == null)

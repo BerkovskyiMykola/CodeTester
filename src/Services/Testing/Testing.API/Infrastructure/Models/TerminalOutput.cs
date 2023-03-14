@@ -1,4 +1,4 @@
-﻿namespace Testing.API.Infrastructure.Services.TerminalService.Models;
+﻿namespace Testing.API.Infrastructure.Models;
 
 public record TerminalOutput
 {

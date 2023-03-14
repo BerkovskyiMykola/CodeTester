@@ -1,107 +1,154 @@
 ﻿using Dapper;
 using MassTransit.Initializers;
-using Npgsql;
 using Testing.API.Application.Queries.Tasks.Models;
+using Testing.API.Infrastructure.Models;
+using Testing.API.Infrastructure.Services;
 
 namespace Testing.API.Application.Queries.Tasks;
 
 public interface ITaskQueries
 {
-    Task<TaskQueryModel> GetTaskAsync(Guid id);
+    Task<PaginationResult<ComplitedCardTaskQueryModel>> GetComplitedCardTasksWithPaginingAsync(
+        Guid userId,
+        PaginationParameters pagination,
+        string? search = null,
+        int? difficultyId = null,
+        int? programmingLanguageId = null,
+        int? typeId = null);
 
-    Task<IEnumerable<TaskQueryModel>> GetAllTasksAsync();
+    Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId);
 }
 
 public class TaskQueries : ITaskQueries
 {
-    private string _connectionString = string.Empty;
+    private readonly IDapperService _dapperService;
 
-    public TaskQueries(IConfiguration configuration)
+    public TaskQueries(IDapperService dapperService)
     {
-        _connectionString = configuration["connectionString"]!;
+        _dapperService = dapperService;
     }
 
-    public async Task<TaskQueryModel> GetTaskAsync(Guid id)
+    public async Task<PaginationResult<ComplitedCardTaskQueryModel>> GetComplitedCardTasksWithPaginingAsync(
+        Guid userId,
+        PaginationParameters pagination,
+        string? search = null,
+        int? difficultyId = null,
+        int? programmingLanguageId = null,
+        int? typeId = null)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        connection.Open();
+        var filter = new List<string>();
 
-        var result = await connection.QueryAsync<dynamic>(
-            @"Select ""Id"" as ""Id"", ""Title_Value"" as ""Title"", ""Description_Text"" as ""DescriptionText"",
-                    ""Description_Examples"" as ""DescriptionExamples"", ""Description_SomeCases"" as ""DescriptionCases"",
-                    ""Description_Note"" as ""DescriptionNote"", ""Difficulty_Id"" as ""DifficultyId"", ""Difficulty_Name"" as ""DifficultyName"",
-                    ""Type_Id"" as ""TaskTypeId"", ""Type_Name"" as ""TaskTypeName"", ""ProgrammingLanguage_Id"" as ""ProgrammingLanguageId"",
-                    ""ProgrammingLanguage_Name"" as ""ProgrammingLanguageName"", ""SolutionExample_Description"" as ""SolutionExampleDescription"",
-                    ""SolutionExample_Solution"" as ""SolutionExample"", ""ExecutionCondition_Tests"" as ""ExecutionConditionTests"",
-                    ""ExecutionCondition_TimeLimit"" as ""ExecutionTimeLimit"", ""CreateDate"" as ""CreateDate""
-                    from ""Tasks""
-					WHERE ""Id"" = @id"
-                , new { id }
-            );
+        if (!string.IsNullOrWhiteSpace(search)) filter.Add(@$"LOWER(TRIM(""Title_Value"")) LIKE '%' || '{search.Trim().ToLower()}' || '%'");
+        if (difficultyId.HasValue) filter.Add(@$"""Difficulty_Id"" = {difficultyId}");
+        if (programmingLanguageId.HasValue) filter.Add(@$"""ProgrammingLanguage_Id"" = {programmingLanguageId}");
+        if (typeId.HasValue) filter.Add(@$"""Type_Id"" = {typeId}");
+
+        var filterString = filter.Any() ? $"WHERE {string.Join(" AND ", filter)}" : "";
+
+        using var connection = _dapperService.CreateConnection();
+
+        var query =
+            @$"SELECT COUNT(*) FROM ""Tasks"";
+
+            SELECT ""Id"", ""Title_Value"", 
+            ""Difficulty_Id"", ""Difficulty_Name"",  
+            ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
+            ""Type_Id"", ""Type_Name"",
+            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""ComplitedAmount"",
+            CASE
+                WHEN EXISTS (
+		            SELECT 1 FROM ""Solutions"" 
+		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}'
+	            ) THEN CAST(1 AS boolean)
+                ELSE CAST(0 AS boolean)
+            END AS ""IsComplited""
+            FROM ""Tasks""
+            {filterString}
+            ORDER BY ""CreateDate"" DESC
+            OFFSET {(pagination.PageNumber - 1) * pagination.PageSize} ROWS FETCH NEXT {pagination.PageSize} ROWS ONLY;";
+
+        var multi = await connection.QueryMultipleAsync(query);
+        var totalRowCount = multi.Read<long>().Single();
+        var gridDataRows = multi.Read<dynamic>().Select(MapToComplitedCardTaskQueryModel).ToList();
+
+        return new PaginationResult<ComplitedCardTaskQueryModel>(gridDataRows, totalRowCount, pagination.PageNumber, pagination.PageSize);
+    }
+
+    public async Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId)
+    {
+        using var connection = _dapperService.CreateConnection();
+
+        var query =
+            @$"SELECT ""Id"", ""Title_Value"", 
+            ""Description_Text"", ""Description_Examples"", ""Description_SomeCases"", ""Description_Note"",
+            ""Difficulty_Id"", ""Difficulty_Name"",  
+            ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
+            ""Type_Id"", ""Type_Name""
+            FROM ""Tasks""
+            WHERE ""Id"" = '{taskId}';";
+
+        var result = await connection.QueryAsync<dynamic>(query);
 
         if (result.AsList().Count == 0)
             throw new KeyNotFoundException();
 
-        return MapToTaskQueriesModel(result.ElementAt(0));
+        return MapToDetailedTaskQueryModel(result);
     }
 
-    public async Task<IEnumerable<TaskQueryModel>> GetAllTasksAsync()
+    private ComplitedCardTaskQueryModel MapToComplitedCardTaskQueryModel(dynamic obj)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        connection.Open();
-        var result = await connection.QueryAsync<dynamic>(
-            @"Select ""Id"" as ""Id"", ""Title_Value"" as ""Title"", ""Description_Text"" as ""DescriptionText"",
-                    ""Description_Examples"" as ""DescriptionExamples"", ""Description_SomeCases"" as ""DescriptionCases"",
-                    ""Description_Note"" as ""DescriptionNote"", ""Difficulty_Id"" as ""DifficultyId"", ""Difficulty_Name"" as ""DifficultyName"",
-                    ""Type_Id"" as ""TaskTypeId"", ""Type_Name"" as ""TaskTypeName"", ""ProgrammingLanguage_Id"" as ""ProgrammingLanguageId"",
-                    ""ProgrammingLanguage_Name"" as ""ProgrammingLanguageName"", ""SolutionExample_Description"" as ""SolutionExampleDescription"",
-                    ""SolutionExample_Solution"" as ""SolutionExample"", ""ExecutionCondition_Tests"" as ""ExecutionConditionTests"",
-                    ""ExecutionCondition_TimeLimit"" as ""ExecutionTimeLimit"", ""CreateDate"" as ""CreateDate""
-                    from ""Tasks"""
-        );
-
-        return result.Select(MapToTaskQueriesModel).ToList();
-    }
-
-    private TaskQueryModel MapToTaskQueriesModel(dynamic obj)
-    {
-        return new TaskQueryModel()
+        return new ComplitedCardTaskQueryModel()
         {
             Id = obj.Id,
-            Title = obj.Title,
-            Description = new DescriptionQueryModel()
-            {
-                Examples = obj.DescriptionExamples,
-                SomeCases = obj.DescriptionCases,
-                Note = obj.DescriptionNote,
-                Text = obj.DescriptionText
-            },
+            Title = obj.Title_Value,
             Difficulty = new DifficultyQueryModel()
             {
-                Id = obj.DifficultyId,
-                Name = obj.DifficultyName
+                Id = obj.Difficulty_Id,
+                Name = obj.Difficulty_Name
             },
             TaskType = new TaskTypeQueryModel()
             {
-                Id = obj.TaskTypeId,
-                Name = obj.TaskTypeName
+                Id = obj.Type_Id,
+                Name = obj.Type_Name
             },
             ProgrammingLanguage = new ProgrammingLanguageQueryModel()
             {
-                Id = obj.ProgrammingLanguageId,
-                Name = obj.ProgrammingLanguageName,
+                Id = obj.ProgrammingLanguage_Id,
+                Name = obj.ProgrammingLanguage_Name,
             },
-            SolutionExample = new SolutionExampleQueryModel()
+            ComplitedAmount = obj.ComplitedAmount,
+            IsComplited = obj.IsComplited,
+        };
+    }
+
+    private DetailedTaskQueryModel MapToDetailedTaskQueryModel(dynamic obj)
+    {
+        return new DetailedTaskQueryModel()
+        {
+            Id = obj[0].Id,
+            Title = obj[0].Title_Value,
+            Difficulty = new DifficultyQueryModel()
             {
-                Description = obj.SolutionExampleDescription,
-                Solution = obj.SolutionExample
+                Id = obj[0].Difficulty_Id,
+                Name = obj[0].Difficulty_Name
             },
-            ExecutionCondition = new ExecutionConditionQueryModel()
+            TaskType = new TaskTypeQueryModel()
             {
-                Tests = obj.ExecutionConditionTests,
-                TimeLimit = obj.ExecutionTimeLimit,
+                Id = obj[0].Type_Id,
+                Name = obj[0].Type_Name
             },
-            CreateDate = obj.CreateDate
+            ProgrammingLanguage = new ProgrammingLanguageQueryModel()
+            {
+                Id = obj[0].ProgrammingLanguage_Id,
+                Name = obj[0].ProgrammingLanguage_Name,
+            },
+            Description = new DescriptionQueryModel()
+            {
+                Text = obj[0].Description_Text,
+                Examples = obj[0].Description_Examples,
+                SomeCases = obj[0].Description_SomeCases,
+                Note = obj[0].Description_Note
+            }
         };
     }
 }

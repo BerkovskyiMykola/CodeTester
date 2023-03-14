@@ -21,8 +21,8 @@ using Testing.API.Infrastructure.Options;
 using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.API.Infrastructure.Services.DockerService;
+using Testing.API.Infrastructure.Services.ExecutionGenerator;
 using Testing.API.Infrastructure.Services.TerminalService;
-using Testing.API.Infrastructure.Services.TestExecutionSerivce.Executions;
 using Testing.Core.Domain.Repositories;
 using Testing.Infrastructure.Persistence;
 using Testing.Infrastructure.Persistence.Repositories;
@@ -295,6 +295,7 @@ public static class HostingExtensions
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddSingleton<IDapperService, DapperService>();
         services.AddScoped<ISolutionQueries, SolutionQueries>();
         services.AddScoped<ITaskQueries, TaskQueries>();
 
