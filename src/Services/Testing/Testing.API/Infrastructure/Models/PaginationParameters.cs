@@ -3,7 +3,7 @@
 public class PaginationParameters
 {
     const int maxPageSize = 50;
-    const int minPageNumber = 50;
+    const int minPageNumber = 1;
 
     private int _pageNumber = 1;
     public int PageNumber
@@ -14,7 +14,7 @@ public class PaginationParameters
         }
         set
         {
-            _pageSize = (value < minPageNumber) ? _pageNumber : value;
+            _pageNumber = (value < minPageNumber) ? _pageNumber : value;
         }
     }
 

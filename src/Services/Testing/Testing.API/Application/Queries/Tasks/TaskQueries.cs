@@ -54,14 +54,14 @@ public class TaskQueries : ITaskQueries
             ""Difficulty_Id"", ""Difficulty_Name"",  
             ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
             ""Type_Id"", ""Type_Name"",
-            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""ComplitedAmount"",
+            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""CompletedAmount"",
             CASE
                 WHEN EXISTS (
 		            SELECT 1 FROM ""Solutions"" 
 		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}'
 	            ) THEN CAST(1 AS boolean)
                 ELSE CAST(0 AS boolean)
-            END AS ""IsComplited""
+            END AS ""IsCompleted""
             FROM ""Tasks""
             {filterString}
             ORDER BY ""CreateDate"" DESC
@@ -116,8 +116,8 @@ public class TaskQueries : ITaskQueries
                 Id = obj.ProgrammingLanguage_Id,
                 Name = obj.ProgrammingLanguage_Name,
             },
-            ComplitedAmount = obj.ComplitedAmount,
-            IsComplited = obj.IsComplited,
+            CompletedAmount = obj.CompletedAmount,
+            IsCompleted = obj.IsCompleted,
         };
     }
 

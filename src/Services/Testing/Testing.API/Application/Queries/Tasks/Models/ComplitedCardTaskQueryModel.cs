@@ -7,6 +7,6 @@ public class ComplitedCardTaskQueryModel
     public DifficultyQueryModel Difficulty { get; set; } = new DifficultyQueryModel();
     public TaskTypeQueryModel TaskType { get; set; } = new TaskTypeQueryModel();
     public ProgrammingLanguageQueryModel ProgrammingLanguage { get; set; } = new ProgrammingLanguageQueryModel();
-    public long ComplitedAmount { get; set; }
-    public bool IsComplited { get; set; }
+    public long CompletedAmount { get; set; }
+    public bool IsCompleted { get; set; }
 }
