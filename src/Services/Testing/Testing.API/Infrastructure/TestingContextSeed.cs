@@ -29,7 +29,7 @@ public class TestingContextSeed
                                 Title.Create("Easy problem").Value!,
                                 Description.Create("Easy problem description", "12 -> 1 2 \n76 -> 7 6", "someCases1", "notes1").Value!,
                                 Difficulty.Create(1, "Easy").Value!,
-                                DomainType.Create(1, "For begginers").Value!,
+                                DomainType.Create(1, "For beginners").Value!,
                                 ProgrammingLanguage.Create(1, "C#").Value!,
                                 SolutionExample.Create("Some description for task #1", "Console.WriteLine($\"{a / 10} {a % 10}\")").Value!,
                                 ExecutionCondition.Create("12:1 2; 76: 7 6", TimeSpan.FromSeconds(1)).Value!
