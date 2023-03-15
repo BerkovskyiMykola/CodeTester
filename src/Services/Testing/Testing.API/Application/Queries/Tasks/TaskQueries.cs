@@ -48,7 +48,8 @@ public class TaskQueries : ITaskQueries
         using var connection = _dapperService.CreateConnection();
 
         var query =
-            @$"SELECT COUNT(*) FROM ""Tasks"";
+            @$"SELECT COUNT(*) FROM ""Tasks""
+            {filterString};
 
             SELECT ""Id"", ""Title_Value"", 
             ""Difficulty_Id"", ""Difficulty_Name"",  
