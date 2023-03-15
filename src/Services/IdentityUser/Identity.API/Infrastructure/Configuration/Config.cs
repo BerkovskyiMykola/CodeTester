@@ -102,9 +102,9 @@ public static class Config
                 RequirePkce = true,
                 RequireClientSecret = false,
                 AllowedScopes = new List<string> { "openid", "profile", "roles", "usermanagement", "dictionary", "testing" },
-                RedirectUris = new List<string> {"http://localhost:4200"},
-                PostLogoutRedirectUris = new List<string> {"http://localhost:4200"},
-                AllowedCorsOrigins = new List<string> { "http://localhost:4200" },
+                RedirectUris = { clientsUrl["Spa"] },
+                PostLogoutRedirectUris = new List<string> { clientsUrl["Spa"] },
+                AllowedCorsOrigins = new List<string> { clientsUrl["Spa"] },
                 AllowAccessTokensViaBrowser = true,
             }
         };
