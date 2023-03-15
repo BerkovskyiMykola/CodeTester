@@ -96,15 +96,16 @@ public static class Config
             },
             new Client
             {
-                ClientId = "bff",
-                ClientSecrets = { new Secret("secret".Sha256()) },
+                ClientId = "angular_spa",
+                ClientName = "Angular Client",
                 AllowedGrantTypes = GrantTypes.Code,
-                RedirectUris = { $"{clientsUrl["Spa"]}/signin-oidc" },
-                PostLogoutRedirectUris = { $"{clientsUrl["Spa"]}/signout-callback-oidc" },
-                AllowedScopes = new List<string>
-                {
-                    "openid", "profile", "roles", "usermanagement", "dictionary"
-                }
+                RequirePkce = true,
+                RequireClientSecret = false,
+                AllowedScopes = new List<string> { "openid", "profile", "roles", "usermanagement", "dictionary", "testing" },
+                RedirectUris = { clientsUrl["Spa"] },
+                PostLogoutRedirectUris = new List<string> { clientsUrl["Spa"] },
+                AllowedCorsOrigins = new List<string> { clientsUrl["Spa"] },
+                AllowAccessTokensViaBrowser = true,
             }
         };
     }

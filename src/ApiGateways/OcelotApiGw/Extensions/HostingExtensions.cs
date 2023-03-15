@@ -12,6 +12,7 @@ public static class HostingExtensions
         var configuration = builder.Configuration;
 
         builder.Services
+            .AddCustomCors(configuration)
             .AddCustomOcelot(configuration)
             .AddCustomAuthentication(configuration);
 
@@ -20,9 +21,25 @@ public static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
+        app.UseCors("CorsPolicy");
         app.UseOcelot().Wait();
 
         return app;
+    }
+
+    private static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder
+                .SetIsOriginAllowed((host) => true)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+        });
+
+        return services;
     }
 
 
