@@ -21,6 +21,7 @@ using Testing.API.Infrastructure.Options;
 using Testing.API.Infrastructure.Services;
 using Testing.API.Infrastructure.Services.DictionaryService;
 using Testing.API.Infrastructure.Services.DockerService;
+using Testing.API.Infrastructure.Services.ExecutionCompiler;
 using Testing.API.Infrastructure.Services.ExecutionGenerator;
 using Testing.API.Infrastructure.Services.TerminalService;
 using Testing.Core.Domain.Repositories;
@@ -302,7 +303,7 @@ public static class HostingExtensions
         services.AddScoped<ITerminalService, TerminalService>();
         services.AddScoped<IDockerService, DockerService>();
         services.AddScoped<IExecutionGenerator, ExecutionGenerator>();
-
+        services.AddScoped<IExecutionCompiler, ExecutionCompiler>();
 
         return services;
     }

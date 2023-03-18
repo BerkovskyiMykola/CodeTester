@@ -2,4 +2,10 @@
 
 public class ExecutionResult
 {
+	public string Messsage { get; }
+
+	public ExecutionResult(string message)
+	{
+        Messsage = message;
+    }
 }

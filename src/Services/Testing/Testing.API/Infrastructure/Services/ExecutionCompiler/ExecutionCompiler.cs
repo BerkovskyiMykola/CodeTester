@@ -1,12 +1,15 @@
 ﻿using Testing.API.Infrastructure.Services.DockerService;
-using Testing.API.Infrastructure.Services.ExecutionCompiler.Models;
+using Testing.API.Infrastructure.Services.DockerService.Exceptions;
+using Testing.API.Infrastructure.Services.ExecutionCompiler.Exceptions;
 using Testing.API.Infrastructure.Services.ExecutionGenerator;
+using Testing.API.Infrastructure.Services.TerminalService.Exceptions;
+using Testing.Core.Bases;
 
 namespace Testing.API.Infrastructure.Services.ExecutionCompiler;
 
 public interface IExecutionCompiler
 {
-    Task<ExecutionResult> Execute(Execution execution);
+    Task<Result<string>> Execute(Execution execution);
 }
 
 public class ExecutionCompiler : IExecutionCompiler
@@ -14,23 +17,110 @@ public class ExecutionCompiler : IExecutionCompiler
     private const string IMAGE_PREFIX_NAME = "image-";
 
     private readonly IDockerService _dockerService;
+    private readonly ILogger<ExecutionCompiler> _logger;
 
-    public ExecutionCompiler(IDockerService dockerService)
+    public ExecutionCompiler(ILogger<ExecutionCompiler> logger, IDockerService dockerService)
     {
+        _logger = logger;
         _dockerService = dockerService;
     }
 
-    public async Task<ExecutionResult> Execute(Execution execution)
+    public async Task<Result<string>> Execute(Execution execution)
     {
-        execution.CreateExecutionDirectory();
-        await _dockerService.BuildImageAsync(execution.ExecutionPath, IMAGE_PREFIX_NAME + execution.Id, execution.DockerfileName);
+        BuildExecutionEnvironment(execution);
+        try
+        {
+            await BuildImageAsync(execution);
 
-        var result = await _dockerService.RunContainerAsync(IMAGE_PREFIX_NAME + execution.Id, execution.Id.ToString(), 20000, 8, new());
+            var result = await _dockerService.ExecuteImageAsync(IMAGE_PREFIX_NAME + execution.Id, execution.Id.ToString(), execution.TimeoutMiliseconds);
 
-        execution.DeleteExecutionDirectory();
-        await _dockerService.DeleteContainerAsync(execution.Id.ToString());
-        await _dockerService.DeleteImageAsync(IMAGE_PREFIX_NAME + execution.Id);
+            if (!string.IsNullOrWhiteSpace(result.StandardError))
+            {
+                return Result.Fail<string>(result.StandardError);
+            }
 
-        return new ExecutionResult();
+            return Result.Ok<string>("Success");
+        }
+        catch (DockerOperationTimeoutException)
+        {
+            return Result.Fail<string>("Timeout");
+        }
+        catch (CompilerServerInternalException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while executing: {}", e);
+            throw new CompilerServerInternalException(e.Message);
+        }
+        finally
+        {
+            await DeleteContainerAsync(execution);
+            await DeleteImageAsync(execution);
+            DeleteExecutionEnvironment(execution);
+        }
+    }
+
+    private void BuildExecutionEnvironment(Execution execution)
+    {
+        try
+        {
+            execution.CreateExecutionDirectory();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while building execution environment: {}", e);
+            throw new CompilerServerInternalException(e.Message);
+        }
+    }
+
+    private async Task BuildImageAsync(Execution execution)
+    {
+        try
+        {
+            await _dockerService.BuildImageAsync(execution.ExecutionPath, IMAGE_PREFIX_NAME + execution.Id, execution.DockerfileName);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while building image: {}", e);
+            throw new CompilerServerInternalException("Build failed");
+        }
+    }
+
+    private async Task DeleteContainerAsync(Execution execution)
+    {
+        try
+        {
+            await _dockerService.DeleteContainerAsync(execution.Id.ToString());
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while deleting container: {0}", e);
+        }
+    }
+
+    private async Task DeleteImageAsync(Execution execution)
+    {
+        try
+        {
+            await _dockerService.DeleteImageAsync(IMAGE_PREFIX_NAME + execution.Id);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while deleting image: {0}", e);
+        }
+    }
+
+    private void DeleteExecutionEnvironment(Execution execution)
+    {
+        try
+        {
+            execution.DeleteExecutionDirectory();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while trying to delete execution directory, {0}", e);
+        }
     }
 }
