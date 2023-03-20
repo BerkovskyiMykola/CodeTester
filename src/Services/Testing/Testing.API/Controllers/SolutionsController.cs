@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Testing.API.Application.Queries.Solutions;
 using Testing.API.Application.Queries.Solutions.Models;
 using Testing.API.DTOs.Solutions;
+using Testing.API.Infrastructure.Services;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 using Testing.Core.Domain.Repositories;
 
@@ -15,40 +16,36 @@ public class SolutionsController : ControllerBase
 {
     private readonly ISolutionRepository _solutionRepository;
     private readonly ISolutionQueries _solutionQueries;
+    private readonly IIdentityService _identityService;
 
     public SolutionsController(
         ISolutionRepository solutionRepository,
-        ISolutionQueries solutionQueries)
+        ISolutionQueries solutionQueries,
+        IIdentityService identityService)
     {
         _solutionRepository = solutionRepository;
         _solutionQueries = solutionQueries;
+        _identityService = identityService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<SolutionQueryModel>> GetSolutionAsync(Guid solutionId)
+    [HttpGet("solution/task/{taskId}")]
+    public async Task<ActionResult<SolutionQueryModel>> GetSolutionAsync(Guid taskId)
     {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
         try
         {
-            var solution = await _solutionQueries.GetSolutionAsync(solutionId);
+            var solution = await _solutionQueries.GetSolutionByUserIdAndTaskIdAsync(Guid.Parse(userId), taskId);
             return Ok(solution);
         }
         catch
         {
             return NotFound("Solution not found");
-        }
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<SolutionQueryModel>>> GetAllSolutionsAsync()
-    {
-        try
-        {
-            var solutions = await _solutionQueries.GetAllSolutionsAsync();
-            return Ok(solutions);
-        }
-        catch
-        {
-            return NotFound("Solutions not found");
         }
     }
 

@@ -1,51 +1,54 @@
 ﻿using Dapper;
-using Npgsql;
 using Testing.API.Application.Queries.Solutions.Models;
+using Testing.API.Application.Queries.Tasks.Models;
+using Testing.API.Infrastructure.Services;
+using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 
 namespace Testing.API.Application.Queries.Solutions;
 
 public interface ISolutionQueries
 {
-    Task<SolutionQueryModel> GetSolutionAsync(Guid id);
-
-    Task<IEnumerable<SolutionQueryModel>> GetAllSolutionsAsync();
+    Task<SolutionQueryModel> GetSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId);
 }
 
 public class SolutionQueries : ISolutionQueries
 {
-    private string _connectionString = string.Empty;
+    private readonly IDapperService _dapperService;
 
-    public SolutionQueries(IConfiguration configuration)
+    public SolutionQueries(IDapperService dapperService)
     {
-        _connectionString = configuration["connectionString"]!;
+        _dapperService = dapperService;
     }
 
-    public async Task<SolutionQueryModel> GetSolutionAsync(Guid id)
+    public async Task<SolutionQueryModel> GetSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        connection.Open();
+        using var connection = _dapperService.CreateConnection();
 
-        var result = await connection.QueryAsync<SolutionQueryModel>(
-            @"select ""Id"" as Id, ""Value_Value"" as SolutionValue, ""Success"" as Success, ""TaskId"" as TaskId, ""UserId"" as UserId
-                    FROM ""Solutions""
-					WHERE ""Id"" = @id"
-                , new { id }
-            );
+        var query =
+            @$"SELECT ""Id"",
+            ""Value_Value"", ""Success"",
+            ""TaskId"", ""UserId""
+            FROM ""Solutions""
+            WHERE ""UserId"" = '{userId}' AND ""TaskId"" = '{taskId}';";
+
+
+        var result = await connection.QueryAsync<dynamic>(query);
 
         if (result.AsList().Count == 0)
             throw new KeyNotFoundException();
 
-        return result.ElementAt(0);
+        return MapToSolutionQueryModel(result);
     }
 
-    public async Task<IEnumerable<SolutionQueryModel>> GetAllSolutionsAsync()
+    private SolutionQueryModel MapToSolutionQueryModel(dynamic obj)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        connection.Open();
-
-        return await connection.QueryAsync<SolutionQueryModel>(
-            @"select ""Id"" as Id, ""Value_Value"" as SolutionValue, ""Success"" as Success, ""TaskId"" as TaskId, ""UserId"" as UserId
-                    FROM ""Solutions"""
-        );
+        return new SolutionQueryModel()
+        {
+            Id = obj[0].Id,
+            UserId = obj[0].UserId,
+            TaskId = obj[0].TaskId,
+            Success = obj[0].Success,
+            SolutionValue = obj[0].Value_Value,
+        };
     }
 }

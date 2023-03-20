@@ -38,14 +38,7 @@ public static class Config
                 Scopes = new List<string> {
                     "testing"
                 }
-            },
-            new ApiResource {
-                Name = "testingagg",
-                DisplayName = "Testing Aggregator",
-                Scopes = new List<string> {
-                    "testingagg"
-                }
-            },
+            }
         };
     }
 
@@ -56,7 +49,6 @@ public static class Config
             new ApiScope("usermanagement") { UserClaims = new[] { "role" } },
             new ApiScope("dictionary") { UserClaims = new[] { "role" } },
             new ApiScope("testing") { UserClaims = new[] { "role" } },
-            new ApiScope("testingagg") { UserClaims = new[] { "role" } },
         };
     }
 
