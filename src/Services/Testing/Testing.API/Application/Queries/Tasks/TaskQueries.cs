@@ -3,6 +3,8 @@ using MassTransit.Initializers;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.Infrastructure.Models;
 using Testing.API.Infrastructure.Services;
+using Testing.Core.Domain.AggregatesModel.TaskAggregate;
+using Testing.Core.Domain.AggregatesModel.UserAggregate;
 
 namespace Testing.API.Application.Queries.Tasks;
 
@@ -16,7 +18,7 @@ public interface ITaskQueries
         int? programmingLanguageId = null,
         int? typeId = null);
 
-    Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId);
+    Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId, Guid userId);
 }
 
 public class TaskQueries : ITaskQueries
@@ -75,7 +77,7 @@ public class TaskQueries : ITaskQueries
         return new PaginationResult<ComplitedCardTaskQueryModel>(gridDataRows, totalRowCount, pagination.PageNumber, pagination.PageSize);
     }
 
-    public async Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId)
+    public async Task<DetailedTaskQueryModel> GetDetailedTaskAsync(Guid taskId, Guid userId)
     {
         using var connection = _dapperService.CreateConnection();
 
@@ -84,7 +86,16 @@ public class TaskQueries : ITaskQueries
             ""Description_Text"", ""Description_Examples"", ""Description_SomeCases"", ""Description_Note"",
             ""Difficulty_Id"", ""Difficulty_Name"",  
             ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
-            ""Type_Id"", ""Type_Name""
+            ""Type_Id"", ""Type_Name"",
+            ""SolutionTemplate_Value"",
+            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""CompletedAmount"",
+            CASE
+                WHEN EXISTS (
+		            SELECT 1 FROM ""Solutions"" 
+		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}'
+	            ) THEN CAST(1 AS boolean)
+                ELSE CAST(0 AS boolean)
+            END AS ""IsCompleted""
             FROM ""Tasks""
             WHERE ""Id"" = '{taskId}';";
 
@@ -149,7 +160,13 @@ public class TaskQueries : ITaskQueries
                 Examples = obj[0].Description_Examples,
                 SomeCases = obj[0].Description_SomeCases,
                 Note = obj[0].Description_Note
-            }
+            },
+            SolutionTemplate = new SolutionTemplateQueryModel
+            {
+                Value = obj[0].SolutionTemplate_Value,
+            },
+            CompletedAmount = obj[0].CompletedAmount,
+            IsCompleted = obj[0].IsCompleted,
         };
     }
 }

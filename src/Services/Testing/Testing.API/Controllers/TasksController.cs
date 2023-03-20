@@ -38,9 +38,16 @@ public class TasksController : ControllerBase
     [HttpGet("detailed/{id}")]
     public async Task<ActionResult<DetailedTaskQueryModel>> GetTaskAsync(Guid id)
     {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
         try
         {
-            var task = await _taskQueries.GetDetailedTaskAsync(id);
+            var task = await _taskQueries.GetDetailedTaskAsync(id, Guid.Parse(userId));
             return Ok(task);
         }
         catch
