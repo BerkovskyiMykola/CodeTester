@@ -162,7 +162,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                             b1.Property<Guid>("TaskId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Tests")
+                            b1.Property<string>("ExecutionTemplate")
                                 .IsRequired()
                                 .HasColumnType("text");
 
@@ -197,15 +197,12 @@ namespace Testing.API.Infrastructure.TestingMigrations
                                 .HasForeignKey("TaskId");
                         });
 
-                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.TaskAggregate.SolutionExample", "SolutionExample", b1 =>
+                    b.OwnsOne("Testing.Core.Domain.AggregatesModel.TaskAggregate.SolutionTemplate", "SolutionTemplate", b1 =>
                         {
                             b1.Property<Guid>("TaskId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Description")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Solution")
+                            b1.Property<string>("Value")
                                 .IsRequired()
                                 .HasColumnType("text");
 
@@ -266,7 +263,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                     b.Navigation("ProgrammingLanguage")
                         .IsRequired();
 
-                    b.Navigation("SolutionExample")
+                    b.Navigation("SolutionTemplate")
                         .IsRequired();
 
                     b.Navigation("Title")

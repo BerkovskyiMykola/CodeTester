@@ -22,7 +22,7 @@ public class TaskEntityConfiguration : IEntityTypeConfiguration<DomainTask>
 
         builder.OwnsOne(x => x.ProgrammingLanguage);
 
-        builder.OwnsOne(x => x.SolutionExample);
+        builder.OwnsOne(x => x.SolutionTemplate);
 
         builder.OwnsOne(x => x.ExecutionCondition);
     }

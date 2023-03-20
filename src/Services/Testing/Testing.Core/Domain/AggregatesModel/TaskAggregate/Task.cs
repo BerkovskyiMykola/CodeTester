@@ -9,7 +9,7 @@ public class Task : Entity, IAggregateRoot
     public Difficulty Difficulty { get; private set; }
     public Type Type { get; private set; }
     public ProgrammingLanguage ProgrammingLanguage { get; private set; }
-    public SolutionExample SolutionExample { get; private set; }
+    public SolutionTemplate SolutionTemplate { get; private set; }
     public ExecutionCondition ExecutionCondition { get; private set; }
 
     public DateTime CreateDate { get; private set; }
@@ -26,7 +26,7 @@ public class Task : Entity, IAggregateRoot
         Difficulty difficulty,
         Type type,
         ProgrammingLanguage programmingLanguage,
-        SolutionExample solutionExample,
+        SolutionTemplate solutionTemplate,
         ExecutionCondition executionCondition)
     {
         Id = id;
@@ -35,7 +35,7 @@ public class Task : Entity, IAggregateRoot
         Difficulty = difficulty;
         Type = type;
         ProgrammingLanguage = programmingLanguage;
-        SolutionExample = solutionExample;
+        SolutionTemplate = solutionTemplate;
         ExecutionCondition = executionCondition;
 
         CreateDate = DateTime.UtcNow;
@@ -66,9 +66,9 @@ public class Task : Entity, IAggregateRoot
         ProgrammingLanguage = programmingLanguage;
     }
 
-    public void SetNewSolutionExample(SolutionExample solutionExample)
+    public void SetNewSolutionTemplate(SolutionTemplate solutionTemplate)
     {
-        SolutionExample = solutionExample;
+        SolutionTemplate = solutionTemplate;
     }
 
     public void SetNewExecutionCondition(ExecutionCondition executionCondition)

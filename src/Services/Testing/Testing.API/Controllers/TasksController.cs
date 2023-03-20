@@ -119,10 +119,10 @@ public class TasksController : ControllerBase
         }
         var programmingLanguage = ProgrammingLanguage.Create(programmingLanguageData.Id, programmingLanguageData.Name);
 
-        var solutionExample = SolutionExample.Create(request.TaskSolutionExample.Description, request.TaskSolutionExample.Solution);
+        var solutionExample = SolutionTemplate.Create(request.TaskSolutionTemplate.Value);
         if (solutionExample.IsFailure)
         {
-            return BadRequest("SolutionExample is invalid");
+            return BadRequest("SolutionTemplate is invalid");
         }
 
         var executionCondition = ExecutionCondition.Create(request.TaskExecutionCondition.Tests, request.TaskExecutionCondition.TimeLimit);
@@ -191,10 +191,10 @@ public class TasksController : ControllerBase
         }
         var programmingLanguage = ProgrammingLanguage.Create(programmingLanguageData.Id, programmingLanguageData.Name);
 
-        var solutionExample = SolutionExample.Create(request.TaskSolutionExample.Description, request.TaskSolutionExample.Solution);
-        if (solutionExample.IsFailure)
+        var solutionTemplate = SolutionTemplate.Create(request.TaskSolutionTemplate.Value);
+        if (solutionTemplate.IsFailure)
         {
-            return BadRequest("SolutionExample is invalid");
+            return BadRequest("SolutionTemplate is invalid");
         }
 
         var executionCondition = ExecutionCondition.Create(request.TaskExecutionCondition.Tests, request.TaskExecutionCondition.TimeLimit);
@@ -208,7 +208,7 @@ public class TasksController : ControllerBase
         task.SetNewDifficulty(difficulty.Value!);
         task.SetNewType(taskType.Value!);
         task.SetNewProgrammingLanguage(programmingLanguage.Value!);
-        task.SetNewSolutionExample(solutionExample.Value!);
+        task.SetNewSolutionTemplate(solutionTemplate.Value!);
         task.SetNewExecutionCondition(executionCondition.Value!);
 
         _taskRepository.Update(task);

@@ -27,9 +27,8 @@ namespace Testing.API.Infrastructure.TestingMigrations
                     TypeName = table.Column<string>(name: "Type_Name", type: "text", nullable: false),
                     ProgrammingLanguageId = table.Column<int>(name: "ProgrammingLanguage_Id", type: "integer", nullable: false),
                     ProgrammingLanguageName = table.Column<string>(name: "ProgrammingLanguage_Name", type: "text", nullable: false),
-                    SolutionExampleDescription = table.Column<string>(name: "SolutionExample_Description", type: "text", nullable: true),
-                    SolutionExampleSolution = table.Column<string>(name: "SolutionExample_Solution", type: "text", nullable: false),
-                    ExecutionConditionTests = table.Column<string>(name: "ExecutionCondition_Tests", type: "text", nullable: false),
+                    SolutionTemplateValue = table.Column<string>(name: "SolutionTemplate_Value", type: "text", nullable: false),
+                    ExecutionConditionExecutionTemplate = table.Column<string>(name: "ExecutionCondition_ExecutionTemplate", type: "text", nullable: false),
                     ExecutionConditionTimeLimit = table.Column<TimeSpan>(name: "ExecutionCondition_TimeLimit", type: "interval", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },

@@ -18,6 +18,6 @@ public class UpdateTaskRequest
 
     public int ProgrammingLanguageId { get; set; }
 
-    public TaskSolutionExampleRequest TaskSolutionExample { get; set; } = new();
+    public TaskSolutionTemplate TaskSolutionTemplate { get; set; } = new();
     public TaskExecitonConditionRequest TaskExecutionCondition { get; set; } = new();
 }
