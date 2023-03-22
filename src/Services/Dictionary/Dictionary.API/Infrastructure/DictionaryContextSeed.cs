@@ -27,7 +27,7 @@ public class DictionaryContextSeed
             if (!context.ProgrammingLanguages.Any())
             {
                 context.ProgrammingLanguages.AddRange(
-                    new ProgrammingLanguage("C#"),
+                    new ProgrammingLanguage("CSharp"),
                     new ProgrammingLanguage("Python"),
                     new ProgrammingLanguage("JavaScript")
                 );
