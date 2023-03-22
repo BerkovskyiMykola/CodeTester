@@ -1,5 +1,4 @@
-﻿using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
-using Testing.Core.Domain.AggregatesModel.TaskAggregate;
+﻿using Testing.Core.Domain.AggregatesModel.TaskAggregate;
 using Testing.Infrastructure.Persistence;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 using DomainType = Testing.Core.Domain.AggregatesModel.TaskAggregate.Type;
@@ -18,57 +17,25 @@ public class TestingContextSeed
 
         try
         {
-            Guid[] seedGuids = new[] { Guid.NewGuid(), Guid.NewGuid() };
             if (!context.Tasks.Any())
             {
                 context.Tasks.AddRange(
                     new DomainTask[]
                         {
                             new(
-                                seedGuids.ElementAt(0),
-                                Title.Create("Easy problem").Value!,
-                                Description.Create("Easy problem description", "12 -> 1 2 \n76 -> 7 6", "someCases1", "notes1").Value!,
+                                Guid.NewGuid(),
+                                Title.Create("Create Phone Number").Value!,
+                                Description.Create(
+                                    "Write a function that accepts an array of 10 integers (between 0 and 9), that returns a string of those numbers in the form of a phone number.\r\n\r\nThe returned format must be correct in order to complete this challenge.\r\n\r\nDon't forget the space after the closing parentheses!",
+                                    "CreatePhoneNumber(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) // => returns \"(123) 456-7890\"").Value!,
                                 Difficulty.Create(1, "Easy").Value!,
                                 DomainType.Create(1, "For beginners").Value!,
-                                ProgrammingLanguage.Create(1, "C#").Value!,
-                                SolutionTemplate.Create("Console.WriteLine($\"{a / 10} {a % 10}\")").Value!,
-                                ExecutionCondition.Create("12:1 2; 76: 7 6", TimeSpan.FromSeconds(1)).Value!
-                            ),
-                            new(
-                                seedGuids.ElementAt(1),
-                                Title.Create("Mouse").Value!,
-                                Description.Create("Mouse is running through the squares", "LLRRRLRL; LLLLLRRRRLLRRR", "someCases1", "notes1").Value!,
-                                Difficulty.Create(2, "Medium").Value!,
-                                DomainType.Create(2, "Dynamic programming").Value!,
-                                ProgrammingLanguage.Create(2, "C++").Value!,
-                                SolutionTemplate.Create("<solution code #2>").Value!,
-                                ExecutionCondition.Create("10, 564: LLLLLRRRRLLRRR; 64, 122: LLRRRLRL", TimeSpan.FromSeconds(2)).Value!
+                                ProgrammingLanguage.Create(1, "CSharp").Value!,
+                                SolutionTemplate.Create("public static string CreatePhoneNumber(int[] numbers)\r\n  {\r\n    \r\n  }").Value!,
+                                ExecutionCondition.Create("namespace Test\r\n{\r\n    internal class Program\r\n    {\r\n        {code}\r\n\r\n        static void Main(string[] args)\r\n        {\r\n            if (CreatePhoneNumber(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }) != \"(123) 456-7890\")\r\n            {\r\n                throw new Exception(\"Incorrect result\");\r\n            }\r\n\r\n            if (CreatePhoneNumber(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }) != \"(111) 111-1111\")\r\n            {\r\n                throw new Exception(\"Incorrect result\");\r\n            }\r\n        }\r\n    }\r\n}", TimeSpan.FromSeconds(3)).Value!
                             )
                         }
                     );
-
-                if (!context.Solutions.Any())
-                {
-                    //context.Solutions.AddRange(
-                    //    new Solution[]
-                    //        {
-                    //        new(
-                    //            Guid.NewGuid(),
-                    //            seedGuids.ElementAt(0),
-                    //            User.Create(Guid.NewGuid(), "test@mail.com", "Tester", "Gregor").Value!,
-                    //            SolutionValue.Create("<solution code>").Value!,
-                    //            true
-                    //        ),
-                    //        new(
-                    //            Guid.NewGuid(),
-                    //            seedGuids.ElementAt(0),
-                    //            User.Create(Guid.NewGuid(), "test2@mail.com", "Gate", "Mike").Value!,
-                    //            SolutionValue.Create("<solution code>").Value!,
-                    //            false
-                    //        )
-                    //        }
-                    //    );
-                }
 
                 await context.SaveChangesAsync();
             }

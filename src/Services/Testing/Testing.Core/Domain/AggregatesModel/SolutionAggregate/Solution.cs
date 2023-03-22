@@ -13,6 +13,8 @@ public class Solution : Entity, IAggregateRoot
     public SolutionValue Value { get; private set; }
     public bool Success { get; private set; }
 
+    public DateTime CreateDate { get; private set; }
+
     //Only for migrations
     #pragma warning disable CS8618
     protected Solution() { }
@@ -30,5 +32,7 @@ public class Solution : Entity, IAggregateRoot
         Success = success;
         _userId = userId;
         _taskId = taskId;
+
+        CreateDate = DateTime.UtcNow;
     }
 }

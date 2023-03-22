@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Testing.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Testing.Infrastructure.Persistence;
 namespace Testing.API.Infrastructure.TestingMigrations
 {
     [DbContext(typeof(TestingContext))]
-    partial class TestingContextModelSnapshot : ModelSnapshot
+    [Migration("20230322120125_AddCreateDateForSolution")]
+    partial class AddCreateDateForSolution
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

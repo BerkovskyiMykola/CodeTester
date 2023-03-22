@@ -47,7 +47,7 @@ public class ExecutionCompiler : IExecutionCompiler
         }
         catch (CompilerServerInternalException)
         {
-            throw;
+            return Result.Fail<string>("Build failed");
         }
         catch (Exception e)
         {

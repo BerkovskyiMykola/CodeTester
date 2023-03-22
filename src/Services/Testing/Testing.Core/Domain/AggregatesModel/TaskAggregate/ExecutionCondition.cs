@@ -15,7 +15,7 @@ public record ExecutionCondition
         if (string.IsNullOrWhiteSpace(executionTemplate))
             return Result.Fail<ExecutionCondition>("ExecutionTemplate can't be empty");
 
-        if (executionTemplate.Contains("{code}"))
+        if (!executionTemplate.Contains("{code}"))
             return Result.Fail<ExecutionCondition>("ExecutionTemplate doesn't contain '{code}'");
 
         if (timeLimit.TotalSeconds < 1)

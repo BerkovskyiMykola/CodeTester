@@ -3,8 +3,6 @@ using MassTransit.Initializers;
 using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.Infrastructure.Models;
 using Testing.API.Infrastructure.Services;
-using Testing.Core.Domain.AggregatesModel.TaskAggregate;
-using Testing.Core.Domain.AggregatesModel.UserAggregate;
 
 namespace Testing.API.Application.Queries.Tasks;
 
@@ -57,11 +55,11 @@ public class TaskQueries : ITaskQueries
             ""Difficulty_Id"", ""Difficulty_Name"",  
             ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
             ""Type_Id"", ""Type_Name"",
-            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""CompletedAmount"",
+            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""Success"" IS TRUE) as ""CompletedAmount"",
             CASE
                 WHEN EXISTS (
 		            SELECT 1 FROM ""Solutions"" 
-		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}'
+		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}' AND ""Solutions"".""Success"" IS TRUE
 	            ) THEN CAST(1 AS boolean)
                 ELSE CAST(0 AS boolean)
             END AS ""IsCompleted""
@@ -88,11 +86,11 @@ public class TaskQueries : ITaskQueries
             ""ProgrammingLanguage_Id"", ""ProgrammingLanguage_Name"",  
             ""Type_Id"", ""Type_Name"",
             ""SolutionTemplate_Value"",
-            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"") as ""CompletedAmount"",
+            (SELECT COUNT(*) FROM ""Solutions"" WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""Success"" IS TRUE) as ""CompletedAmount"",
             CASE
                 WHEN EXISTS (
 		            SELECT 1 FROM ""Solutions"" 
-		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}'
+		            WHERE ""Tasks"".""Id"" = ""Solutions"".""TaskId"" AND ""Solutions"".""UserId"" = '{userId}' AND ""Solutions"".""Success"" IS TRUE
 	            ) THEN CAST(1 AS boolean)
                 ELSE CAST(0 AS boolean)
             END AS ""IsCompleted""

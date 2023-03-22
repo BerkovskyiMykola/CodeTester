@@ -21,15 +21,13 @@ public class SolutionRepository : ISolutionRepository
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Solution Upsert(Solution solution)
+    public Solution Add(Solution solution)
     {
-        if (solution.IsTransient())
-        {
-            return _context.Solutions.Add(solution).Entity;
-        }
-        else
-        {
-            return _context.Update(solution).Entity;
-        }
+        return _context.Solutions.Add(solution).Entity;
+    }
+
+    public Solution Update(Solution solution)
+    {
+        return _context.Solutions.Update(solution).Entity;
     }
 }
