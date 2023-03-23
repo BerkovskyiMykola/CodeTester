@@ -39,8 +39,8 @@ public class SolutionsController : ControllerBase
         _executionGenerator = executionGenerator;
     }
 
-    [HttpGet("solution/task/{taskId}")]
-    public async Task<ActionResult<SolutionQueryModel>> GetSolutionAsync(Guid taskId)
+    [HttpGet("solution/task/{taskId}/last-successful")]
+    public async Task<ActionResult<SolutionQueryModel>> GetLastSuccessfulSolutionAsync(Guid taskId)
     {
         var userId = _identityService.GetUserIdentity();
 
@@ -51,7 +51,28 @@ public class SolutionsController : ControllerBase
 
         try
         {
-            var solution = await _solutionQueries.GetSolutionByUserIdAndTaskIdAsync(Guid.Parse(userId), taskId);
+            var solution = await _solutionQueries.GetLastSuccessfulSolutionByUserIdAndTaskIdAsync(Guid.Parse(userId), taskId);
+            return Ok(solution);
+        }
+        catch
+        {
+            return NotFound("Solution not found");
+        }
+    }
+
+    [HttpGet("task/{taskId}")]
+    public async Task<ActionResult<IEnumerable<SolutionQueryModel>>> GetSolutionsAsync(Guid taskId)
+    {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
+        try
+        {
+            var solution = await _solutionQueries.GetSolutionsByUserIdAndTaskIdAsync(Guid.Parse(userId), taskId);
             return Ok(solution);
         }
         catch

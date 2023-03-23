@@ -1,14 +1,13 @@
 ﻿using Dapper;
 using Testing.API.Application.Queries.Solutions.Models;
-using Testing.API.Application.Queries.Tasks.Models;
 using Testing.API.Infrastructure.Services;
-using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 
 namespace Testing.API.Application.Queries.Solutions;
 
 public interface ISolutionQueries
 {
-    Task<SolutionQueryModel> GetSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId);
+    Task<IEnumerable<SolutionQueryModel>> GetSolutionsByUserIdAndTaskIdAsync(Guid userId, Guid taskId);
+    Task<SolutionQueryModel> GetLastSuccessfulSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId);
 }
 
 public class SolutionQueries : ISolutionQueries
@@ -20,7 +19,7 @@ public class SolutionQueries : ISolutionQueries
         _dapperService = dapperService;
     }
 
-    public async Task<SolutionQueryModel> GetSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId)
+    public async Task<IEnumerable<SolutionQueryModel>> GetSolutionsByUserIdAndTaskIdAsync(Guid userId, Guid taskId)
     {
         using var connection = _dapperService.CreateConnection();
 
@@ -29,7 +28,26 @@ public class SolutionQueries : ISolutionQueries
             ""Value_Value"", ""Success"",
             ""TaskId"", ""UserId""
             FROM ""Solutions""
-            WHERE ""UserId"" = '{userId}' AND ""TaskId"" = '{taskId}';";
+            WHERE ""UserId"" = '{userId}' AND ""TaskId"" = '{taskId}'
+            ORDER BY ""CreateDate"" DESC;";
+
+        var result = await connection.QueryAsync<dynamic>(query);
+
+        return result.Select(MapForListToSolutionQueryModel).ToList();
+    }
+
+    public async Task<SolutionQueryModel> GetLastSuccessfulSolutionByUserIdAndTaskIdAsync(Guid userId, Guid taskId)
+    {
+        using var connection = _dapperService.CreateConnection();
+
+        var query =
+            @$"SELECT ""Id"",
+            ""Value_Value"", ""Success"",
+            ""TaskId"", ""UserId""
+            FROM ""Solutions""
+            WHERE ""UserId"" = '{userId}' AND ""TaskId"" = '{taskId}' AND ""Success"" IS TRUE
+            ORDER BY ""CreateDate"" DESC
+            FETCH FIRST 1 ROWS ONLY;";
 
 
         var result = await connection.QueryAsync<dynamic>(query);
@@ -49,6 +67,18 @@ public class SolutionQueries : ISolutionQueries
             TaskId = obj[0].TaskId,
             Success = obj[0].Success,
             SolutionValue = obj[0].Value_Value,
+        };
+    }
+
+    private SolutionQueryModel MapForListToSolutionQueryModel(dynamic obj)
+    {
+        return new SolutionQueryModel()
+        {
+            Id = obj.Id,
+            UserId = obj.UserId,
+            TaskId = obj.TaskId,
+            Success = obj.Success,
+            SolutionValue = obj.Value_Value,
         };
     }
 }
