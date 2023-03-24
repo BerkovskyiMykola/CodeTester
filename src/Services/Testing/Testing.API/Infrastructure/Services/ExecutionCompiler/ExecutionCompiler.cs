@@ -1,9 +1,8 @@
-﻿using Testing.API.Infrastructure.Services.DockerService;
+﻿using Common.Models.Base;
+using Testing.API.Infrastructure.Services.DockerService;
 using Testing.API.Infrastructure.Services.DockerService.Exceptions;
 using Testing.API.Infrastructure.Services.ExecutionCompiler.Exceptions;
 using Testing.API.Infrastructure.Services.ExecutionGenerator;
-using Testing.API.Infrastructure.Services.TerminalService.Exceptions;
-using Testing.Core.Bases;
 
 namespace Testing.API.Infrastructure.Services.ExecutionCompiler;
 

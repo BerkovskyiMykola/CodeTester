@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Testing.Core.Bases;
 using Testing.Core.Domain.Repositories;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
+using Common.Models.Domain;
 
 namespace Testing.Infrastructure.Persistence.Repositories;
 

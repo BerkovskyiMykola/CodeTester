@@ -1,4 +1,4 @@
-﻿namespace Testing.API.Infrastructure.Models;
+﻿namespace Common.Models.Pagination;
 
 public record PaginationResult<T>
 {

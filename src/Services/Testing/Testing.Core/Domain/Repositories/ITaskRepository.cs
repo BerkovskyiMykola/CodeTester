@@ -1,4 +1,4 @@
-﻿using Testing.Core.Bases;
+﻿using Common.Models.Domain;
 using DomainTask = Testing.Core.Domain.AggregatesModel.TaskAggregate.Task;
 
 namespace Testing.Core.Domain.Repositories;

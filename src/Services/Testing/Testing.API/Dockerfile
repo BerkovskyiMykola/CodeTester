@@ -13,6 +13,7 @@ COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Com
 COPY ["BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "BuildingBlocks/EventBus.Messages/"]
 COPY ["BuildingBlocks/Grpc.Interceptors/Grpc.Interceptors.csproj", "BuildingBlocks/Grpc.Interceptors/"]
 COPY ["Services/Testing/Testing.Core/Testing.Core.csproj", "Services/Testing/Testing.Core/"]
+COPY ["BuildingBlocks/Common.Models/Common.Models.csproj", "BuildingBlocks/Common.Models/"]
 COPY ["Services/Testing/Testing.Infrastructure.Persistence/Testing.Infrastructure.Persistence.csproj", "Services/Testing/Testing.Infrastructure.Persistence/"]
 RUN dotnet restore "Services/Testing/Testing.API/Testing.API.csproj"
 COPY . .

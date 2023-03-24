@@ -1,3 +1,3 @@
-﻿namespace Testing.Core.Bases;
+﻿namespace Common.Models.Domain;
 
 public interface IAggregateRoot { }

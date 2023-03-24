@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Testing.Core.Bases;
+using Common.Models.Domain;
 
 namespace Testing.Infrastructure.Persistence;
 

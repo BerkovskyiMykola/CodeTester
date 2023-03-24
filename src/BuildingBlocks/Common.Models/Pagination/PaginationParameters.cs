@@ -1,4 +1,4 @@
-﻿namespace Testing.API.Infrastructure.Models;
+﻿namespace Common.Models.Pagination;
 
 public class PaginationParameters
 {
@@ -14,7 +14,7 @@ public class PaginationParameters
         }
         set
         {
-            _pageNumber = (value < minPageNumber) ? _pageNumber : value;
+            _pageNumber = value < minPageNumber ? _pageNumber : value;
         }
     }
 
@@ -27,7 +27,7 @@ public class PaginationParameters
         }
         set
         {
-            _pageSize = (value > maxPageSize) ? maxPageSize : value;
+            _pageSize = value > maxPageSize ? maxPageSize : value;
         }
     }
 }

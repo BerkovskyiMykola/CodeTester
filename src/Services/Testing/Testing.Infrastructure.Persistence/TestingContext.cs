@@ -1,6 +1,6 @@
-﻿using MediatR;
+﻿using Common.Models.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Testing.Core.Bases;
 using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
 using Testing.Core.Domain.AggregatesModel.UserAggregate;
 using Testing.Infrastructure.Persistence.EntityConfigurations;

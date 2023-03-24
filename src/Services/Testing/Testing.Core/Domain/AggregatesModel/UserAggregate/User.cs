@@ -1,4 +1,4 @@
-﻿using Testing.Core.Bases;
+﻿using Common.Models.Domain;
 
 namespace Testing.Core.Domain.AggregatesModel.UserAggregate;
 

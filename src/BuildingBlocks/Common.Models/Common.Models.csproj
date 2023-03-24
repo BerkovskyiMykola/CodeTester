@@ -7,12 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Events\" />
-    <Folder Include="Domain\Exceptions\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\Common.Models\Common.Models.csproj" />
+    <PackageReference Include="MediatR" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace Testing.Core.Bases;
+﻿namespace Common.Models.Base;
 
 public class Result
 {

@@ -1,4 +1,4 @@
-﻿using Testing.Core.Bases;
+﻿using Common.Models.Base;
 
 namespace Testing.Core.Domain.AggregatesModel.TaskAggregate;
 
