@@ -2,6 +2,7 @@
 using MassTransit;
 using Testing.Core.Domain.AggregatesModel.UserAggregate;
 using Testing.Core.Domain.Repositories;
+using Testing.Infrastructure.Persistence.Repositories;
 
 namespace StudentProfile.API.Infrastructure.EventBusConsumers;
 
@@ -46,6 +47,8 @@ public class UserProfileUpdatedConsumer : IConsumer<UserProfileUpdatedIntegratio
             }
 
             user.SetNewProfile(createUserProfileResult.Value!);
+
+            _userRepository.Update(user);
 
             await _userRepository.UnitOfWork.SaveEntitiesAsync();
 

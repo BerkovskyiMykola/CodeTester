@@ -25,9 +25,4 @@ public class SolutionRepository : ISolutionRepository
     {
         return _context.Solutions.Add(solution).Entity;
     }
-
-    public Solution Update(Solution solution)
-    {
-        return _context.Solutions.Update(solution).Entity;
-    }
 }

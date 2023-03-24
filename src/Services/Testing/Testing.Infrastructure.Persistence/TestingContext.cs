@@ -30,15 +30,13 @@ public class TestingContext : DbContext, IUnitOfWork
         modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
     }
 
-    public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+    public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
         if (_mediator != null)
         {
             await _mediator.DispatchDomainEventsAsync(this);
         }
 
-        var result = await base.SaveChangesAsync(cancellationToken);
-
-        return true;
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }
