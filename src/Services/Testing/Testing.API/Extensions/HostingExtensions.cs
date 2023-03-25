@@ -12,8 +12,6 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
-using Testing.API.Application.Queries.Solutions;
-using Testing.API.Application.Queries.Tasks;
 using Testing.API.Infrastructure;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
@@ -297,8 +295,6 @@ public static class HostingExtensions
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddSingleton<IDapperService, DapperService>();
-        services.AddScoped<ISolutionQueries, SolutionQueries>();
-        services.AddScoped<ITaskQueries, TaskQueries>();
 
         services.AddScoped<ITerminalService, TerminalService>();
         services.AddScoped<IDockerService, DockerService>();

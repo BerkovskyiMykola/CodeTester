@@ -1,6 +1,6 @@
-﻿namespace Testing.API.Application.Queries.Tasks.Models;
+﻿namespace Testing.API.DTOs.Tasks;
 
-public class DescriptionQueryModel
+public class TaskDescriptionResponse
 {
     public string Text { get; set; } = string.Empty;
     public string Examples { get; set; } = string.Empty;
