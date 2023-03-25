@@ -6,6 +6,7 @@ using Testing.API.DTOs.Base;
 using Testing.API.DTOs.Query;
 using Testing.API.DTOs.Solutions;
 using Testing.API.DTOs.Tasks;
+using Testing.API.DTOs.Users;
 using Testing.API.Infrastructure.Services;
 
 namespace Testing.API.Controllers;
@@ -202,6 +203,12 @@ public class CodeChallengeController : ControllerBase
             return NotFound("No user found");
         }
 
+        var isTaskExistQuery =
+            $@"SELECT CAST(1 AS boolean)
+            FROM ""Tasks""
+            WHERE ""Tasks"".""Id"" = '{id}'
+            FETCH FIRST 1 ROWS ONLY;";
+
         var query =
             $@"SELECT ""Id"", ""Value_Value"", ""Success"", ""CreateDate""
             FROM ""Solutions""
@@ -210,6 +217,13 @@ public class CodeChallengeController : ControllerBase
             FETCH FIRST 1 ROWS ONLY;";
 
         using var connection = _dapperService.CreateConnection();
+
+        var isTaskExist = await connection.QueryAsync<dynamic>(isTaskExistQuery);
+
+        if (isTaskExist.Count() == 0)
+        {
+            return NotFound("No task found");
+        }
 
         var result = await connection.QueryAsync<dynamic>(query);
 
@@ -233,6 +247,12 @@ public class CodeChallengeController : ControllerBase
             return NotFound("No user found");
         }
 
+        var isTaskExistQuery =
+            $@"SELECT CAST(1 AS boolean)
+            FROM ""Tasks""
+            WHERE ""Tasks"".""Id"" = '{id}'
+            FETCH FIRST 1 ROWS ONLY;";
+
         var baseQuery =
             $@"SELECT ""Id"", ""Value_Value"", ""Success"", ""CreateDate""
             FROM ""Solutions""
@@ -246,6 +266,13 @@ public class CodeChallengeController : ControllerBase
             OFFSET {(pagination.PageNumber - 1) * pagination.PageSize} ROWS FETCH NEXT {pagination.PageSize} ROWS ONLY;";
 
         using var connection = _dapperService.CreateConnection();
+
+        var isTaskExist = await connection.QueryAsync<dynamic>(isTaskExistQuery);
+
+        if (isTaskExist.Count() == 0)
+        {
+            return NotFound("No task found");
+        }
 
         var multi = await connection.QueryMultipleAsync(query);
         var totalRowCount = multi.Read<long>().Single();
@@ -262,6 +289,94 @@ public class CodeChallengeController : ControllerBase
             Code = obj.Value_Value,
             Success = obj.Success,
             CreateDate = obj.CreateDate,
+        };
+    }
+
+    #endregion
+
+    #region GET /tasks/{id}/solutions
+
+    [HttpGet("tasks/{id}/solutions")]
+    public async Task<IActionResult> GetSolutionsOfTask(
+        Guid id,
+        [FromQuery] PaginationParameters pagination)
+    {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
+        var isTaskExistQuery =
+            $@"SELECT CAST(1 AS boolean)
+            FROM ""Tasks""
+            WHERE ""Tasks"".""Id"" = '{id}'
+            FETCH FIRST 1 ROWS ONLY;";
+
+        var isTaskSolvedQuery =
+            $@"SELECT CAST(1 AS boolean) 
+            FROM ""Solutions"" 
+		    WHERE ""Solutions"".""TaskId"" = '{id}' AND ""Solutions"".""UserId"" = '{userId}' AND ""Solutions"".""Success"" IS TRUE
+            FETCH FIRST 1 ROWS ONLY;";
+
+        var baseQuery =
+            $@"SELECT ""Nested2"".""Id"", ""Value_Value"", ""Success"", ""CreateDate"", ""UserId"", ""Profile_Lastname"", ""Profile_Firstname"" FROM ""Users""
+            INNER JOIN (
+	            SELECT * FROM (
+		            SELECT 
+		            ""Id"", ""Value_Value"", ""Success"", ""TaskId"", ""UserId"", ""CreateDate"", 
+		            ROW_NUMBER() OVER (PARTITION BY ""UserId"" ORDER BY ""CreateDate"" DESC) as ""Row"" 
+		            FROM ""Solutions""
+		            WHERE ""Success"" IS TRUE
+	            ) ""Nested""
+	            WHERE ""Row"" = 1
+            ) ""Nested2"" ON ""Users"".""Id"" = ""Nested2"".""UserId""
+            ORDER BY ""CreateDate"" DESC";
+
+        var query =
+            @$"SELECT COUNT(*) FROM ({baseQuery}) ""Nested"";
+
+            SELECT * FROM ({baseQuery}) ""Nested""
+            OFFSET {(pagination.PageNumber - 1) * pagination.PageSize} ROWS FETCH NEXT {pagination.PageSize} ROWS ONLY;";
+
+        using var connection = _dapperService.CreateConnection();
+
+        var isTaskExist = await connection.QueryAsync<dynamic>(isTaskExistQuery);
+
+        if (isTaskExist.Count() == 0)
+        {
+            return NotFound("No task found");
+        }
+
+        var isTaskSolved = await connection.QueryAsync<dynamic>(isTaskSolvedQuery);
+
+        if (isTaskSolved.Count() == 0)
+        {
+            return Forbid();
+        }
+
+        var multi = await connection.QueryMultipleAsync(query);
+        var totalRowCount = multi.Read<long>().Single();
+        var gridDataRows = multi.Read<dynamic>().Select(MapToSolutionAppemptWithUserInfoResponse).ToList();
+
+        return Ok(new PaginationResult<SolutionAppemptWithUserInfoResponse>(gridDataRows, totalRowCount, pagination.PageNumber, pagination.PageSize));
+    }
+
+    private SolutionAppemptWithUserInfoResponse MapToSolutionAppemptWithUserInfoResponse(dynamic obj)
+    {
+        return new SolutionAppemptWithUserInfoResponse()
+        {
+            Id = obj.Id,
+            Code = obj.Value_Value,
+            CreateDate = obj.CreateDate,
+            Success = obj.Success,
+            User = new UserResponse
+            {
+                Id = obj.UserId,
+                Firstname = obj.Profile_Firstname,
+                Lastname = obj.Profile_Lastname,
+            }
         };
     }
 
