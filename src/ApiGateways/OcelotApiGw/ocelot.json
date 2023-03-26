@@ -53,7 +53,7 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/{version}/Tasks/{everything}",
+      "DownstreamPathTemplate": "/api/{version}/CodeChallenge/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -61,23 +61,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/api/{version}/t/Tasks/{everything}",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "IdentityApiKey",
-        "AllowedScopes": []
-      }
-    },
-    {
-      "DownstreamPathTemplate": "/api/{version}/Solutions/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "testing-api",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/api/{version}/t/Solutions/{everything}",
+      "UpstreamPathTemplate": "/api/{version}/t/CodeChallenge/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "IdentityApiKey",

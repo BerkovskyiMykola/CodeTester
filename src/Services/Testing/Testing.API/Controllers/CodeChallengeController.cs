@@ -1,13 +1,19 @@
 ﻿using Common.Models.Pagination;
 using Dapper;
+using MassTransit.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Testing.API.DTOs.Base;
 using Testing.API.DTOs.Query;
 using Testing.API.DTOs.Solutions;
 using Testing.API.DTOs.Tasks;
 using Testing.API.DTOs.Users;
 using Testing.API.Infrastructure.Services;
+using Testing.API.Infrastructure.Services.ExecutionCompiler;
+using Testing.API.Infrastructure.Services.ExecutionGenerator;
+using Testing.Core.Domain.AggregatesModel.SolutionAggregate;
+using Testing.Core.Domain.Repositories;
 
 namespace Testing.API.Controllers;
 
@@ -18,13 +24,28 @@ public class CodeChallengeController : ControllerBase
 {
     private readonly IIdentityService _identityService;
     private readonly IDapperService _dapperService;
+    private readonly ITaskRepository _taskRepository;
+    private readonly ISolutionRepository _solutionRepository;
+    private readonly IExecutionGenerator _executionGenerator;
+    private readonly IExecutionCompiler _executionCompiler;
+    private readonly ApiBehaviorOptions _apiBehaviorOptions;
 
     public CodeChallengeController(
         IIdentityService identityService,
-        IDapperService dapperService)
+        IDapperService dapperService,
+        ITaskRepository taskRepository,
+        ISolutionRepository solutionRepository,
+        IExecutionGenerator executionGenerator,
+        IExecutionCompiler executionCompiler,
+        IOptions<ApiBehaviorOptions> apiBehaviorOptions)
     {
         _identityService = identityService;
         _dapperService = dapperService;
+        _taskRepository = taskRepository;
+        _solutionRepository = solutionRepository;
+        _executionGenerator = executionGenerator;
+        _executionCompiler = executionCompiler;
+        _apiBehaviorOptions = apiBehaviorOptions.Value;
     }
 
     #region GET /tasks
@@ -378,6 +399,56 @@ public class CodeChallengeController : ControllerBase
                 Lastname = obj.Profile_Lastname,
             }
         };
+    }
+
+    #endregion
+
+    #region GET /tasks/{id}/solution-attempt/run
+
+    [HttpPost("tasks/{id}/solution-attempt/run")]
+    public async Task<IActionResult> PostSolutionOfTaskAsync(
+        Guid id, 
+        SolutionCodeRequest request)
+    {
+        var userId = _identityService.GetUserIdentity();
+
+        if (userId == null)
+        {
+            return NotFound("No user found");
+        }
+
+        var task = await _taskRepository.FindByIdAsync(id);
+
+        if (task == null)
+        {
+            return NotFound("No task found");
+        }
+
+        var solutionValue = SolutionValue.Create(request.Code);
+        if (solutionValue.IsFailure)
+        {
+            ModelState.AddModelError("Code", solutionValue.Error);
+            return _apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+        var code = task.ExecutionCondition.ExecutionTemplate.Replace("{code}", request.Code);
+
+        var execution = _executionGenerator.CreateExecution(code, (int)task.ExecutionCondition.TimeLimit.TotalMilliseconds, task.ProgrammingLanguage.Name);
+
+        var result = await _executionCompiler.Execute(execution);
+
+        var solution = new Solution(Guid.NewGuid(), id, Guid.Parse(userId), solutionValue.Value!, result.Success);
+
+        _solutionRepository.Add(solution);
+
+        await _solutionRepository.UnitOfWork.SaveChangesAsync();
+
+        return Ok(new SolutionAttemptResultResponse
+        {
+            Id = solution.Id,
+            Success = result.Success,
+            Message = result.Success ? result.Value! : result.Error,
+        });
     }
 
     #endregion
