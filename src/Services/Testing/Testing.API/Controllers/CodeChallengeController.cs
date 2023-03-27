@@ -349,7 +349,7 @@ public class CodeChallengeController : ControllerBase
 		            ""Id"", ""Value_Value"", ""Success"", ""TaskId"", ""UserId"", ""CreateDate"", 
 		            ROW_NUMBER() OVER (PARTITION BY ""UserId"" ORDER BY ""CreateDate"" DESC) as ""Row"" 
 		            FROM ""Solutions""
-		            WHERE ""Success"" IS TRUE
+		            WHERE ""Success"" IS TRUE AND ""TaskId"" = '{id}'
 	            ) ""Nested""
 	            WHERE ""Row"" = 1
             ) ""Nested2"" ON ""Users"".""Id"" = ""Nested2"".""UserId""
