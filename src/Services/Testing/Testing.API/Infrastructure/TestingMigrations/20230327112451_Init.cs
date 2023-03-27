@@ -42,8 +42,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProfileLastname = table.Column<string>(name: "Profile_Lastname", type: "text", nullable: false),
-                    ProfileFirstname = table.Column<string>(name: "Profile_Firstname", type: "text", nullable: false)
+                    ProfileFullname = table.Column<string>(name: "Profile_Fullname", type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,6 +56,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ValueValue = table.Column<string>(name: "Value_Value", type: "text", nullable: false),
                     Success = table.Column<bool>(type: "boolean", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TaskId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },

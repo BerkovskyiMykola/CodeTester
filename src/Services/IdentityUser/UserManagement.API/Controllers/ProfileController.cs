@@ -50,8 +50,7 @@ public class ProfileController : ControllerBase
 
         return new ProfileFullnameResponse
         {
-            LastName = user.LastName,
-            FirstName = user.FirstName,
+            Fullname = user.Fullname
         };
     }
 
@@ -66,8 +65,7 @@ public class ProfileController : ControllerBase
             return NotFound("No user found");
         }
 
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
+        user.Fullname = request.Fullname;
 
         var result = await _userManager.UpdateAsync(user);
 
@@ -79,8 +77,8 @@ public class ProfileController : ControllerBase
 
         await _publishEndpoint.Publish(new UserProfileUpdatedIntegrationEvent(
             Guid.Parse(userId),
-            user.FirstName,
-            user.LastName));
+            user.Fullname));
+
         return NoContent();
     }
 

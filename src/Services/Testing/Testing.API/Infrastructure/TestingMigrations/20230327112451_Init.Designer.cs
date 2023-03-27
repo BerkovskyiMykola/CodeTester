@@ -12,7 +12,7 @@ using Testing.Infrastructure.Persistence;
 namespace Testing.API.Infrastructure.TestingMigrations
 {
     [DbContext(typeof(TestingContext))]
-    [Migration("20230320142928_Init")]
+    [Migration("20230327112451_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -30,6 +30,9 @@ namespace Testing.API.Infrastructure.TestingMigrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Success")
                         .HasColumnType("boolean");
@@ -283,11 +286,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Firstname")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Lastname")
+                            b1.Property<string>("Fullname")
                                 .IsRequired()
                                 .HasColumnType("text");
 

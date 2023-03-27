@@ -3,16 +3,13 @@
 public record UserProfileCreatedIntegrationEvent : IntegrationEvent
 {
     public Guid UserId { get; private init; }
-    public string Firstname { get; private init; }
-    public string Lastname { get; private init; }
+    public string Fullname { get; private init; }
 
     public UserProfileCreatedIntegrationEvent(
         Guid userId,
-        string firstname,
-        string lastname)
+        string fullname)
     {
         UserId = userId;
-        Firstname = firstname;
-        Lastname = lastname;
+        Fullname = fullname;
     }
 }

@@ -50,8 +50,7 @@ public class AccountController : ControllerBase
 
         var user = new ApplicationUser
         {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            Fullname = request.Fullname,
             UserName = request.Email,
             Email = request.Email
         };
@@ -71,12 +70,11 @@ public class AccountController : ControllerBase
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        await SendConfirmEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", user.Id, token);
+        await SendConfirmEmailAsync(user.Email, $"{user.Fullname}", user.Id, token);
 
         await _publishEndpoint.Publish(new UserProfileCreatedIntegrationEvent(
             Guid.Parse(user.Id),
-            user.FirstName,
-            user.LastName));
+            user.Fullname));
 
         return Ok("Registration successful, please check your email for verification instructions");
     }
@@ -92,7 +90,7 @@ public class AccountController : ControllerBase
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        await SendConfirmEmailAsync(user.Email!, $"{user.FirstName} {user.LastName}", user.Id, token);
+        await SendConfirmEmailAsync(user.Email!, $"{user.Fullname}", user.Id, token);
 
         return Ok("Please check your email for verification instructions");
     }
@@ -128,7 +126,7 @@ public class AccountController : ControllerBase
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        await SendResetPasswordEmailAsync(user.Email!, $"{user.FirstName} {user.LastName}", token);
+        await SendResetPasswordEmailAsync(user.Email!, $"{user.Fullname}", token);
 
         return Ok("Please check your email for password reset instructions");
     }

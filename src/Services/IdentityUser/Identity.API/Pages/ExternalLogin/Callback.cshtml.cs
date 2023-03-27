@@ -137,14 +137,7 @@ public class Callback : PageModel
         var lastname = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
                    claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
 
-        if (firstname != null)
-        {
-            user.FirstName = firstname;
-        }
-        if (lastname != null)
-        {
-            user.LastName = lastname;
-        }
+        user.Fullname = $"{firstname} {lastname}";
 
         var identityResult = await _userManager.CreateAsync(user);
         if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
@@ -157,8 +150,7 @@ public class Callback : PageModel
 
         await _publishEndpoint.Publish(new UserProfileCreatedIntegrationEvent(
             Guid.Parse(user.Id),
-            user.FirstName,
-            user.LastName));
+            user.Fullname));
 
         return user;
     }

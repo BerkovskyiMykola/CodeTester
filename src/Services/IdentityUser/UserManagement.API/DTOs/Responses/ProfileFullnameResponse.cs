@@ -2,6 +2,5 @@
 
 public class ProfileFullnameResponse
 {
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
+    public string Fullname { get; set; } = string.Empty;
 }

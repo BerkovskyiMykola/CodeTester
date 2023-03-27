@@ -3,6 +3,5 @@
 public class UserResponse
 {
     public Guid Id { get; set; }
-    public string Lastname { get; set; } = string.Empty;
-    public string Firstname { get; set; } = string.Empty;
+    public string Fullname { get; set; } = string.Empty;
 }

@@ -5,12 +5,8 @@ namespace UserManagement.API.DTOs.Requests;
 public record RegisterUserRequest
 {
     [Required]
-    [StringLength(50, MinimumLength = 2)]
-    public string FirstName { get; init; } = string.Empty;
-
-    [Required]
-    [StringLength(50, MinimumLength = 2)]
-    public string LastName { get; init; } = string.Empty;
+    [StringLength(128)]
+    public string Fullname { get; init; } = string.Empty;
 
     [Required]
     [EmailAddress]

@@ -29,8 +29,7 @@ public class UserProfileUpdatedConsumer : IConsumer<UserProfileUpdatedIntegratio
                 context.Message);
 
             var createUserProfileResult = UserProfile.Create(
-                context.Message.Lastname,
-                context.Message.Firstname);
+                context.Message.Fullname);
 
             if (!createUserProfileResult.Success)
             {

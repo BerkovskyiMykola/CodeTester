@@ -30,8 +30,7 @@ public class ApplicationContextSeed
                     UserName = "tester@email.com",
                     Email = "tester@email.com",
                     EmailConfirmed = true,
-                    FirstName = "Test",
-                    LastName = "Test",
+                    Fullname = "Test Test"
                 };
 
                 await userManager.CreateAsync(user, "Password@1");

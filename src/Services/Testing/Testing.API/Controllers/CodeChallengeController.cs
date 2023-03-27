@@ -342,7 +342,7 @@ public class CodeChallengeController : ControllerBase
             FETCH FIRST 1 ROWS ONLY;";
 
         var baseQuery =
-            $@"SELECT ""Nested2"".""Id"", ""Value_Value"", ""Success"", ""CreateDate"", ""UserId"", ""Profile_Lastname"", ""Profile_Firstname"" FROM ""Users""
+            $@"SELECT ""Nested2"".""Id"", ""Value_Value"", ""Success"", ""CreateDate"", ""UserId"", ""Profile_Fullname"" FROM ""Users""
             INNER JOIN (
 	            SELECT * FROM (
 		            SELECT 
@@ -395,8 +395,7 @@ public class CodeChallengeController : ControllerBase
             User = new UserResponse
             {
                 Id = obj.UserId,
-                Firstname = obj.Profile_Firstname,
-                Lastname = obj.Profile_Lastname,
+                Fullname = obj.Profile_Fullname
             }
         };
     }

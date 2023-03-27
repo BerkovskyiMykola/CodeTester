@@ -283,11 +283,7 @@ namespace Testing.API.Infrastructure.TestingMigrations
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Firstname")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Lastname")
+                            b1.Property<string>("Fullname")
                                 .IsRequired()
                                 .HasColumnType("text");
 
