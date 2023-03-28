@@ -55,4 +55,8 @@
     <Content Include="wwwroot\TestTemplates\CSharp\Program.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\TestTemplates\FSharp\Program.fsproj" />
+  </ItemGroup>
+
 </Project>

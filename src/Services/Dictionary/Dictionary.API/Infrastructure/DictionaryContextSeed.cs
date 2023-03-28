@@ -29,7 +29,10 @@ public class DictionaryContextSeed
                 context.ProgrammingLanguages.AddRange(
                     new ProgrammingLanguage("CSharp"),
                     new ProgrammingLanguage("Python"),
-                    new ProgrammingLanguage("JavaScript")
+                    new ProgrammingLanguage("JavaScript"),
+                    new ProgrammingLanguage("FSharp"),
+                    new ProgrammingLanguage("Java"),
+                    new ProgrammingLanguage("Golang")
                 );
 
                 await context.SaveChangesAsync();
