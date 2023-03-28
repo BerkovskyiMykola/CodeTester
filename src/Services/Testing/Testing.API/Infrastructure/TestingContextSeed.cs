@@ -95,6 +95,42 @@ public class TestingContextSeed
                                 SolutionTemplate.Create("function alphabetPosition(text) {\r\n  return text;\r\n}").Value!,
                                 ExecutionCondition.Create("{code}\r\n\r\nif(alphabetPosition(\"The sunset sets at twelve o' clock.\") != \"20 8 5 19 21 14 19 5 20 19 5 20 19 1 20 20 23 5 12 22 5 15 3 12 15 3 11\"){\r\n    throw new Exception(\"Wrong\")\r\n}\r\n\r\nif(alphabetPosition(\"The narwhal bacons at midnight.\") != \"20 8 5 14 1 18 23 8 1 12 2 1 3 15 14 19 1 20 13 9 4 14 9 7 8 20\"){\r\n    throw new Exception(\"Wrong\")\r\n}", TimeSpan.FromSeconds(3)).Value!
                             ),
+                            new(
+                                Guid.NewGuid(),
+                                Title.Create("Convert string to camel case").Value!,
+                                Description.Create(
+                                    "Complete the method/function so that it converts dash/underscore delimited words into camel casing. The first word within the output should be capitalized only if the original word was capitalized (known as Upper Camel Case, also often referred to as Pascal case). The next words should be always capitalized.",
+                                    "\"the-stealth-warrior\" gets converted to \"theStealthWarrior\"\r\n\r\n\"The_Stealth_Warrior\" gets converted to \"TheStealthWarrior\"\r\n\r\n\"The_Stealth-Warrior\" gets converted to \"TheStealthWarrior\"").Value!,
+                                Difficulty.Create(1, "Easy").Value!,
+                                DomainType.Create(1, "For beginners").Value!,
+                                ProgrammingLanguage.Create(4, "FSharp").Value!,
+                                SolutionTemplate.Create("let toCamelCase (text : string) =\r\n  // your code here").Value!,
+                                ExecutionCondition.Create("{code}\r\n\r\nif (toCamelCase \"\" <> \"\") then raise (System.Exception(\"Wrong\"))\r\n\r\nif (toCamelCase \"the_stealth_warrior\" <> \"theStealthWarrior\") then raise (System.Exception(\"Wrong\"))\r\n\r\nif (toCamelCase \"The-Stealth-Warrior\" <> \"TheStealthWarrior\") then raise (System.Exception(\"Wrong\"))\r\n\r\nif (toCamelCase \"A-B-C\" <> \"ABC\") then raise (System.Exception(\"Wrong\"))", TimeSpan.FromSeconds(3)).Value!
+                            ),
+                            new(
+                                Guid.NewGuid(),
+                                Title.Create("Valid Parentheses").Value!,
+                                Description.Create(
+                                    "Write a function that takes a string of parentheses, and determines if the order of the parentheses is valid. The function should return true if the string is valid, and false if it's invalid.",
+                                    "\"()\"              =>  true\r\n\")(()))\"          =>  false\r\n\"(\"               =>  false\r\n\"(())((()())())\"  =>  true").Value!,
+                                Difficulty.Create(1, "Easy").Value!,
+                                DomainType.Create(1, "For beginners").Value!,
+                                ProgrammingLanguage.Create(5, "Java").Value!,
+                                SolutionTemplate.Create("public static boolean validParentheses(String parens)\r\n{\r\n  //Put code below\r\n}").Value!,
+                                ExecutionCondition.Create("public class Program {\r\n    \r\n    {code}\r\n\r\n    public static void main(String args[]) throws Exception {\r\n        \r\n        if(validParentheses(\"()\") != true){\r\n           throw new Exception(\"Wrong\"); \r\n        }\r\n        if(validParentheses(\"())\") != false){\r\n           throw new Exception(\"Wrong\"); \r\n        }\r\n        if(validParentheses(\"32423(sgsdg)\") != true){\r\n           throw new Exception(\"Wrong\"); \r\n        }\r\n        if(validParentheses(\"(dsgdsg))2432\") != false){\r\n           throw new Exception(\"Wrong\"); \r\n        }\r\n        if(validParentheses(\"adasdasfa\") != true){\r\n           throw new Exception(\"Wrong\"); \r\n        }\r\n    }\r\n}", TimeSpan.FromSeconds(3)).Value!
+                            ),
+                            new(
+                                Guid.NewGuid(),
+                                Title.Create("Valid Braces").Value!,
+                                Description.Create(
+                                    "Write a function that takes a string of braces, and determines if the order of the braces is valid. It should return true if the string is valid, and false if it's invalid.\r\n\r\nThis Kata is similar to the Valid Parentheses Kata, but introduces new characters: brackets [], and curly braces {}. Thanks to @arnedag for the idea!\r\n\r\nAll input strings will be nonempty, and will only consist of parentheses, brackets and curly braces: ()[]{}.\r\n\r\nWhat is considered Valid?\r\nA string of braces is considered valid if all braces are matched with the correct brace.",
+                                    "\"(){}[]\"   =>  True\r\n\"([{}])\"   =>  True\r\n\"(}\"       =>  False\r\n\"[(])\"     =>  False\r\n\"[({})](]\" =>  False").Value!,
+                                Difficulty.Create(1, "Easy").Value!,
+                                DomainType.Create(1, "For beginners").Value!,
+                                ProgrammingLanguage.Create(6, "Golang").Value!,
+                                SolutionTemplate.Create("func ValidBraces(str string) bool {\r\n\r\n  return false\r\n}").Value!,
+                                ExecutionCondition.Create("package main\r\n\r\nimport (\r\n\t\"errors\"\r\n\t\"fmt\"\r\n)\r\n\r\n{code}\r\n\r\nfunc main() {\r\n    if ValidBraces(\"(){}[]\") != true {\r\n        fmt.Println(errors.New(\"Wrong\"))\r\n    }\r\n    if ValidBraces(\"([{}])\") != true {\r\n        fmt.Println(errors.New(\"Wrong\"))\r\n    }\r\n    if ValidBraces(\"(}\") != false {\r\n        fmt.Println(errors.New(\"Wrong\"))\r\n    }\r\n    if ValidBraces(\"[({)](]\") != false {\r\n        fmt.Println(errors.New(\"Wrong\"))\r\n    }\r\n}", TimeSpan.FromSeconds(3)).Value!
+                            )
                         }
                     );
 
