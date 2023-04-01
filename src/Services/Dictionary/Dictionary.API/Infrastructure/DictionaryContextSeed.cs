@@ -41,8 +41,10 @@ public class DictionaryContextSeed
             if (!context.TaskTypes.Any())
             {
                 context.TaskTypes.AddRange(
-                    new TaskType("For beginners"),
-                    new TaskType("Not for beginners")
+                    new TaskType("String"),
+                    new TaskType("Math"),
+                    new TaskType("Sorting"),
+                    new TaskType("Array")
                 );
 
                 await context.SaveChangesAsync();
