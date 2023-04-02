@@ -54,7 +54,7 @@ public class TestingContextSeed
                                     "Move the first letter of each word to the end of it, then add \"ay\" to the end of the word. Leave punctuation marks untouched.",
                                     "pigIt('Pig latin is cool'); // igPay atinlay siay oolcay\r\npigIt('Hello world !');     // elloHay orldway !").Value!,
                                 Difficulty.Create(2, "Medium").Value!,
-                                DomainType.Create(2, "String").Value!,
+                                DomainType.Create(1, "String").Value!,
                                 ProgrammingLanguage.Create(3, "JavaScript").Value!,
                                 SolutionTemplate.Create("function pigIt(str){\r\n  //Code here\r\n}").Value!,
                                 ExecutionCondition.Create("{code}\r\n\r\nif(pigIt('Pig latin is cool') != 'igPay atinlay siay oolcay'){\r\n    throw new Error('Wrong');\r\n}\r\n\r\nif(pigIt('This is my string') != 'hisTay siay ymay tringsay'){\r\n    throw new Error('Wrong');\r\n}", TimeSpan.FromSeconds(3)).Value!
@@ -66,7 +66,7 @@ public class TestingContextSeed
                                     "You will be given an array of numbers. You have to sort the odd numbers in ascending order while leaving the even numbers at their original positions.",
                                     "[7, 1]  =>  [1, 7]\r\n[5, 8, 6, 3, 4]  =>  [3, 8, 6, 5, 4]\r\n[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]  =>  [1, 8, 3, 6, 5, 4, 7, 2, 9, 0]").Value!,
                                 Difficulty.Create(2, "Medium").Value!,
-                                DomainType.Create(1, "Sorting").Value!,
+                                DomainType.Create(3, "Sorting").Value!,
                                 ProgrammingLanguage.Create(1, "CSharp").Value!,
                                 SolutionTemplate.Create("public static int[] SortArray(int[] array)\r\n{\r\n  return array;\r\n}").Value!,
                                 ExecutionCondition.Create("namespace Test\r\n{\r\n    internal class Program\r\n    {\r\n        {code}\r\n\r\n        static void Main(string[] args)\r\n        {\r\n            if (!Enumerable.SequenceEqual(SortArray(new int[] { 5, 3, 2, 8, 1, 4 }), new int[] { 1, 3, 2, 8, 5, 4 }))\r\n            {\r\n                throw new Exception(\"Wrong\");\r\n            }\r\n\r\n            if (!Enumerable.SequenceEqual(SortArray(new int[] { 5, 3, 1, 8, 0 }), new int[] { 1, 3, 5, 8, 0 }))\r\n            {\r\n                throw new Exception(\"Wrong\");\r\n            }\r\n\r\n            if (!Enumerable.SequenceEqual(SortArray(new int[] { }), new int[] { }))\r\n            {\r\n                throw new Exception(\"Wrong\");\r\n            }\r\n        }\r\n    }\r\n}", TimeSpan.FromSeconds(3)).Value!
@@ -78,7 +78,7 @@ public class TestingContextSeed
                                     "For this exercise you will be strengthening your page-fu mastery. You will complete the PaginationHelper class, which is a utility class helpful for querying paging information related to an array.\r\n\r\nThe class is designed to take in an array of values and an integer indicating how many items will be allowed per each page. The types of values contained within the collection/array are not relevant.",
                                     "helper = PaginationHelper(['a','b','c','d','e','f'], 4)\r\nhelper.page_count() # should == 2\r\nhelper.item_count() # should == 6\r\nhelper.page_item_count(0)  # should == 4\r\nhelper.page_item_count(1) # last page - should == 2\r\nhelper.page_item_count(2) # should == -1 since the page is invalid\r\n\r\n# page_index takes an item index and returns the page that it belongs on\r\nhelper.page_index(5) # should == 1 (zero based index)\r\nhelper.page_index(2) # should == 0\r\nhelper.page_index(20) # should == -1\r\nhelper.page_index(-10) # should == -1 because negative indexes are invalid").Value!,
                                 Difficulty.Create(3, "Hard").Value!,
-                                DomainType.Create(2, "Array").Value!,
+                                DomainType.Create(4, "Array").Value!,
                                 ProgrammingLanguage.Create(2, "Python").Value!,
                                 SolutionTemplate.Create("# TODO: complete this class\r\n\r\nclass PaginationHelper:\r\n\r\n    # The constructor takes in an array of items and a integer indicating\r\n    # how many items fit within a single page\r\n    def __init__(self, collection, items_per_page):\r\n        pass\r\n\r\n    # returns the number of items within the entire collection\r\n    def item_count(self):\r\n        pass\r\n\r\n    # returns the number of pages\r\n    def page_count(self):\r\n        pass\r\n\r\n    # returns the number of items on the current page. page_index is zero based\r\n    # this method should return -1 for page_index values that are out of range\r\n    def page_item_count(self, page_index):\r\n        pass").Value!,
                                 ExecutionCondition.Create("{code}\r\n      \r\n# -----------------------\r\n      \r\ncollection = range(1,25)\r\nhelper = PaginationHelper(collection, 10)\r\n\r\nif helper.page_count() != 3:\r\n    raise Exception('page_count is returning incorrect value')\r\n    \r\nif helper.page_index(23) != 2:\r\n    raise Exception('page_index returned incorrect value')\r\n    \r\nif helper.item_count() != 24:\r\n    raise Exception('item_count returned incorrect value')", TimeSpan.FromSeconds(3)).Value!
@@ -90,7 +90,7 @@ public class TestingContextSeed
                                     "Welcome.\r\n\r\nIn this task you are required to, given a string, replace every letter with its position in the alphabet.\r\n\r\nIf anything in the text isn't a letter, ignore it and don't return it.\r\n\r\n\"a\" = 1, \"b\" = 2, etc.",
                                     "alphabetPosition(\"The sunset sets at twelve o' clock.\")\r\nShould return \"20 8 5 19 21 14 19 5 20 19 5 20 19 1 20 20 23 5 12 22 5 15 3 12 15 3 11\" ( as a string )").Value!,
                                 Difficulty.Create(2, "Medium").Value!,
-                                DomainType.Create(2, "String").Value!,
+                                DomainType.Create(1, "String").Value!,
                                 ProgrammingLanguage.Create(3, "JavaScript").Value!,
                                 SolutionTemplate.Create("function alphabetPosition(text) {\r\n  return text;\r\n}").Value!,
                                 ExecutionCondition.Create("{code}\r\n\r\nif(alphabetPosition(\"The sunset sets at twelve o' clock.\") != \"20 8 5 19 21 14 19 5 20 19 5 20 19 1 20 20 23 5 12 22 5 15 3 12 15 3 11\"){\r\n    throw new Exception(\"Wrong\")\r\n}\r\n\r\nif(alphabetPosition(\"The narwhal bacons at midnight.\") != \"20 8 5 14 1 18 23 8 1 12 2 1 3 15 14 19 1 20 13 9 4 14 9 7 8 20\"){\r\n    throw new Exception(\"Wrong\")\r\n}", TimeSpan.FromSeconds(3)).Value!
