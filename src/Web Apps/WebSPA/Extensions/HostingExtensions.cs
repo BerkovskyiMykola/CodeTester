@@ -1,11 +1,9 @@
-﻿using Duende.Bff.Yarp;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace WebSPA.Extensions;
 
@@ -17,10 +15,8 @@ public static class HostingExtensions
 
         builder.Services
             .AddCustomHealthCheck(configuration)
-            .AddCustomAuthorization(configuration)
-            .AddCustomAuthentication(configuration)
-            .AddBff()
-            .AddRemoteApis();
+            .AddCustomMvc(configuration)
+            .AddCustomSpaStaticFiles(configuration);
 
         return builder.Build();
     }
@@ -34,24 +30,34 @@ public static class HostingExtensions
             app.UseDeveloperExceptionPage();
         }
 
+        var antiForgery = app.Services.GetRequiredService<IAntiforgery>();
+        app.Use(next => context =>
+        {
+            string path = context.Request.Path.Value!;
+
+            if (string.Equals(path, "/", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(path, "/index.html", StringComparison.OrdinalIgnoreCase))
+            {
+                // The request token has to be sent as a JavaScript-readable cookie, 
+                // and Angular uses it by default.
+                var tokens = antiForgery.GetAndStoreTokens(context);
+                context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!,
+                    new CookieOptions() { HttpOnly = false });
+            }
+
+            return next(context);
+        });
+
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
+        // This will make the application to respond with the index.html and the rest of the assets present on the configured folder (at AddSpaStaticFiles() (wwwroot))
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseSpaStaticFiles();
+        }
+
         app.UseRouting();
-
-        app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
-
-        app.UseAuthentication();
-
-        app.UseBff();
-
-        app.UseAuthorization();
-
-        app.MapBffManagementEndpoints();
-
-        app.MapGet("/local/identity", LocalIdentityHandler).AsBffApiEndpoint();
-
-        app.MapRemoteBffApiEndpoint("/remote", configuration["Ocelotapigw"]!).RequireAccessToken(Duende.Bff.TokenType.User);
 
         app.MapHealthChecks("/hc", new HealthCheckOptions()
         {
@@ -63,30 +69,18 @@ public static class HostingExtensions
             Predicate = r => r.Name.Contains("self")
         });
 
-        // DEV ONLY
-        // e.g. Replace internal to external identity adress
-        app.Use(async (httpcontext, next) =>
+        app.UseSpa(spa =>
         {
-            await next();
-            if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
-            {
-                var containerHost = configuration["IdentityUrl"]!;
-                var authority = configuration["IdentityUrlExternal"]!;
+            spa.Options.SourcePath = "ClientApp";
 
-                string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location]!;
-                httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
-                        location.Replace(containerHost, authority);
+            if (app.Environment.IsDevelopment())
+            {
+                // use the SpaServices extension method for angular, that will make the application to run "ng serve" for us, when in development.
+                spa.UseAngularCliServer(npmScript: "start");
             }
         });
 
         return app;
-    }
-
-    [Authorize]
-    private static IResult LocalIdentityHandler(ClaimsPrincipal user, HttpContext context)
-    {
-        var name = user.FindFirst("name")?.Value ?? user.FindFirst("sub")?.Value;
-        return Results.Json(new { message = "Local API Success!", user = name });
     }
 
     private static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
@@ -100,41 +94,26 @@ public static class HostingExtensions
         return services;
     }
 
-    private static IServiceCollection AddCustomAuthorization(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomMvc(this IServiceCollection services, IConfiguration configuration)
     {
-        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-        services.AddAuthorization();
+        services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+
+        services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            });
 
         return services;
     }
 
-    private static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddCustomSpaStaticFiles(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddAuthentication(options =>
-            {
-                options.DefaultScheme = "Cookies";
-                options.DefaultChallengeScheme = "oidc";
-                options.DefaultSignOutScheme = "oidc";
-            })
-            .AddCookie("Cookies")
-            .AddOpenIdConnect("oidc", options =>
-            {
-                options.SignInScheme = "Cookies";
-                options.Authority = configuration["IdentityUrl"];
-                options.RequireHttpsMetadata = false;
-                options.ClientId = "bff";
-                options.ClientSecret = "secret";
-                options.ResponseType = "code";
-                options.Scope.Add("roles");
-                options.Scope.Add("usermanagement");
-                options.Scope.Add("dictionary");
-
-                options.ClaimActions.MapJsonKey("role", "role");
-
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-            });
+        // In production, the Angular files will be served from this directory
+        services.AddSpaStaticFiles(configuration =>
+        {
+            configuration.RootPath = "ClientApp/dist/aspnetcorespa";
+        });
 
         return services;
     }

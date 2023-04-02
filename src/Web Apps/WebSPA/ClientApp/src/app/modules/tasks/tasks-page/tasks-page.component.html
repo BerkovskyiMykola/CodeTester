@@ -1,0 +1,135 @@
+<div class="container">
+  <div class="row justify-content-center mb-2">
+    <div class="d-flex justify-content-center">
+      <form [formGroup]="filterForm" class="col-md-6 d-flex align-items-center" (submit)="updatePageNumberAndView(1)">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Find task by name" formControlName="search">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+      <button
+        class="btn btn-secondary ms-2"
+        (click)="isFilterBlockShown = !isFilterBlockShown"
+      >{{ isFilterBlockShown? "Hide":"Show" }} extra filters</button>
+      <button
+        class="btn btn-outline-secondary ms-2"
+        (click)="clearFilters()"
+      >
+        Clear Filters
+      </button>
+    </div>
+
+    <div *ngIf="isFilterBlockShown">
+      <form [formGroup]="filterForm"
+            class="form-control d-flex justify-content-around
+            mt-3 border border-3 border-secondary rounded-3 ps-4 pe-4 p-2">
+        <div class="col-md-3 col-sm-5">
+          <label class="mb-1">Difficulty level</label>
+          <select formControlName="difficultyId" class="form-select" (change)="updateTasksList()">
+            <option [ngValue]="null">Any</option>
+            <option *ngFor="let difficulty of difficulties"
+                    value="{{difficulty.id}}">{{difficulty.name}}</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 col-sm-5 ms-2 me-2">
+          <label class="mb-1">Programming language</label>
+          <select formControlName="programmingLanguageId" class="form-select" (change)="updateTasksList()">
+            <option [ngValue]="null">Any</option>
+            <option *ngFor="let programmingLanguage of programmingLanguages"
+                    value="{{programmingLanguage.id}}">{{programmingLanguage.name}}</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 col-sm-5 ms-2 me-2">
+          <label class="mb-1">Type of the task</label>
+          <select formControlName="difficultyId" class="form-select" (change)="updateTasksList()">
+            <option [ngValue]="null">Any</option>
+            <option *ngFor="let taskType of taskTypes"
+                    value="{{taskType.id}}">{{taskType.name}}</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 col-sm-5">
+          <label class="mb-1">Completed by me</label>
+          <select formControlName="isCompleted" class="form-select" (change)="updateTasksList()">
+            <option [ngValue]="null">Any</option>
+            <option value="true">Completed</option>
+            <option value="false">Not completed</option>
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <!-- message alerts -->
+    <div class="alert mb-0 alert-danger col-md-10 mt-3 text-center border-danger" *ngIf="isError">
+      <h4>{{ errorMessage }}</h4>
+    </div>
+
+    <div class="alert mb-0 alert-info col-md-10 mt-3 text-center border-info" *ngIf="isLoading">
+      <h4>Loading...</h4>
+    </div>
+
+    <div class="alert alert-info text-center mt-4" *ngIf="isEmptyResult">
+      <h4>There are no tasks matching these filters. Check the filters and search again!</h4>
+    </div>
+    <!-- message alerts -->
+
+    <div *ngIf="!isEmptyResult">
+      <div class="border border-4 border-secondary rounded-3 mt-3 mb-2 p-1" *ngFor="let task of tasksViewModel.rows">
+        <app-task-card [taskInfo]="task"></app-task-card>
+      </div>
+    </div>
+
+    <!-- pagination -->
+    <div class="mt-2 d-flex justify-content-start row" *ngIf="!isEmptyResult && !isError">
+      <div class="col-lg-3 col-md-1"></div>
+      <div class="col-lg-6 col-md-10 d-flex justify-content-center">
+        <nav aria-label="Page navigation" class="">
+          <ul class="pagination border border-2 rounded-3 border-secondary cursor-pointer">
+            <li class="page-item" *ngIf="tasksViewModel.hasPrevious">
+              <a class="page-link" aria-label="Previous"
+                 (click)="updatePageNumberAndView((filterForm.value.pageNumber ?? 2) - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li class="page-item" *ngFor="let pageNumber of getPaginationBackRange()">
+              <a class="page-link" (click)="updatePageNumberAndView(pageNumber)">
+                {{ pageNumber }}
+              </a>
+            </li>
+
+            <li class="page-item">
+              <a class="page-link current-page text-black">
+                {{tasksViewModel.currentPage}}
+              </a>
+            </li>
+
+            <li class="page-item" *ngFor="let pageNumber of getPaginationFrontRange()">
+              <a class="page-link" (click)="updatePageNumberAndView(pageNumber)">
+                {{ pageNumber }}
+              </a>
+            </li>
+
+            <li class="page-item" *ngIf="tasksViewModel.hasNext">
+              <a class="page-link" aria-label="Next"
+                 (click)="updatePageNumberAndView((filterForm.value.pageNumber ?? 0) + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="col-lg-3 col-sm-12">
+        <form [formGroup] = 'filterForm' class="d-flex justify-content-end align-items-center">
+          <label class="form-label align-bottom text-end me-2">Tasks per page: </label>
+          <select formControlName="pageSize" class="form-select" style="width: fit-content" (change)="updatePageNumberAndView(1)">
+            <option *ngFor="let variant of pageCountVariants"
+                    value="{{variant}}">{{variant}}</option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

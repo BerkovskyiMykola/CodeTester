@@ -1,0 +1,97 @@
+<div class="alert alert-danger col-md-10 offset-md-1 text-center border-danger" *ngIf="isTaskError">
+  <h4>{{ taskErrorMessage }}</h4>
+</div>
+
+<div class="alert alert-info col-md-10 offset-md-1 text-center border-info" *ngIf="isTaskLoading">
+  <h4>Loading...</h4>
+</div>
+
+<div class="container-fluid d-flex flex-lg-row flex-column ps-0" *ngIf="!isTaskError && !isTaskLoading">
+  <div class="col-lg-6 col-12 border border-2 border-dark rounded-3 p-2 m-1">
+    <h4 class="ms-2 mt-2">{{taskDetails.title}}</h4>
+    <hr>
+    <div class="d-flex flex-column">
+      <span class="p-1">Difficulty: {{taskDetails.difficulty.name}}</span>
+      <span class="p-1">Task type: {{taskDetails.taskType.name}}</span>
+      <span class="p-1">Programming language: {{taskDetails.programmingLanguage.name}}</span>
+      <span class="p-1">Users completed: {{taskDetails.completedAmount}}</span>
+      <span class="p-1">Completed by me: {{taskDetails.isCompleted? "Yes" : "No"}}</span>
+    </div>
+    <hr>
+
+    <div class="p-2">
+      <p class="mb-3">
+        {{taskDetails.description.text}}
+      </p>
+
+      <div *ngIf="taskDetails.description?.examples?.length ?? 0 > 0">
+        <h5>Examples:</h5>
+        <p class="mb-3">
+          {{taskDetails.description.examples}}
+        </p>
+      </div>
+
+      <div *ngIf="taskDetails.description?.someCases?.length ?? 0 > 0">
+        <h5>Cases: </h5>
+        <p class="mb-3">
+          {{taskDetails.description.someCases}}
+        </p>
+      </div>
+
+      <div *ngIf="taskDetails.description?.note?.length ?? 0 > 0">
+        <button class="btn btn-sm btn-outline-dark" (click)="isNotesLineShown = !isNotesLineShown">
+          {{isNotesLineShown?"Hide":"Show"}} note
+        </button>
+        <p class="mb-3 mt-3 border-dark border border-1 rounded-4 p-2" *ngIf="isNotesLineShown">
+          {{taskDetails.description.note}}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 col-12 border border-2 border-dark rounded-3 p-2 m-1 d-flex flex-column">
+    <div class="mb-2 d-flex justify-content-evenly">
+      <button class="btn btn-secondary" routerLink="/tasks/{{taskDetails.id}}/attempts">
+        My attempts
+      </button>
+      <button class="btn btn-primary"
+              routerLink="/tasks/{{taskDetails.id}}/all-solutions"
+              [disabled]="!isSolved"
+      >
+        All solutions
+      </button>
+    </div>
+      <ace
+           [disabled]="false"
+           mode="{{taskDetails.programmingLanguage.name.toLowerCase()}}"
+           [theme]="'crimson_editor'"
+           [(value)]="solutionFormValue"
+
+           class="form-control flex-grow-1 editor green-editor-content"
+           [ngClass]="isEditorSuccess ? 'editor-success': isSolutionFail ? 'editor-failure': ''"
+      >
+      </ace>
+
+      <div class="alert alert-warning text-center border-danger mb-0 mt-2" *ngIf="isSolutionSendingError">
+        <h4>{{ solutionSendingErrorMessage }}</h4>
+      </div>
+
+      <div class="alert alert-info text-center border-info mb-0 mt-2" *ngIf="isSolutionSending">
+        <h4>Check in progress, please, wait...</h4>
+      </div>
+
+      <div class="alert alert-danger text-center border-danger mb-0 mt-2" *ngIf="isSolutionFail">
+        <h4>{{ solutionFailMessage }}</h4>
+      </div>
+
+      <div class="alert alert-success text-center border-success mb-0 mt-2" *ngIf="isSolutionSuccess">
+        <h4>Solution is correct!</h4>
+      </div>
+
+      <button class="btn btn-success col-md-12 mt-2" type="submit"
+        [disabled]="isSolutionSending"
+        (click)="sendSolution()">
+        Check
+      </button>
+  </div>
+</div>

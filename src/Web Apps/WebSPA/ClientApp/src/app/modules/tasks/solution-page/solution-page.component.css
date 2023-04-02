@@ -1,0 +1,19 @@
+.max-height{
+  min-height: calc(100vh - 160px)
+}
+
+.code-form{
+  min-height: 50ex;
+}
+
+.editor{
+  height: 50ex;
+}
+
+:host /deep/ .editor-success .ace_content{
+  background-color: #CCFFCC;
+}
+
+:host /deep/ .editor-failure .ace_content{
+  background-color: #fbe8e8;
+}

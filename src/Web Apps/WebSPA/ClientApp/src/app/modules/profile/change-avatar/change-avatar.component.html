@@ -1,0 +1,35 @@
+<form (submit)="submit($event)" *ngIf="!isSuccessful">
+  <div class="mb-3">
+    <input type="file" class="file-input" id="fileInput"
+           (change)="onFileSelected($event)" #fileUpload>
+
+    <div class="file-upload">
+
+      {{ file?.name || "No file uploaded yet." }}
+
+      <button class="upload-btn btn btn-outline-primary" type="button"
+              (click)="fileUpload.click()">
+        Upload
+      </button>
+    </div>
+
+
+    <p class="text-danger fw-bold" *ngIf="isRequiredValidationError">
+      File is required
+    </p>
+    <p class="text-danger fw-bold" *ngIf="isExtensionValidationError">
+      Invalid extension! Allowed extensions are {{ allowedExtensions.join(', ') }}
+    </p>
+    <p class="text-danger fw-bold" *ngIf="isSizeValidationError">
+      Invalid file size! Max file size is {{ allowedMaxSize/1024 }} MB
+    </p>
+  </div>
+
+  <div class="alert alert-warning" *ngIf="isFailed">
+    Operation failed!<br />{{ errorMessage }}
+  </div>
+  <button type="submit" class="btn btn-primary w-100 mb-1" [disabled]="!isFileValid">Change avatar</button>
+</form>
+<div class="alert alert-success text-center" *ngIf="isSuccessful">
+  Avatar successfully changed!
+</div>

@@ -1,0 +1,20 @@
+<div class="card">
+  <div class="card-header">
+    <a routerLink='/tasks/{{taskInfo.id}}' class="text-decoration-none">
+      <h4 class="card-title mb-0">{{ taskInfo.title }}</h4>
+    </a>
+  </div>
+  <div class="card-body">
+    <div class="row info-row">
+      <div class="col-sm-6">
+        <p>Difficulty: {{ taskInfo.difficulty.name }}</p>
+        <p>Task Type: {{ taskInfo.taskType.name }}</p>
+        <p>Programming Language: {{ taskInfo.programmingLanguage.name }}</p>
+      </div>
+      <div class="col-sm-6 text-end">
+        <p>Solved times: {{ taskInfo.completedAmount }}</p>
+        <p>Solved by me: {{ taskInfo.isCompleted ? "Yes" : "No" }}</p>
+      </div>
+    </div>
+  </div>
+</div>

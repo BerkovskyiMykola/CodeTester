@@ -1,0 +1,19 @@
+<form [formGroup]="form" (submit)="form.valid && submit()" *ngIf="!isSuccessful">
+  <div class="mb-3">
+    <label for="fullNameInput" class="form-label">Full name</label>
+    <input type="text" class="form-control" id="fullNameInput"
+           placeholder="Enter your first name" formControlName="fullName" appAutoFocus>
+
+    <p class="text-danger fw-bold" *ngIf="fullName.errors?.required && fullName.touched">Firstname is required</p>
+    <p class="text-danger fw-bold" *ngIf="fullName.errors?.minlength && fullName.touched">Firstname is too short</p>
+    <p class="text-danger fw-bold" *ngIf="fullName.errors?.maxlength && fullName.touched">Firstname is too long</p>
+  </div>
+
+  <div class="alert alert-warning" *ngIf="isFailed">
+    Operation failed!<br />{{ errorMessage }}
+  </div>
+  <button type="submit" class="btn btn-primary w-100 mb-1" [disabled]="form.invalid">Change full name</button>
+</form>
+<div class="alert alert-success text-center" *ngIf="isSuccessful">
+  Full name successfully changed!
+</div>

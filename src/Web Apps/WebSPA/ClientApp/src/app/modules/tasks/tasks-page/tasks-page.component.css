@@ -1,0 +1,9 @@
+.current-page {
+  background: linear-gradient(white, #c6eac6);
+  cursor: default;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  user-select: none;
+}

@@ -1,0 +1,23 @@
+.icon{
+  height: 32px;
+}
+.active-icon:hover{
+  cursor: pointer;
+}
+.user-avatar{
+  max-height: 60vh;
+}
+.user-avatar > img{
+  max-width: 100%;
+  max-height: inherit;
+  border: 5px double gray;
+  border-radius: 10px;
+}
+.icon-sized{
+  height: 50px;
+  width: 50px;
+}
+.small-avatar{
+  height: 20vh;
+  width: 20vh;
+}

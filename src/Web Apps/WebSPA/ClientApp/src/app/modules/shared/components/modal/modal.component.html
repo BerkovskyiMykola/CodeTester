@@ -1,0 +1,7 @@
+<div class="bg-dark bg-opacity-50 position-fixed top-0 bottom-0 start-0 end-0"
+  (click)="isOpen.next(false)"></div>
+
+<div class="col-md-6 offset-md-3 col-12 bg-white position-absolute rounded-3 p-3 top-0 start-0 modal-style-ext">
+  <h3 class="text-center mt-2 mb-3"> {{ title | titlecase }} </h3>
+  <ng-content></ng-content>
+</div>

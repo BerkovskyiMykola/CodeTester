@@ -1,0 +1,64 @@
+<div class="container col-md-6 offset-md-3 bg-secondary bg-opacity-10
+  rounded-4 p-3 border border-dark border-3 border-opacity-50"
+     *ngIf="!isSuccessful">
+  <h1 class="fw-bold text-primary text-center">Create account</h1>
+  <form [formGroup]="form" (submit)="form.valid && submit()">
+    <div class="mb-3">
+      <label for="fullNameInput" class="form-label">Full name</label>
+      <input type="text" class="form-control" id="fullNameInput"
+             placeholder="Enter your full name" formControlName="fullName">
+
+      <p class="text-danger fw-bold" *ngIf="fullName.errors?.required && fullName.touched">Full name is required</p>
+      <p class="text-danger fw-bold" *ngIf="fullName.errors?.minlength && fullName.touched">Full name is too short</p>
+      <p class="text-danger fw-bold" *ngIf="fullName.errors?.maxlength && fullName.touched">Full name is too long</p>
+    </div>
+
+    <div class="mb-3">
+      <label for="emailInput" class="form-label">Email address</label>
+      <input type="email" class="form-control" id="emailInput" aria-describedby="emailHelp"
+             placeholder="example@mail.com" formControlName="email">
+      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+
+      <p class="text-danger fw-bold" *ngIf="email.errors?.required && email.touched">Email is required</p>
+      <p class="text-danger fw-bold" *ngIf="email.errors?.email && email.touched">Email is invalid</p>
+    </div>
+
+    <div class="mb-3">
+      <label for="passwordInput" class="form-label">Password</label>
+      <input type="password" class="form-control" id="passwordInput"
+             placeholder="Enter your password" formControlName="password">
+
+      <p class="text-danger fw-bold" *ngIf="password.errors?.required && password.touched">
+        Password is required
+      </p>
+      <p class="text-danger fw-bold" *ngIf="password.errors?.pattern && password.touched">
+        Password is invalid or too easy
+      </p>
+    </div>
+
+    <div class="mb-3">
+      <label for="passwordConfirmInput" class="form-label">Confirm password</label>
+      <input type="password" class="form-control" id="passwordConfirmInput"
+             placeholder="Enter your password again" formControlName="confirmPassword">
+
+      <p class="text-danger fw-bold"
+         *ngIf="confirmPassword.errors?.required && password.touched && confirmPassword.touched">
+        Password confirmation is required
+      </p>
+      <p class="text-danger fw-bold"
+         *ngIf="form.errors?.passwordMismatch && password.touched && confirmPassword.touched">
+        Password and confirmation don`t match
+      </p>
+    </div>
+
+    <div class="alert alert-warning" *ngIf="isSignUpFailed">
+      Signup failed!<br />{{ errorMessage }}
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mb-1" [disabled]="form.invalid">Register</button>
+    <button class="btn btn-link w-100" [routerLink]="['/account/resend-confirm-email']">Resend confirm email</button>
+  </form>
+</div>
+<div class="alert alert-success h5 col-md-8 offset-md-2 text-center" *ngIf="isSuccessful">
+  Your registration is successful! Check your email for verification instructions!
+</div>
+
