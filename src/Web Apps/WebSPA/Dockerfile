@@ -25,6 +25,12 @@ WORKDIR /src
 COPY ["Web Apps/WebSPA/WebSPA.csproj", "Web Apps/WebSPA/"]
 COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Common.Logging/"]
 RUN dotnet restore "Web Apps/WebSPA/WebSPA.csproj"
+
+COPY ["Web Apps/WebSPA/ClientApp/package.json", "Web Apps/WebSPA/ClientApp/"]
+
+RUN cd Web Apps/WebSPA/ClientApp \
+    && npm i --silent
+
 COPY . .
 WORKDIR "/src/Web Apps/WebSPA"
 RUN dotnet build "WebSPA.csproj" -c Release -o /app/build
