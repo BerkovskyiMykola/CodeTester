@@ -40,7 +40,7 @@ export class SolutionPageComponent implements OnInit {
     this.isTaskLoading = true;
     this.route.params
       .subscribe(params => {
-        this.fetchDetails(params.id);
+        this.fetchDetails(params.id, true);
       })
   }
 
@@ -62,14 +62,13 @@ export class SolutionPageComponent implements OnInit {
     this.isSolutionSuccess = false;
     this.isEditorSuccess = false;
 
-    console.log("Solution", this.solutionFormValue)
-
     this.tasksService.sendSolution(this.taskDetails.id, this.solutionFormValue).subscribe({
       next: (data) => {
         console.log(data);
         this.isSolutionSending = false;
         this.solutionCheckResponse = data;
         this.updateCheckInfo();
+        this.fetchDetails(this.taskDetails.id);
       },
       error: (err) => {
         console.log(err);
@@ -81,15 +80,19 @@ export class SolutionPageComponent implements OnInit {
   }
 
 
-  fetchDetails(taskId: string){
+  fetchDetails(taskId: string, updateSolutionFormValueAfter = false){
+    console.log("update? ", updateSolutionFormValueAfter)
+
     this.tasksService.getTask(taskId).subscribe({
       next: (data) => {
         console.log(data);
         this.taskDetails = data;
 
-        this.solutionFormValue = data.solutionTemplate;
-        this.tryFetchLastSuccessSolutionAttempt()
         this.isTaskLoading = false;
+        if (updateSolutionFormValueAfter){
+          this.solutionFormValue = data.solutionTemplate;
+          this.tryFetchLastSuccessSolutionAttempt()
+        }
       },
       error: (err) => {
         console.log(err);
