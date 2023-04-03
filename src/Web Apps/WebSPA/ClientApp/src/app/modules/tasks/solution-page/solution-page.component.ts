@@ -62,6 +62,8 @@ export class SolutionPageComponent implements OnInit {
     this.isSolutionSuccess = false;
     this.isEditorSuccess = false;
 
+    console.log("Solution", this.solutionFormValue)
+
     this.tasksService.sendSolution(this.taskDetails.id, this.solutionFormValue).subscribe({
       next: (data) => {
         console.log(data);
@@ -113,9 +115,9 @@ export class SolutionPageComponent implements OnInit {
     })
   }
 
-  getEditorModeFromLanguageName() {
+  getEditorModeFromLanguageName(){
     let lang = this.taskDetails.programmingLanguage.name;
-    switch (lang) {
+    switch (lang){
       case 'FSharp':
         return 'text';
       default:

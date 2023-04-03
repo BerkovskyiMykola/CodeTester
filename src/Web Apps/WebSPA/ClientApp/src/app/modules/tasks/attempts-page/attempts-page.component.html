@@ -24,15 +24,20 @@
 
     <div
       *ngFor="let attempt of attemptsViewModel.rows"
-      class="border border-2 rounded-2 mt-2 p-2 bg-opacity-25 d-flex flex-column"
-      [ngClass]="attempt.success?'bg-success border-success':'bg-danger border-danger'"
+      class="border border-2 rounded-2 mt-2 p-2 d-flex flex-column"
     >
       <h4 class="text-end me-2 mb-0">
         {{datePipe.transform(attempt.createDate, 'yyyy-MM-dd HH:mm:ss')}}
       </h4>
-      <textarea disabled rows="10" class="flex-fill form-control w-auto m-2 font-monospace">
-        {{attempt.code}}
-      </textarea>
+      <ace
+        [disabled]="true"
+        mode="{{getEditorModeFromLanguageName()}}"
+        [theme]="'crimson_editor'"
+        [value]="attempt.code"
+        class="flex-fill w-auto m-2 editor"
+        [ngClass]="attempt.success ? 'editor-success': 'editor-failure'"
+      >
+      </ace>
     </div>
 
     <!-- pagination -->

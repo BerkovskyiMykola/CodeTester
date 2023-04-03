@@ -24,8 +24,7 @@
 
     <div
       *ngFor="let solution of solutionsViewModel.rows"
-      class="border border-2 rounded-2 mt-2 p-2 bg-opacity-25 d-flex flex-column"
-      [ngClass]="solution.success?'bg-success border-success':'bg-danger border-danger'"
+      class="border border-2 rounded-2 mt-2 p-2 d-flex flex-column"
     >
       <h4 class="col-md-12 me-2 mb-0 d-flex justify-content-between ps-2 pe-2">
         <span>
@@ -35,9 +34,16 @@
           {{datePipe.transform(solution.createDate, 'yyyy-MM-dd HH:mm:ss')}}
         </span>
       </h4>
-      <textarea disabled rows="10" class="flex-fill form-control w-auto m-2 font-monospace">
-        {{solution.code}}
-      </textarea>
+
+      <ace
+        [disabled]="true"
+        mode="{{getEditorModeFromLanguageName()}}"
+        [theme]="'crimson_editor'"
+        [value]="solution.code"
+        class="flex-fill w-auto m-2 editor"
+        [ngClass]="solution.success ? 'editor-success': 'editor-failure'"
+      >
+      </ace>
     </div>
 
     <!-- pagination -->

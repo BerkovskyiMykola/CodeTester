@@ -176,4 +176,14 @@ export class AllSolutionsPageComponent {
     let highest = Math.min(this.solutionsViewModel.totalPages, this.solutionsViewModel.currentPage + 4) + 1;
     return [...this.rangeService.range(lowest, highest)]
   }
+
+  getEditorModeFromLanguageName(){
+    let lang = this.taskDetails?.programmingLanguage.name;
+    switch (lang){
+      case 'FSharp':
+        return 'text';
+      default:
+        return lang?.toLowerCase() ?? "text";
+    }
+  }
 }

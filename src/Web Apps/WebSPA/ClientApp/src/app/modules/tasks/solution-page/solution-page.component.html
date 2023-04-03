@@ -20,31 +20,24 @@
     <hr>
 
     <div class="p-2">
-      <p class="mb-3">
-        {{taskDetails.description.text}}
-      </p>
+      <p class="mb-3" [innerText]="taskDetails.description.text"></p>
 
       <div *ngIf="taskDetails.description?.examples?.length ?? 0 > 0">
         <h5>Examples:</h5>
-        <p class="mb-3">
-          {{taskDetails.description.examples}}
-        </p>
+        <p class="mb-3" [innerText]="taskDetails.description.examples"></p>
       </div>
 
       <div *ngIf="taskDetails.description?.someCases?.length ?? 0 > 0">
         <h5>Cases: </h5>
-        <p class="mb-3">
-          {{taskDetails.description.someCases}}
-        </p>
+        <p class="mb-3" [innerText]="taskDetails.description.someCases"></p>
       </div>
 
       <div *ngIf="taskDetails.description?.note?.length ?? 0 > 0">
         <button class="btn btn-sm btn-outline-dark" (click)="isNotesLineShown = !isNotesLineShown">
           {{isNotesLineShown?"Hide":"Show"}} note
         </button>
-        <p class="mb-3 mt-3 border-dark border border-1 rounded-4 p-2" *ngIf="isNotesLineShown">
-          {{taskDetails.description.note}}
-        </p>
+        <p class="mb-3 mt-3 border-dark border border-1 rounded-4 p-2"
+           *ngIf="isNotesLineShown" [innerText]="taskDetails.description.note"></p>
       </div>
     </div>
   </div>
