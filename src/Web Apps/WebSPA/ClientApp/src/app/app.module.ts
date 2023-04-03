@@ -6,6 +6,8 @@ import 'brace/mode/text';
 import 'brace/mode/javascript';
 import 'brace/mode/csharp';
 import 'brace/mode/python';
+import 'brace/mode/golang';
+import 'brace/mode/java';
 
 import 'brace/theme/crimson_editor.js';
 

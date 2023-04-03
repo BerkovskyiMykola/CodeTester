@@ -63,7 +63,7 @@
     </div>
       <ace
            [disabled]="false"
-           mode="{{taskDetails.programmingLanguage.name.toLowerCase()}}"
+           mode="{{getEditorModeFromLanguageName()}}"
            [theme]="'crimson_editor'"
            [(value)]="solutionFormValue"
 

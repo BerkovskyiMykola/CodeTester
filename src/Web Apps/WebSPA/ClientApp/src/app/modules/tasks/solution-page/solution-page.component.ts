@@ -112,4 +112,14 @@ export class SolutionPageComponent implements OnInit {
       }
     })
   }
+
+  getEditorModeFromLanguageName() {
+    let lang = this.taskDetails.programmingLanguage.name;
+    switch (lang) {
+      case 'FSharp':
+        return 'text';
+      default:
+        return lang.toLowerCase();
+    }
+  }
 }
