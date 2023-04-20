@@ -21,6 +21,7 @@ try
     builder.WebHost.CaptureStartupErrors(false);
     builder.Host.UseSerilog();
     builder.ConfigureServices();
+    builder.ConfigureAutofacModules();
 
     var app = builder.Build();
 

@@ -1,4 +1,6 @@
-﻿using Dictionary.API.Protos;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Dictionary.API.Protos;
 using EventBus.Messages.Common;
 using Grpc.Interceptors;
 using HealthChecks.UI.Client;
@@ -13,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using StudentProfile.API.Infrastructure.EventBusConsumers;
 using System.IdentityModel.Tokens.Jwt;
 using Testing.API.Infrastructure;
+using Testing.API.Infrastructure.AutofacModules;
 using Testing.API.Infrastructure.EventBusConsumers;
 using Testing.API.Infrastructure.Filters;
 using Testing.API.Infrastructure.Options;
@@ -44,6 +47,17 @@ public static class HostingExtensions
             .AddEventBus(configuration)
             .AddGrpcServices(configuration)
             .AddCustomIntegrations(configuration);
+
+        return builder;
+    }
+
+    public static WebApplicationBuilder ConfigureAutofacModules(this WebApplicationBuilder builder)
+    {
+        var configuration = builder.Configuration;
+
+        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+        builder.Host.ConfigureContainer<ContainerBuilder>(conbuilder => conbuilder.RegisterModule(new MediatorModule()));
 
         return builder;
     }
