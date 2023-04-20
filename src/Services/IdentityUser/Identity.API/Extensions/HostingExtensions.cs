@@ -15,7 +15,7 @@ namespace Identity.API.Extensions;
 
 public static class HostingExtensions
 {
-    public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
 
@@ -29,7 +29,7 @@ public static class HostingExtensions
             .AddEventBus(configuration)
             .AddRazorPages();
 
-        return builder.Build();
+        return builder;
     }
 
     public static WebApplication ConfigurePipeline(this WebApplication app)

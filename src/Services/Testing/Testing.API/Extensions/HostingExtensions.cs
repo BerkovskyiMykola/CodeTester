@@ -30,7 +30,7 @@ namespace Testing.API.Extensions;
 
 public static class HostingExtensions
 {
-    public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
 
@@ -45,7 +45,7 @@ public static class HostingExtensions
             .AddGrpcServices(configuration)
             .AddCustomIntegrations(configuration);
 
-        return builder.Build();
+        return builder;
     }
 
     public static WebApplication ConfigurePipeline(this WebApplication app)
